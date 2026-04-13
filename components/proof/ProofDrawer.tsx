@@ -15,6 +15,7 @@ interface ProofDrawerProps {
   thoughts?: Record<string, string>
   questionLabels?: Record<string, string>
   onScrollToQuestion?: (id: string) => void
+  answers?: Record<string, string>
   // Summary mode — dims screen and expands panel
   summaryMode?: boolean
   summaryState?: 'thinking' | 'arrived' | null
@@ -27,6 +28,7 @@ export default function ProofDrawer({
   project, mode, module, open, onClose,
   initialMessage, thoughts = {}, questionLabels = {},
   onScrollToQuestion,
+  answers = {},
   summaryMode = false, summaryState = null, summaryText = '',
   onContinue, onReview,
 }: ProofDrawerProps) {
@@ -235,32 +237,46 @@ export default function ProofDrawer({
                 {/* Notes tab */}
                 {activeTab === 'notes' && hasNotes && (
                   <div style={{ flex: 1, overflowY: 'auto', padding: '14px 18px' }}>
-                    {Object.entries(thoughts).map(([id, thought]) => (
-                      <div
-                        key={id}
-                        style={{ marginBottom: 20, cursor: onScrollToQuestion ? 'pointer' : 'default' }}
-                        onClick={() => {
-                          if (onScrollToQuestion) {
-                            onClose()
-                            setTimeout(() => onScrollToQuestion(id), 180)
-                          }
-                        }}
-                      >
-                        <div style={{
-                          fontSize: 10, fontWeight: 500, letterSpacing: '0.12em',
-                          textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 8,
-                          display: 'flex', alignItems: 'center', gap: 6,
-                        }}>
-                          {questionLabels[id] || id}
-                          {onScrollToQuestion && (
-                            <span style={{ fontSize: 10, color: 'var(--aluminum)', fontWeight: 300, letterSpacing: 0, textTransform: 'none' }}>↗</span>
+                    {Object.entries(thoughts).map(([id, thought]) => {
+                      const answer = answers[id] || ''
+                      const truncated = answer.length > 120 ? answer.slice(0, 120).trimEnd() + '…' : answer
+                      return (
+                        <div
+                          key={id}
+                          style={{
+                            marginBottom: 24,
+                            paddingBottom: 24,
+                            borderBottom: '1px solid rgba(184,179,172,0.2)',
+                            cursor: onScrollToQuestion ? 'pointer' : 'default',
+                          }}
+                          onClick={() => onScrollToQuestion && onScrollToQuestion(id)}
+                        >
+                          {/* Category + scroll hint */}
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                            <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--stone)' }}>
+                              {questionLabels[id] || id}
+                            </div>
+                            {onScrollToQuestion && (
+                              <span style={{ fontSize: 10, color: 'var(--aluminum)' }}>scroll to ↗</span>
+                            )}
+                          </div>
+
+                          {/* Answer excerpt */}
+                          {truncated && (
+                            <p style={{ fontSize: 12, color: 'var(--concrete)', lineHeight: 1.6, marginBottom: 10, fontWeight: 300, fontStyle: 'normal', fontFamily: 'var(--font-sans)' }}>
+                              "{truncated}"
+                            </p>
                           )}
+
+                          {/* proof.'s note */}
+                          <div style={{ paddingLeft: 10, borderLeft: '1.5px solid var(--mango)' }}>
+                            <p style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 13, color: 'var(--dark)', lineHeight: 1.8 }}>
+                              {thought}
+                            </p>
+                          </div>
                         </div>
-                        <p style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 14, color: 'var(--dark)', lineHeight: 1.8 }}>
-                          {thought}
-                        </p>
-                      </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 )}
 

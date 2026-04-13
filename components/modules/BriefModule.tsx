@@ -109,6 +109,7 @@ export default function BriefModule({ project, mode = 'strategist' }: BriefModul
       el.scrollIntoView({ behavior: 'smooth', block: 'center' })
       setTimeout(() => textareaRefs.current[id]?.focus(), 400)
     }
+    // Drawer stays open intentionally
   }, [])
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent, id: string) => {
@@ -158,13 +159,7 @@ export default function BriefModule({ project, mode = 'strategist' }: BriefModul
           </p>
         </motion.div>
 
-        {/* Progress — in page too, but strip has the canonical one */}
-        <div style={{ display: 'flex', gap: 6, marginBottom: 72 }}>
-          {BRIEF_QUESTIONS.map(q => {
-            const done = localAnswers[q.id]?.trim().length > 20
-            return <motion.div key={q.id} style={{ height: 2, flex: 1, borderRadius: 1 }} animate={{ background: done ? 'var(--mango)' : '#D5D4D6' }} transition={{ duration: 0.5 }} />
-          })}
-        </div>
+
 
         {/* Questions */}
         <div>
@@ -258,6 +253,7 @@ export default function BriefModule({ project, mode = 'strategist' }: BriefModul
         onClose={() => { setDrawerOpen(false); if (!isSummaryActive) setSummaryState(null) }}
         thoughts={proofThoughts}
         questionLabels={questionLabels}
+        answers={localAnswers}
         onScrollToQuestion={handleScrollToQuestion}
         initialMessage={drawerOpen && !isSummaryActive && answeredCount < 2 ? "Answer at least two questions. The brief is the foundation — everything in Synthesis traces back to it." : undefined}
         summaryMode={isSummaryActive}
