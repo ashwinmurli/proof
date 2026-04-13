@@ -1,0 +1,86 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap');
+
+@import "tailwindcss";
+
+:root {
+  --mango: #FFA10A;
+  --mango-dim: rgba(255, 161, 10, 0.06);
+  --mango-glow: rgba(255, 161, 10, 0.12);
+  --orange: #E04F1B;
+  --blood: #A8320D;
+
+  /* Surfaces — each slightly cooler/lighter than the last */
+  --bg: #EFECE5;
+  --surface-0: #F5F2EB;   /* page field — warmest */
+  --surface-1: #FAF8F4;   /* raised cards */
+  --surface-2: #FDFCFA;   /* highest surface */
+
+  --aluminum: #D5D4D6;
+  --stone: #8C8780;
+  --concrete: #686562;
+  --dark: #1A1816;
+
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-sans: 'DM Sans', system-ui, sans-serif;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.45, 0, 0.55, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+body {
+  background: var(--bg);
+  color: var(--dark);
+  font-family: var(--font-sans);
+  font-weight: 300;
+}
+
+/* Warm grain — gives surfaces material depth */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.032;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 220px 220px;
+  mix-blend-mode: multiply;
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--aluminum); border-radius: 2px; }
+
+/* Auto-grow textarea */
+textarea { field-sizing: content; }
+
+::selection { background: rgba(255, 161, 10, 0.18); color: var(--dark); }
+
+/* Mango glow — used on active states */
+.mango-glow {
+  box-shadow: 0 0 0 1px rgba(255,161,10,0.15), 0 2px 24px rgba(255,161,10,0.08);
+}
+
+/* Proof note — the marginal annotation style */
+.proof-note {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 15px;
+  color: var(--concrete);
+  line-height: 1.85;
+}
+
+@keyframes blink { 50% { opacity: 0; } }
+@keyframes breathe {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.65); }
+}
+@keyframes arrive {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
