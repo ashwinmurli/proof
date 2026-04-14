@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import { Project, Value } from '@/types'
@@ -93,12 +93,15 @@ Core value being tested: "${v.name}"
 Definition: "${v.definition}"
 In practice: "${v.behaviour}"
 
-Apply the three hardest stress tests:
+Apply these three tests ruthlessly:
 1. Would this brand hold this value even if it became a competitive disadvantage?
-2. Does this value actually change decisions, or does it just sound good?
-3. Could a competitor claim exactly this?
+2. Does this actually change how decisions get made, or does it just sound good?
+3. Could a competitor in this category claim exactly this?
 
-Be direct. If it fails any test, say so. 2-3 sentences. No em dashes.`
+Give a clear verdict: PASSES or NEEDS WORK.
+If it passes: say why it holds and what makes it specifically theirs.
+If it needs work: say exactly which test it fails and give one concrete direction for sharpening it.
+3-4 sentences maximum. No em dashes. End with either "This one holds." or a specific rewrite prompt like "Try anchoring this to [specific behaviour]."`
 
     setChallenges(prev => ({ ...prev, [v.id]: '' }))
     await stream({
@@ -131,11 +134,14 @@ Assess in 2 sentences. Do these feel real or aspirational? Is there anything her
     })
   }
 
+  const summaryStateRef = useRef<'thinking' | 'arrived' | null>(null)
+  useEffect(() => { summaryStateRef.current = summaryState }, [summaryState])
+
   const handleAdvance = useCallback(() => {
     if (!allFilled) { setDrawerOpen(true); return }
-    if (!summaryState) { fetchSummary(); return }
+    if (!summaryStateRef.current) { fetchSummary(); return }
     router.push(`/project/${project.id}/synthesis/personality`)
-  }, [allFilled, summaryState, project.id, router])
+  }, [allFilled, fetchSummary, project.id, router])
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#F5F2EB' }}>
@@ -213,7 +219,7 @@ Assess in 2 sentences. Do these feel real or aspirational? Is there anything her
                 {challenges[v.id] && (
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
                     style={{ marginTop: 16, paddingLeft: 16, borderLeft: '1.5px solid var(--mango)' }}>
-                    <p style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 14, color: 'var(--concrete)', lineHeight: 1.8 }}>
+                    <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 13, color: 'var(--dark)', lineHeight: 1.8 }}>
                       {challenges[v.id]}
                     </p>
                   </motion.div>

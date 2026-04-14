@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import { Project } from '@/types'
@@ -90,11 +90,14 @@ In 2 sentences: is this personality distinctive enough to guide creative decisio
     })
   }
 
+  const summaryStateRef = useRef<'thinking' | 'arrived' | null>(null)
+  useEffect(() => { summaryStateRef.current = summaryState }, [summaryState])
+
   const handleAdvance = useCallback(() => {
     if (!allFilled) { setDrawerOpen(true); return }
-    if (!summaryState) { fetchSummary(); return }
+    if (!summaryStateRef.current) { fetchSummary(); return }
     router.push(`/project/${project.id}/synthesis/tone`)
-  }, [allFilled, summaryState, project.id, router])
+  }, [allFilled, fetchSummary, project.id, router])
 
   const fieldStyle = { width: '100%', background: 'transparent', border: 'none', borderBottom: '1px solid rgba(213,212,214,0.4)', padding: '6px 0 12px', fontFamily: 'var(--font-sans)' as const, fontSize: 15, fontWeight: 300 as const, color: 'var(--dark)', outline: 'none', resize: 'none' as const, lineHeight: 1.8, minHeight: 68 }
 
