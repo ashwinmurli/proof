@@ -261,6 +261,8 @@ export default function BriefModule({ project, mode = 'strategist' }: BriefModul
         summaryText={summaryText}
         onContinue={handleAdvance}
         onReview={() => { setSummaryState(null); setDrawerOpen(false) }}
+        summaryThinkingLabel="Reading the brief…"
+        summaryContinueLabel="Continue to Debrief →"
       />
 
       <style>{`textarea::placeholder { color: var(--stone); font-style: italic; } @keyframes blink { 50%{opacity:0} }`}</style>

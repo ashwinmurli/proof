@@ -22,6 +22,8 @@ interface ProofDrawerProps {
   summaryText?: string
   onContinue?: () => void
   onReview?: () => void
+  summaryThinkingLabel?: string
+  summaryContinueLabel?: string
 }
 
 export default function ProofDrawer({
@@ -31,6 +33,8 @@ export default function ProofDrawer({
   answers = {},
   summaryMode = false, summaryState = null, summaryText = '',
   onContinue, onReview,
+  summaryThinkingLabel = 'Reading the brief…',
+  summaryContinueLabel = 'Continue →',
 }: ProofDrawerProps) {
   const [messages, setMessages] = useState<ProofMessage[]>([])
   const [input, setInput] = useState('')
@@ -171,7 +175,7 @@ export default function ProofDrawer({
                       ))}
                     </div>
                     <span style={{ fontSize: 13, color: 'var(--stone)', fontFamily: 'var(--font-display)', fontStyle: 'italic' }}>
-                      Reading the brief…
+                      {summaryThinkingLabel}
                     </span>
                   </motion.div>
                 )}
@@ -199,7 +203,7 @@ export default function ProofDrawer({
                         onMouseEnter={e => (e.currentTarget.style.background = 'var(--mango)')}
                         onMouseLeave={e => (e.currentTarget.style.background = 'var(--dark)')}
                       >
-                        Continue to Debrief →
+                        {summaryContinueLabel}
                       </button>
                       <button
                         onClick={onReview}

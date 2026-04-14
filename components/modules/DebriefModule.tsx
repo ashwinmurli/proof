@@ -496,6 +496,8 @@ Write 2-3 sentences. Is the angle a genuine bet? Is there productive tension bet
         summaryText={summaryText}
         onContinue={handleAdvance}
         onReview={() => { setSummaryState(null); setDrawerOpen(false) }}
+        summaryThinkingLabel="Reading the debrief…"
+        summaryContinueLabel="Continue to Synthesis →"
       />
 
       <style>{`textarea::placeholder { color: var(--stone); font-style: italic; } @keyframes blink { 50%{opacity:0} }`}</style>
