@@ -7,13 +7,14 @@ import { motion } from 'framer-motion'
 import Strip from '@/components/proof/Strip'
 
 const STAGES = [
-  { id: 'brief', label: 'Brief', desc: 'The questions that surface what the brand actually is.', path: 'brief' },
-  { id: 'debrief', label: 'Debrief', desc: 'Interpretation. Your point of view on the strategic challenge.', path: 'debrief' },
-  { id: 'discovery-summary', label: 'Discovery Summary', desc: 'What we found. The tension. The question Synthesis answers.', path: 'discovery-summary' },
-  { id: 'synthesis', label: 'Synthesis', desc: 'Purpose, values, personality, voice, naming, tagline, manifesto.', path: 'synthesis' },
+  { id: 'brief',             label: 'Brief',             desc: 'The questions that surface what the brand actually is.',    path: 'brief' },
+  { id: 'debrief',           label: 'Debrief',           desc: 'Interpretation. Your point of view on the challenge.',      path: 'debrief' },
+  { id: 'discovery-summary', label: 'Discovery Summary', desc: 'What was found. The tension. The question to answer.',      path: 'discovery-summary' },
+  { id: 'synthesis',         label: 'Synthesis',         desc: 'Beliefs, values, personality, voice, naming, tagline, manifesto.', path: 'synthesis' },
 ]
 
-const STATUS_ORDER = ['brief', 'debrief', 'discovery-summary', 'synthesis', 'complete']
+// Status reflects the furthest phase reached
+const STATUS_ORDER = ['brief', 'debrief', 'synthesis', 'complete']
 
 export default function ProjectOverview() {
   const params = useParams()
