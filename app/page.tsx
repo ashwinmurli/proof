@@ -26,12 +26,13 @@ function projectPath(status: string, id: string): string {
 
 export default function Home() {
   const router = useRouter()
-  const { createProject, projects } = useProofStore()
+  const { createProject, projects, deleteProject } = useProofStore()
   const [name, setName] = useState('')
   const [desc, setDesc] = useState('')
   const [loading, setLoading] = useState(false)
   const [hasApiKey, setHasApiKey] = useState(false)
   const [showNewForm, setShowNewForm] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
 
   const existingProjects = Object.values(projects).sort(
     (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
@@ -126,36 +127,54 @@ export default function Home() {
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
                   {existingProjects.slice(0, 6).map((p, i) => (
-                    <motion.button
+                    <motion.div
                       key={p.id}
                       initial={{ opacity: 0, x: -6 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: i * 0.04, duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                      onClick={() => router.push(projectPath(p.status, p.id))}
-                      style={{
-                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                        padding: '13px 0',
-                        borderBottom: '1px solid rgba(194,189,183,0.35)',
-                        background: 'none', cursor: 'pointer', textAlign: 'left', width: '100%',
-                        transition: 'opacity 0.15s',
-                      } as React.CSSProperties}
-                      onMouseEnter={e => (e.currentTarget.style.opacity = '0.6')}
-                      onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+                      style={{ borderBottom: '1px solid rgba(194,189,183,0.35)' }}
                     >
-                      <div>
-                        <div style={{ fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 400, color: 'var(--dark)', marginBottom: 2 }}>
-                          {p.name}
+                      {confirmDelete === p.id ? (
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '13px 0' }}>
+                          <span style={{ fontSize: 12, color: 'var(--concrete)', fontWeight: 300 }}>Delete {p.name || 'this project'}?</span>
+                          <div style={{ display: 'flex', gap: 14 }}>
+                            <button onClick={() => { deleteProject(p.id); setConfirmDelete(null) }}
+                              style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: '#b91c1c', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 400 }}>
+                              Delete
+                            </button>
+                            <button onClick={() => setConfirmDelete(null)}
+                              style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--stone)', background: 'none', border: 'none', cursor: 'pointer' }}>
+                              Cancel
+                            </button>
+                          </div>
                         </div>
-                        <div style={{ fontSize: 11, color: 'var(--stone)', fontWeight: 300 }}>
-                          {p.description
-                            ? (p.description.length > 48 ? p.description.slice(0, 48).trimEnd() + '…' : p.description)
-                            : projectStageLabel(p.status)}
+                      ) : (
+                        <div
+                          style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '13px 0' }}
+                          onMouseEnter={e => { const b = e.currentTarget.querySelector('.del-btn') as HTMLElement; if (b) b.style.opacity = '1' }}
+                          onMouseLeave={e => { const b = e.currentTarget.querySelector('.del-btn') as HTMLElement; if (b) b.style.opacity = '0' }}
+                        >
+                          <button onClick={() => router.push(projectPath(p.status, p.id))}
+                            style={{ display: 'flex', flexDirection: 'column', gap: 2, background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', flex: 1, minWidth: 0 }}>
+                            <div style={{ fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 400, color: 'var(--dark)' }}>{p.name}</div>
+                            <div style={{ fontSize: 11, color: 'var(--stone)', fontWeight: 300, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              {p.description ? (p.description.length > 48 ? p.description.slice(0, 48).trimEnd() + '…' : p.description) : projectStageLabel(p.status)}
+                            </div>
+                          </button>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, marginLeft: 12 }}>
+                            <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--aluminum)' }}>
+                              {projectStageLabel(p.status)}
+                            </div>
+                            <button className="del-btn" onClick={() => setConfirmDelete(p.id)}
+                              style={{ fontFamily: 'var(--font-sans)', fontSize: 14, color: 'var(--aluminum)', background: 'none', border: 'none', cursor: 'pointer', opacity: 0, transition: 'opacity 0.15s, color 0.15s', lineHeight: 1, padding: '0 2px' }}
+                              onMouseEnter={e => e.currentTarget.style.color = '#b91c1c'}
+                              onMouseLeave={e => e.currentTarget.style.color = 'var(--aluminum)'}>
+                              ×
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                      <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--aluminum)', flexShrink: 0, marginLeft: 12 }}>
-                        {projectStageLabel(p.status)}
-                      </div>
-                    </motion.button>
+                      )}
+                    </motion.div>
                   ))}
                 </div>
               </div>

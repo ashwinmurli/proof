@@ -12,6 +12,7 @@ interface ProofStore {
 
   createProject: (name: string, description: string) => string
   updateProject: (id: string, updates: Partial<Project>) => void
+  deleteProject: (id: string) => void
   setActiveProject: (id: string) => void
   setMode: (mode: ProjectMode) => void
   saveAnswer: (questionId: string, value: string) => void
@@ -63,6 +64,17 @@ export const useProofStore = create<ProofStore>()(
             },
           },
         }))
+      },
+
+      deleteProject: (id) => {
+        set(state => {
+          const next = { ...state.projects }
+          delete next[id]
+          return {
+            projects: next,
+            activeProjectId: state.activeProjectId === id ? null : state.activeProjectId,
+          }
+        })
       },
 
       setActiveProject: (id) => set({ activeProjectId: id }),

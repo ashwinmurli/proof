@@ -28,7 +28,7 @@ export default function Strip({
       display: 'grid',
       gridTemplateColumns: '1fr auto 1fr',
       alignItems: 'center',
-      padding: '0 44px',
+      padding: '0 clamp(20px, 5vw, 44px)',
       flexShrink: 0,
     }}>
       {/* Left — wordmark links to project overview */}

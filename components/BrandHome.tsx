@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import { Project } from '@/types'
+import { useProofStore } from '@/store'
 
 const NAV_SECTIONS = [
   { id: 'beliefs',     label: 'Beliefs' },
@@ -54,6 +55,35 @@ function CopyButton({ id, text, copied, onCopy }: { id: string; text: string; co
   )
 }
 
+function ShareButton({ project }: { project: Project }) {
+  const { generateShareToken } = useProofStore()
+  const [copied, setCopied] = useState(false)
+  function share() {
+    const token = project.shareToken || generateShareToken(project.id)
+    const url = `${window.location.origin}/share/${token}`
+    navigator.clipboard.writeText(url)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2500)
+  }
+  return (
+    <button
+      onClick={share}
+      style={{
+        fontFamily: 'var(--font-sans)', fontSize: 12, fontWeight: copied ? 400 : 300,
+        color: copied ? 'var(--mango)' : 'var(--stone)',
+        background: 'none', border: 'none', cursor: 'pointer',
+        transition: 'color 0.2s',
+        display: 'flex', alignItems: 'center', gap: 5,
+      }}
+      onMouseEnter={e => { if (!copied) e.currentTarget.style.color = 'var(--concrete)' }}
+      onMouseLeave={e => { if (!copied) e.currentTarget.style.color = 'var(--stone)' }}
+    >
+      {copied && <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--mango)', display: 'inline-block' }} />}
+      {copied ? 'Link copied' : 'Share'}
+    </button>
+  )
+}
+
 function SectionLabel({ n, label }: { n: string; label: string }) {
   return (
     <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 40 }}>
@@ -67,7 +97,7 @@ function Divider() {
   return <div style={{ height: 1, background: 'rgba(194,189,183,0.35)', margin: '72px 0' }} />
 }
 
-export default function BrandHome({ project }: { project: Project }) {
+export default function BrandHome({ project, readOnly = false }: { project: Project; readOnly?: boolean }) {
   const router = useRouter()
   const { copied, copy } = useCopy()
   const s = project.synthesis || {}
@@ -108,14 +138,21 @@ export default function BrandHome({ project }: { project: Project }) {
         padding: '0 44px', background: 'var(--bg)',
         backdropFilter: 'blur(12px)',
       }}>
-        <button
-          onClick={() => router.push(`/project/${project.id}/synthesis`)}
-          style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--stone)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
-          onMouseEnter={e => e.currentTarget.style.color = 'var(--concrete)'}
-          onMouseLeave={e => e.currentTarget.style.color = 'var(--stone)'}
-        >
-          ← Synthesis
-        </button>
+        {readOnly ? (
+          <div style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--stone)', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--mango)', display: 'inline-block' }} />
+            proof.
+          </div>
+        ) : (
+          <button
+            onClick={() => router.push(`/project/${project.id}/synthesis`)}
+            style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--stone)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+            onMouseEnter={e => e.currentTarget.style.color = 'var(--concrete)'}
+            onMouseLeave={e => e.currentTarget.style.color = 'var(--stone)'}
+          >
+            ← Synthesis
+          </button>
+        )}
 
         <div style={{ fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 400, letterSpacing: '0.06em', color: 'var(--dark)' }}>
           {chosenName || brandName}
@@ -123,14 +160,19 @@ export default function BrandHome({ project }: { project: Project }) {
         </div>
 
         <div style={{ display: 'flex', gap: 10 }}>
-          <button
-            onClick={() => window.print()}
-            style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--stone)', background: 'none', border: 'none', cursor: 'pointer' }}
-            onMouseEnter={e => e.currentTarget.style.color = 'var(--concrete)'}
-            onMouseLeave={e => e.currentTarget.style.color = 'var(--stone)'}
-          >
-            Export
-          </button>
+          {!readOnly && (
+            <>
+              <ShareButton project={project} />
+              <button
+                onClick={() => window.print()}
+                style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--stone)', background: 'none', border: 'none', cursor: 'pointer' }}
+                onMouseEnter={e => e.currentTarget.style.color = 'var(--concrete)'}
+                onMouseLeave={e => e.currentTarget.style.color = 'var(--stone)'}
+              >
+                Export
+              </button>
+            </>
+          )}
         </div>
       </div>
 
@@ -420,11 +462,13 @@ export default function BrandHome({ project }: { project: Project }) {
           {/* Back to synthesis */}
           {hasAnyContent && (
             <div style={{ marginTop: 80, paddingTop: 32, borderTop: '1px solid rgba(194,189,183,0.35)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <button
-                onClick={() => router.push(`/project/${project.id}/synthesis`)}
-                style={{ fontFamily: 'var(--font-sans)', fontSize: 13, color: 'var(--stone)', background: 'none', border: 'none', cursor: 'pointer' }}>
-                ← Back to Synthesis
-              </button>
+              {!readOnly ? (
+                <button
+                  onClick={() => router.push(`/project/${project.id}/synthesis`)}
+                  style={{ fontFamily: 'var(--font-sans)', fontSize: 13, color: 'var(--stone)', background: 'none', border: 'none', cursor: 'pointer' }}>
+                  ← Back to Synthesis
+                </button>
+              ) : <div />}
               <div style={{ fontSize: 11, color: 'var(--aluminum)', fontWeight: 300, letterSpacing: '0.05em' }}>
                 proof.
               </div>
