@@ -12,6 +12,7 @@ export interface Project {
   updatedAt: string
   brief?: BriefData
   debrief?: DebriefData
+  synthesis?: SynthesisData
 }
 
 export interface BriefAnswer {
@@ -51,4 +52,63 @@ export interface BriefQuestion {
   // Client-facing version
   clientText: string
   clientPlaceholder: string
+}
+
+export interface BeliefData {
+  belief: string      // What we believe
+  building: string    // What we're building
+  working: string     // How we work
+  proofSummary?: string
+}
+
+export interface Value {
+  id: string
+  name: string
+  definition: string
+  behaviour: string   // What it looks like in action
+  proofChallenge?: string
+}
+
+export interface PersonalityData {
+  tensions: string[]        // e.g. "Rigorous but never cold"
+  dinner: string            // Brand at a dinner party
+  difficult: string         // Brand in a difficult conversation
+  decision: string          // Brand making a decision under pressure
+  proofSummary?: string
+}
+
+export interface ToneData {
+  poleA: string             // One end of the spectrum
+  poleB: string             // Other end
+  doesSoundLike: string     // Concrete example
+  doesntSoundLike: string   // Concrete counter-example
+  proofSummary?: string
+}
+
+export interface NamingData {
+  territory: string         // The naming territory
+  candidates: string[]      // Generated candidates
+  chosen?: string           // Final name
+  rationale?: string
+}
+
+export interface TaglineData {
+  directions: string[]      // Strategic directions
+  variations: string[]      // Variations per direction
+  chosen?: string           // Locked tagline
+}
+
+export interface ManifestoData {
+  prompts: Record<string, string>   // Fill-in-the-blank responses
+  final?: string                     // Synthesised manifesto
+}
+
+export interface SynthesisData {
+  beliefs?: BeliefData
+  values?: Value[]
+  personality?: PersonalityData
+  tone?: ToneData
+  naming?: NamingData
+  tagline?: TaglineData
+  manifesto?: ManifestoData
 }
