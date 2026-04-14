@@ -108,6 +108,7 @@ Each must be shorter, sharper, and more distinctive than what you started with. 
       onComplete: (text) => {
         const refined = [1,2,3,4,5,6].map(n => text.match(new RegExp(`REFINED_${n}:\\s*(.+?)(?=\\n|$)`))?.[1]?.trim() || '').filter(Boolean)
         setRefinedVariations(refined)
+        setSelected([])
         setRefining(false)
       },
     })
@@ -127,7 +128,14 @@ Each must be shorter, sharper, and more distinctive than what you started with. 
     setPhase('locked')
   }
 
-  const activeVariations = phase === 'refining' || refinedVariations.length > 0 ? refinedVariations : variations
+  // After refining completes, switch back to selecting phase
+  useEffect(() => {
+    if (refinedVariations.length > 0 && !refining && phase === 'refining') {
+      setPhase('selecting')
+    }
+  }, [refinedVariations, refining])
+
+  const activeVariations = refinedVariations.length > 0 ? refinedVariations : variations
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#F5F2EB' }}>

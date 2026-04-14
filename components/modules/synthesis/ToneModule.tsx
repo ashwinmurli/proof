@@ -35,7 +35,14 @@ export default function ToneModule({ project }: { project: Project }) {
   const allFilled = poleA.trim() && poleB.trim() && doesSound.trim() && doesntSound.trim()
   const isSummaryActive = summaryState === 'thinking' || summaryState === 'arrived'
 
-  useEffect(() => { if (!generated) generate() }, [])
+  useEffect(() => {
+    if (!generated) {
+      generate()
+    } else if (poleA && poleB && poleOptions.a.length === 0) {
+      // Has existing poles but no options — regenerate options
+      generateOptions()
+    }
+  }, [])
 
   // Regenerate examples when poles change (with debounce)
   const prevPolesRef = useRef({ a: poleA, b: poleB })
@@ -50,6 +57,31 @@ export default function ToneModule({ project }: { project: Project }) {
 
   function save(a = poleA, b = poleB, ds = doesSound, dns = doesntSound) {
     updateProject(project.id, { synthesis: { ...project.synthesis, tone: { poleA: a, poleB: b, doesSoundLike: ds, doesntSoundLike: dns } } })
+  }
+
+  async function generateOptions() {
+    // Just generate pole alternatives without regenerating examples
+    const prompt = `${ctx}
+
+The current tone spectrum is: "${poleA}" to "${poleB}"
+
+Generate 2 alternatives for each pole:
+POLE_A_1: [current: ${poleA}]
+POLE_A_2: [alternative]
+POLE_A_3: [another alternative]
+POLE_B_1: [current: ${poleB}]
+POLE_B_2: [alternative]
+POLE_B_3: [another alternative]`
+
+    await stream({
+      project, mode: 'strategist', module: 'Tone', prompt, maxTokens: 200,
+      onChunk: () => {},
+      onComplete: (text) => {
+        const aOpts = [1,2,3].map(n => text.match(new RegExp(`POLE_A_${n}:\s*(.+?)(?=\n|$)`))?.[1]?.trim() || '').filter(Boolean)
+        const bOpts = [1,2,3].map(n => text.match(new RegExp(`POLE_B_${n}:\s*(.+?)(?=\n|$)`))?.[1]?.trim() || '').filter(Boolean)
+        setPoleOptions({ a: aOpts.length ? aOpts : [poleA], b: bOpts.length ? bOpts : [poleB] })
+      },
+    })
   }
 
   async function generate() {

@@ -218,10 +218,28 @@ Assess in 2 sentences. Do these feel real or aspirational? Is there anything her
 
                 {challenges[v.id] && (
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
-                    style={{ marginTop: 16, paddingLeft: 16, borderLeft: '1.5px solid var(--mango)' }}>
-                    <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 13, color: 'var(--dark)', lineHeight: 1.8 }}>
-                      {challenges[v.id]}
-                    </p>
+                    style={{ marginTop: 16 }}>
+                    {(() => {
+                      const text = challenges[v.id]
+                      const passes = /^PASSES/i.test(text)
+                      const needsWork = /^NEEDS WORK/i.test(text)
+                      const pillBg = passes ? 'rgba(34,197,94,0.12)' : needsWork ? 'rgba(251,146,60,0.15)' : 'rgba(239,68,68,0.12)'
+                      const pillColor = passes ? '#15803d' : needsWork ? '#c2610c' : '#b91c1c'
+                      const pillLabel = passes ? 'Passes' : needsWork ? 'Needs work' : 'Fails'
+                      return (
+                        <>
+                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: pillBg, borderRadius: 20, padding: '3px 10px', marginBottom: 10 }}>
+                            <span style={{ width: 4, height: 4, borderRadius: '50%', background: pillColor, display: 'inline-block' }} />
+                            <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: pillColor }}>{pillLabel}</span>
+                          </div>
+                          <div style={{ paddingLeft: 16, borderLeft: '1.5px solid rgba(184,179,172,0.4)' }}>
+                            <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 13, color: 'var(--dark)', lineHeight: 1.8, margin: 0 }}>
+                              {text.replace(/^(PASSES|NEEDS WORK)[.\s]*/i, '')}
+                            </p>
+                          </div>
+                        </>
+                      )
+                    })()}
                   </motion.div>
                 )}
               </motion.div>
