@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import { Project } from '@/types'
@@ -17,186 +17,237 @@ export default function TaglineModule({ project }: { project: Project }) {
   const { stream } = useProofStream()
 
   const existing = project.synthesis?.tagline
-  const [phase, setPhase] = useState<'directions' | 'variations' | 'locked'>(
-    existing?.chosen ? 'locked' : existing?.variations?.length ? 'variations' : existing?.directions?.length ? 'variations' : 'directions'
-  )
   const [directions, setDirections] = useState<string[]>(existing?.directions || [])
   const [variations, setVariations] = useState<string[]>(existing?.variations || [])
-  const [chosen, setChosen] = useState(existing?.chosen || '')
-  const [generating, setGenerating] = useState(false)
+  const [selected, setSelected] = useState<string[]>(existing?.chosen ? [existing.chosen] : [])
+  const [finalChosen, setFinalChosen] = useState(existing?.chosen || '')
+  const [phase, setPhase] = useState<'loading' | 'selecting' | 'refining' | 'locked'>(
+    existing?.chosen ? 'locked' : existing?.variations?.length ? 'selecting' : 'loading'
+  )
+  const [refining, setRefining] = useState(false)
+  const [refinedVariations, setRefinedVariations] = useState<string[]>([])
   const [drawerOpen, setDrawerOpen] = useState(false)
 
   const ctx = buildSynthesisContext(project)
 
-  function save(d = directions, v = variations, c = chosen) {
+  useEffect(() => {
+    if (phase === 'loading') generate()
+  }, [])
+
+  function save(d = directions, v = variations, c = finalChosen) {
     updateProject(project.id, { synthesis: { ...project.synthesis, tagline: { directions: d, variations: v, chosen: c } } })
   }
 
-  useEffect(() => {
-    if (!directions.length) generateDirections()
-  }, [])
-
-  async function generateDirections() {
-    setGenerating(true)
+  async function generate() {
+    // Generate directions + variations in one pass
     const prompt = `${ctx}
 
-Generate 4 strategic directions for a tagline for this brand. Each direction is an approach, not a tagline yet.
+Generate 4 strategic directions for a tagline, then 3 variations for each direction (12 total).
 
-Write exactly:
-DIRECTION_1: [Name] — [1 sentence explaining the strategic angle]
-DIRECTION_2: [Name] — [1 sentence explaining the strategic angle]
-DIRECTION_3: [Name] — [1 sentence explaining the strategic angle]
-DIRECTION_4: [Name] — [1 sentence explaining the strategic angle]
+DIRECTION_1: [Name] — [one sentence on the strategic angle]
+DIRECTION_2: [Name] — [one sentence]
+DIRECTION_3: [Name] — [one sentence]
+DIRECTION_4: [Name] — [one sentence]
 
-These should explore genuinely different territories — not variations on the same idea. No em dashes.`
+VARIATION_1_A: [tagline]
+VARIATION_1_B: [tagline]
+VARIATION_1_C: [tagline]
+VARIATION_2_A: [tagline]
+VARIATION_2_B: [tagline]
+VARIATION_2_C: [tagline]
+VARIATION_3_A: [tagline]
+VARIATION_3_B: [tagline]
+VARIATION_3_C: [tagline]
+VARIATION_4_A: [tagline]
+VARIATION_4_B: [tagline]
+VARIATION_4_C: [tagline]
+
+A tagline earns its place when it couldn't be said by anyone else and couldn't be said any other way. Short. No em dashes.`
 
     await stream({
-      project, mode: 'strategist', module: 'Tagline', prompt, maxTokens: 400,
+      project, mode: 'strategist', module: 'Tagline', prompt, maxTokens: 700,
       onChunk: () => {},
       onComplete: (text) => {
         const dirs = [1,2,3,4].map(n => text.match(new RegExp(`DIRECTION_${n}:\\s*(.+?)(?=\\n|$)`))?.[1]?.trim() || '').filter(Boolean)
-        setDirections(dirs); save(dirs, variations, chosen)
-        setGenerating(false)
+        const vars: string[] = []
+        for (let d = 1; d <= 4; d++) {
+          for (const l of ['A','B','C']) {
+            const m = text.match(new RegExp(`VARIATION_${d}_${l}:\\s*(.+?)(?=\\n|$)`))?.[1]?.trim()
+            if (m) vars.push(m)
+          }
+        }
+        setDirections(dirs); setVariations(vars)
+        save(dirs, vars, '')
+        setPhase('selecting')
       },
     })
   }
 
-  async function generateVariations() {
-    setGenerating(true)
+  async function refineSelected() {
+    setRefining(true)
+    setPhase('refining')
     const prompt = `${ctx}
 
-Based on these strategic directions for the tagline:
-${directions.map((d,i) => `${i+1}. ${d}`).join('\n')}
+The strategist has shortlisted these tagline candidates:
+${selected.map((s, i) => `${i+1}. ${s}`).join('\n')}
 
-Generate 3 tagline variations for each direction (12 total).
+Generate 6 refined variations that develop and sharpen these directions. Draw on the best of each.
 
-Write exactly:
-DIRECTION_1_A: [tagline]
-DIRECTION_1_B: [tagline]
-DIRECTION_1_C: [tagline]
-DIRECTION_2_A: [tagline]
-DIRECTION_2_B: [tagline]
-DIRECTION_2_C: [tagline]
-(continue for directions 3 and 4)
+REFINED_1: [tagline]
+REFINED_2: [tagline]
+REFINED_3: [tagline]
+REFINED_4: [tagline]
+REFINED_5: [tagline]
+REFINED_6: [tagline]
 
-Each tagline earns its place when it couldn't be said by anyone else and couldn't be said any other way. Short. No em dashes.`
+Each must be shorter, sharper, and more distinctive than what you started with. No em dashes.`
 
     await stream({
-      project, mode: 'strategist', module: 'Tagline', prompt, maxTokens: 600,
+      project, mode: 'strategist', module: 'Tagline', prompt, maxTokens: 300,
       onChunk: () => {},
       onComplete: (text) => {
-        const vars: string[] = []
-        for (let d = 1; d <= 4; d++) {
-          for (const l of ['A','B','C']) {
-            const m = text.match(new RegExp(`DIRECTION_${d}_${l}:\\s*(.+?)(?=\\n|$)`))?.[1]?.trim()
-            if (m) vars.push(m)
-          }
-        }
-        setVariations(vars); save(directions, vars, chosen)
-        setPhase('variations'); setGenerating(false)
+        const refined = [1,2,3,4,5,6].map(n => text.match(new RegExp(`REFINED_${n}:\\s*(.+?)(?=\\n|$)`))?.[1]?.trim() || '').filter(Boolean)
+        setRefinedVariations(refined)
+        setRefining(false)
       },
+    })
+  }
+
+  function toggleSelect(v: string) {
+    setSelected(prev => {
+      if (prev.includes(v)) return prev.filter(s => s !== v)
+      if (prev.length >= 3) return prev
+      return [...prev, v]
     })
   }
 
   function lockTagline(t: string) {
-    setChosen(t); save(directions, variations, t); setPhase('locked')
+    setFinalChosen(t)
+    save(directions, variations, t)
+    setPhase('locked')
   }
+
+  const activeVariations = phase === 'refining' || refinedVariations.length > 0 ? refinedVariations : variations
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#F5F2EB' }}>
       <Strip project={project} phase="Synthesis — Tagline" onAskProof={() => setDrawerOpen(true)} />
       <main style={{ flex: 1, maxWidth: 660, width: '100%', margin: '0 auto', padding: '80px 24px 120px' }}>
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.16,1,0.3,1] }}>
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
           <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 16 }}>Synthesis — 6 of 7</div>
           <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 52, fontWeight: 400, color: 'var(--dark)', lineHeight: 1.06, letterSpacing: '-0.015em', marginBottom: 20 }}>The line.</h1>
-          <p style={{ fontSize: 15, color: 'var(--concrete)', lineHeight: 1.85, maxWidth: 460, marginBottom: 56, fontWeight: 300 }}>
-            A tagline earns its place when it couldn't be said by anyone else and couldn't be said any other way. Three phases: directions, variations, locked.
+          <p style={{ fontSize: 15, color: 'var(--concrete)', lineHeight: 1.85, maxWidth: 460, marginBottom: 48, fontWeight: 300 }}>
+            {phase === 'locked' ? 'Locked.' : phase === 'selecting' ? 'Select up to 3 to refine, or lock one now.' : phase === 'refining' && !refining ? 'Pick the one.' : 'A tagline earns its place when it couldn\'t be said by anyone else.'}
           </p>
         </motion.div>
 
-        {/* Phase indicator */}
-        <div style={{ display: 'flex', gap: 6, marginBottom: 56 }}>
-          {['directions','variations','locked'].map(p => (
-            <div key={p} style={{ height: 2, flex: 1, borderRadius: 1, background: phase === p || (p === 'directions' && ['variations','locked'].includes(phase)) || (p === 'variations' && phase === 'locked') ? 'var(--mango)' : '#D5D4D6', transition: 'background 0.4s' }} />
-          ))}
-        </div>
-
-        <AnimatePresence>
-          {generating && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 48 }}>
-              <div style={{ display: 'flex', gap: 4 }}>
-                {[0,1,2].map(i => <motion.div key={i} style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--mango)' }} animate={{ opacity: [0.3,1,0.3], scale: [0.8,1,0.8] }} transition={{ duration: 1.2, repeat: Infinity, delay: i*0.18 }} />)}
-              </div>
-              <span style={{ fontSize: 13, color: 'var(--stone)', fontFamily: 'var(--font-display)', fontStyle: 'italic' }}>
-                {phase === 'directions' ? 'proof. is finding the territory…' : 'proof. is writing the lines…'}
-              </span>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Directions */}
-        {phase === 'directions' && directions.length > 0 && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 20 }}>Strategic directions</div>
-            {directions.map((d, i) => (
-              <div key={i} style={{ padding: '16px 0', borderBottom: '1px solid rgba(213,212,214,0.4)', fontFamily: 'var(--font-sans)', fontSize: 14, color: 'var(--dark)', lineHeight: 1.7, fontWeight: 300 }}>
-                <span style={{ fontWeight: 500, marginRight: 8 }}>{i + 1}.</span>{d}
-              </div>
-            ))}
-            <div style={{ marginTop: 32, display: 'flex', justifyContent: 'flex-end' }}>
-              <ProofButton onClick={generateVariations} variant="solid" size="md" style={{ borderRadius: 5 }}>Generate variations →</ProofButton>
-            </div>
-          </motion.div>
-        )}
-
-        {/* Variations */}
-        {phase === 'variations' && variations.length > 0 && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 20 }}>
-              Pick one to lock — or edit directly
-            </div>
-            {directions.map((dir, di) => (
-              <div key={di} style={{ marginBottom: 32 }}>
-                <div style={{ fontSize: 11, color: 'var(--stone)', fontWeight: 300, marginBottom: 12 }}>{dir.split('—')[0]?.trim()}</div>
-                {variations.slice(di * 3, di * 3 + 3).map((v, vi) => (
-                  <div key={vi} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid rgba(213,212,214,0.25)' }}>
-                    <span style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 18, color: 'var(--dark)' }}>{v}</span>
-                    <button onClick={() => lockTagline(v)} style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: 'var(--stone)', background: 'none', border: '1px solid rgba(184,179,172,0.5)', borderRadius: 20, padding: '3px 12px', cursor: 'pointer', transition: 'all 0.15s' }}
-                      onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--mango)'; e.currentTarget.style.color = 'var(--mango)' }}
-                      onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(184,179,172,0.5)'; e.currentTarget.style.color = 'var(--stone)' }}>
-                      Lock this
-                    </button>
-                  </div>
-                ))}
-              </div>
-            ))}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 32 }}>
-              <button onClick={() => router.push(`/project/${project.id}/synthesis/tone`)} style={{ fontFamily: 'var(--font-sans)', fontSize: 13, color: 'var(--stone)', background: 'none', border: 'none', cursor: 'pointer' }}>← Tone</button>
-              <ProofButton onClick={generateVariations} size="sm">Regenerate</ProofButton>
-            </div>
-          </motion.div>
+        {/* Loading */}
+        {phase === 'loading' && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ display: 'flex', gap: 4 }}>{[0,1,2].map(i => <motion.div key={i} style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--mango)' }} animate={{ opacity: [0.3,1,0.3], scale: [0.8,1,0.8] }} transition={{ duration: 1.2, repeat: Infinity, delay: i*0.18 }} />)}</div>
+            <span style={{ fontSize: 13, color: 'var(--stone)', fontFamily: 'var(--font-display)', fontStyle: 'italic' }}>proof. is finding the territory and writing the lines…</span>
+          </div>
         )}
 
         {/* Locked */}
         {phase === 'locked' && (
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-            <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--mango)', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--mango)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
               <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--mango)', display: 'inline-block' }} />
               Locked
             </div>
-            <input value={chosen} onChange={e => { setChosen(e.target.value); save(directions, variations, e.target.value) }}
-              style={{ width: '100%', background: 'transparent', border: 'none', borderBottom: '1px solid rgba(110,107,104,0.3)', padding: '8px 0 16px', fontFamily: 'var(--font-display)', fontSize: 32, fontStyle: 'italic', fontWeight: 400, color: 'var(--dark)', outline: 'none', marginBottom: 24 }} />
-            <div style={{ display: 'flex', gap: 12, marginBottom: 48 }}>
-              <button onClick={() => setPhase('variations')} style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--stone)', background: 'none', border: 'none', cursor: 'pointer' }}>Go back to variations</button>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 32, borderTop: '1px solid rgba(213,212,214,0.4)' }}>
+            <input value={finalChosen} onChange={e => { setFinalChosen(e.target.value); save(directions, variations, e.target.value) }}
+              style={{ width: '100%', background: 'transparent', border: 'none', borderBottom: '1px solid rgba(110,107,104,0.3)', padding: '8px 0 16px', fontFamily: 'var(--font-display)', fontSize: 32, fontStyle: 'italic', color: 'var(--dark)', outline: 'none', marginBottom: 24 }} />
+            <button onClick={() => setPhase('selecting')} style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--stone)', background: 'none', border: 'none', cursor: 'pointer', marginBottom: 48 }}>Go back to variations</button>
+            <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 32, borderTop: '1px solid rgba(213,212,214,0.4)' }}>
               <button onClick={() => router.push(`/project/${project.id}/synthesis/tone`)} style={{ fontFamily: 'var(--font-sans)', fontSize: 13, color: 'var(--stone)', background: 'none', border: 'none', cursor: 'pointer' }}>← Tone</button>
               <button onClick={() => router.push(`/project/${project.id}/synthesis/manifesto`)} style={{ fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 500, background: 'var(--dark)', color: '#FDFCFA', border: 'none', borderRadius: 5, padding: '12px 22px', cursor: 'pointer', transition: 'all 0.2s' }}
-                onMouseEnter={e => (e.currentTarget.style.background = 'var(--mango)')}
-                onMouseLeave={e => (e.currentTarget.style.background = 'var(--dark)')}>
+                onMouseEnter={e => e.currentTarget.style.background = 'var(--mango)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'var(--dark)'}>
                 Continue to Manifesto →
               </button>
             </div>
+          </motion.div>
+        )}
+
+        {/* Selecting / Refining */}
+        {(phase === 'selecting' || phase === 'refining') && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+
+            {/* Directions — compact reference */}
+            {directions.length > 0 && (
+              <div style={{ marginBottom: 40, padding: '16px 20px', background: '#EDE9E2', borderRadius: 10, border: '1px solid rgba(184,179,172,0.2)' }}>
+                <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 12 }}>Strategic directions</div>
+                {directions.map((d, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 10, marginBottom: i < directions.length - 1 ? 8 : 0 }}>
+                    <span style={{ fontSize: 12, color: 'var(--stone)', fontWeight: 500, flexShrink: 0, width: 14 }}>{i+1}.</span>
+                    <span style={{ fontSize: 13, color: 'var(--concrete)', fontWeight: 300, lineHeight: 1.55 }}>{d}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Refining loading */}
+            {refining && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 32 }}>
+                <div style={{ display: 'flex', gap: 4 }}>{[0,1,2].map(i => <motion.div key={i} style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--mango)' }} animate={{ opacity: [0.3,1,0.3] }} transition={{ duration: 1.2, repeat: Infinity, delay: i*0.18 }} />)}</div>
+                <span style={{ fontSize: 13, color: 'var(--stone)', fontFamily: 'var(--font-display)', fontStyle: 'italic' }}>proof. is sharpening the selected directions…</span>
+              </div>
+            )}
+
+            {/* Variations grid */}
+            {!refining && activeVariations.length > 0 && (
+              <div style={{ marginBottom: 32 }}>
+                {phase === 'selecting' && selected.length > 0 && (
+                  <div style={{ fontSize: 12, color: 'var(--stone)', fontWeight: 300, marginBottom: 16 }}>
+                    {selected.length}/3 selected{selected.length >= 1 && ' — '}
+                    {selected.length >= 1 && <span style={{ color: 'var(--concrete)' }}>lock one or refine {selected.length > 1 ? 'these' : 'this'}</span>}
+                  </div>
+                )}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  {activeVariations.map((v, i) => {
+                    const isSelected = selected.includes(v)
+                    return (
+                      <motion.div key={i} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 18px', borderRadius: 8, background: isSelected ? '#FAF8F4' : 'transparent', border: isSelected ? '1px solid rgba(255,161,10,0.3)' : '1px solid transparent', cursor: 'pointer', transition: 'all 0.15s' }}
+                        onClick={() => toggleSelect(v)}
+                        onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = '#F5F2E8' }}
+                        onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = 'transparent' }}>
+                        <span style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 20, color: 'var(--dark)', flex: 1 }}>{v}</span>
+                        <div style={{ display: 'flex', gap: 8, flexShrink: 0, marginLeft: 16 }}>
+                          {isSelected && (
+                            <button onClick={e => { e.stopPropagation(); lockTagline(v) }}
+                              style={{ fontFamily: 'var(--font-sans)', fontSize: 11, fontWeight: 500, color: '#FDFCFA', background: 'var(--dark)', border: 'none', borderRadius: 20, padding: '4px 12px', cursor: 'pointer', transition: 'background 0.15s' }}
+                              onMouseEnter={e => e.currentTarget.style.background = 'var(--mango)'}
+                              onMouseLeave={e => e.currentTarget.style.background = 'var(--dark)'}>
+                              Lock →
+                            </button>
+                          )}
+                          <div style={{ width: 18, height: 18, borderRadius: '50%', border: `1.5px solid ${isSelected ? 'var(--mango)' : 'rgba(184,179,172,0.5)'}`, background: isSelected ? 'var(--mango)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s', flexShrink: 0 }}>
+                            {isSelected && <svg width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M1 3l2 2 4-4" stroke="#FDFCFA" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                          </div>
+                        </div>
+                      </motion.div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Actions */}
+            {!refining && activeVariations.length > 0 && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 24, borderTop: '1px solid rgba(213,212,214,0.4)' }}>
+                <button onClick={() => router.push(`/project/${project.id}/synthesis/tone`)} style={{ fontFamily: 'var(--font-sans)', fontSize: 13, color: 'var(--stone)', background: 'none', border: 'none', cursor: 'pointer' }}>← Tone</button>
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <ProofButton onClick={generate} size="sm">Regenerate</ProofButton>
+                  {selected.length >= 1 && phase === 'selecting' && (
+                    <ProofButton onClick={refineSelected} variant="solid" size="md" style={{ borderRadius: 5 }}>
+                      Refine {selected.length} selected →
+                    </ProofButton>
+                  )}
+                </div>
+              </div>
+            )}
           </motion.div>
         )}
       </main>
