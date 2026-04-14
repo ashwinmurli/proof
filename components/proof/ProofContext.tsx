@@ -41,6 +41,8 @@ export default function ProofContext({ project, forModule }: ProofContextProps) 
 
   async function synthesise() {
     setLoading(true)
+    const discoverySummary = project.discoverySummary
+
     const prompt = `You have made these observations about a brand project:
 
 On the brief:
@@ -48,6 +50,7 @@ ${briefSummary}
 
 On the debrief:
 ${debriefSummary}
+${discoverySummary ? `\nDiscovery Summary:\n${discoverySummary}` : ''}
 
 Write a single, unified piece of strategic context — 3-4 sentences. This is the foundation that Synthesis will be built on. Carry the thread from discovery through to the strategic position. Name the central tension. End with the one thing that must not be lost as the brand is built. No em dashes. No headers. One continuous thought.`
 
@@ -64,7 +67,7 @@ Write a single, unified piece of strategic context — 3-4 sentences. This is th
         setDone(true)
         // Persist
         updateProject(project.id, {
-          synthesis: { ...project.synthesis, contextSummary: t } as any
+          synthesis: { ...project.synthesis, contextSummary: t }
         })
       },
     })

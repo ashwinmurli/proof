@@ -35,6 +35,13 @@ export default function ProjectOverview() {
   const currentStatusIndex = STATUS_ORDER.indexOf(project.status)
 
   function getStageState(stageId: string) {
+    // Discovery summary is a special case — not in STATUS_ORDER
+    if (stageId === 'discovery-summary') {
+      if (project.discoverySummary) return 'done'
+      // Accessible if debrief is complete
+      if (project.debrief?.situation) return 'active'
+      return 'locked'
+    }
     const stageIndex = STATUS_ORDER.indexOf(stageId)
     if (stageIndex < currentStatusIndex) return 'done'
     if (stageIndex === currentStatusIndex) return 'active'
@@ -137,6 +144,38 @@ export default function ProjectOverview() {
               )
             })}
           </div>
+
+          {/* Brand Home — appears when synthesis has content */}
+          {project.synthesis && (project.synthesis.beliefs?.belief || project.synthesis.manifesto?.final) && (
+            <motion.div
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              style={{ marginTop: 16 }}
+            >
+              <motion.div
+                onClick={() => router.push(`/project/${project.id}/brand-home`)}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  padding: '20px 0', borderBottom: '1px solid rgba(194,189,183,0.4)',
+                  cursor: 'pointer',
+                }}
+                whileHover={{ x: 4 }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+                  <div style={{ width: 8, height: 8, borderRadius: '50%', background: project.synthesis.manifesto?.final ? 'var(--mango)' : 'var(--aluminum)', flexShrink: 0 }} />
+                  <div>
+                    <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 400, color: 'var(--dark)', marginBottom: 4 }}>
+                      Brand Home
+                    </div>
+                    <div style={{ fontSize: 13, color: 'var(--concrete)', fontWeight: 300 }}>
+                      The complete brand document.
+                    </div>
+                  </div>
+                </div>
+                <div style={{ fontSize: 18, color: 'var(--stone)' }}>→</div>
+              </motion.div>
+            </motion.div>
+          )}
 
           {/* Share brief with client */}
           <div style={{

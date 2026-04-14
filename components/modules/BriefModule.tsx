@@ -331,19 +331,41 @@ export default function BriefModule({ project, mode = 'strategist' }: BriefModul
                               }
                               transition={showStream ? { duration: 1, repeat: Infinity } : {}}
                             />
-                            <p style={{
-                              fontFamily: 'var(--font-sans)',
-                              fontSize: 13,
-                              fontWeight: 300,
-                              color: 'var(--concrete)',
-                              lineHeight: 1.85,
-                              margin: 0,
-                            }}>
-                              {displayThought || ''}
-                              {showStream && (
-                                <span style={{ display: 'inline-block', width: 1.5, height: 11, background: 'var(--mango)', marginLeft: 2, verticalAlign: 'middle', animation: 'blink 0.9s step-end infinite' }} />
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <p style={{
+                                fontFamily: 'var(--font-sans)',
+                                fontSize: 13,
+                                fontWeight: 300,
+                                color: 'var(--concrete)',
+                                lineHeight: 1.85,
+                                margin: '0 0 8px',
+                              }}>
+                                {displayThought || ''}
+                                {showStream && (
+                                  <span style={{ display: 'inline-block', width: 1.5, height: 11, background: 'var(--mango)', marginLeft: 2, verticalAlign: 'middle', animation: 'blink 0.9s step-end infinite' }} />
+                                )}
+                              </p>
+                              {!showStream && proofThoughts[q.id] && (
+                                <button
+                                  onClick={() => {
+                                    // Clear the cached thought and re-fetch
+                                    setProofThoughts(prev => { const n = { ...prev }; delete n[q.id]; return n })
+                                    setFetchedIds(prev => { const n = new Set(prev); n.delete(q.id); return n })
+                                    const val = localAnswers[q.id]?.trim()
+                                    if (val) fetchThought(q.id, val)
+                                  }}
+                                  style={{
+                                    fontFamily: 'var(--font-sans)', fontSize: 11, color: 'var(--aluminum)',
+                                    background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+                                    transition: 'color 0.15s',
+                                  }}
+                                  onMouseEnter={e => e.currentTarget.style.color = 'var(--mango)'}
+                                  onMouseLeave={e => e.currentTarget.style.color = 'var(--aluminum)'}
+                                >
+                                  ↺ different angle
+                                </button>
                               )}
-                            </p>
+                            </div>
                           </motion.div>
                         )}
                       </AnimatePresence>
