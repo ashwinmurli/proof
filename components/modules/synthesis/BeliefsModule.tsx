@@ -189,11 +189,16 @@ Assess these in 2-3 sentences. Does the conviction pass the competitor test? Is 
     setTimeout(() => textareaRefs.current[id]?.focus(), 400)
   }, [])
 
+  const summaryStateRef = useRef<'thinking' | 'arrived' | null>(null)
+
+  // Keep ref in sync
+  useEffect(() => { summaryStateRef.current = summaryState }, [summaryState])
+
   const handleAdvance = useCallback(() => {
     if (!allFilled) { setDrawerOpen(true); return }
-    if (!summaryState) { fetchSummary(); return }
+    if (!summaryStateRef.current) { fetchSummary(); return }
     router.push(`/project/${project.id}/synthesis/values`)
-  }, [allFilled, summaryState, project.id, router])
+  }, [allFilled, fetchSummary, project.id, router])
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#F5F2EB' }}>
@@ -254,7 +259,18 @@ Assess these in 2-3 sentences. Does the conviction pass the competitor test? Is 
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: activeId === null || isActive ? 1 : 0.38 }}
                     transition={{ duration: 0.35, delay: index * 0.06 }}
-                    style={{ marginBottom: 64, position: 'relative' }}
+                    style={{
+                      marginBottom: isActive ? 36 : 64,
+                      position: 'relative',
+                      ...(isActive ? {
+                        background: '#FAF8F4',
+                        borderRadius: 12,
+                        padding: '28px 32px',
+                        marginLeft: -32,
+                        marginRight: -32,
+                        boxShadow: '0 1px 2px rgba(26,24,22,0.04), 0 4px 8px rgba(26,24,22,0.06), 0 16px 32px rgba(26,24,22,0.08), 0 0 0 0.5px rgba(26,24,22,0.05)',
+                      } : {}),
+                    }}
                   >
                     {/* Active rule */}
                     <AnimatePresence>
@@ -407,6 +423,7 @@ Assess these in 2-3 sentences. Does the conviction pass the competitor test? Is 
         onClose={() => { setDrawerOpen(false); setSummaryState(null) }}
         summaryMode={isSummaryActive} summaryState={summaryState} summaryText={summaryText}
         summaryThinkingLabel="Reviewing the beliefs…" summaryContinueLabel="Continue to Values →"
+        summaryLabel="proof. on the beliefs"
         onContinue={() => router.push(`/project/${project.id}/synthesis/values`)}
         onReview={() => { setSummaryState(null); setDrawerOpen(false) }}
         onScrollToQuestion={handleScroll}

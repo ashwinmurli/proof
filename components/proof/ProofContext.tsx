@@ -114,8 +114,9 @@ Write a single, unified piece of strategic context — 3-4 sentences. This is th
         </div>
       ) : (
         <p style={{
-          fontFamily: 'var(--font-display)',
-          fontStyle: 'italic',
+          fontFamily: 'var(--font-sans)',
+          fontStyle: 'normal',
+          fontWeight: 300,
           fontSize: 14,
           color: 'var(--concrete)',
           lineHeight: 1.85,

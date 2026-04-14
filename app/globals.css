@@ -66,6 +66,19 @@ textarea { field-sizing: content; }
   box-shadow: 0 0 0 1px rgba(255,161,10,0.15), 0 2px 24px rgba(255,161,10,0.08);
 }
 
+/* Active question card — lifts off the page */
+.question-card {
+  background: var(--surface-0, #F5F2EB);
+  border-radius: 12px;
+  padding: 28px 32px;
+  box-shadow:
+    0 1px 2px rgba(26,24,22,0.04),
+    0 4px 8px rgba(26,24,22,0.06),
+    0 12px 24px rgba(26,24,22,0.08),
+    0 0 0 0.5px rgba(26,24,22,0.06);
+  transition: box-shadow 0.3s ease;
+}
+
 /* Proof note — the marginal annotation style */
 .proof-note {
   font-family: var(--font-display);

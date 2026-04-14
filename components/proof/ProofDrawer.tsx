@@ -25,6 +25,7 @@ interface ProofDrawerProps {
   onReview?: () => void
   summaryThinkingLabel?: string
   summaryContinueLabel?: string
+  summaryLabel?: string
 }
 
 export default function ProofDrawer({
@@ -36,6 +37,7 @@ export default function ProofDrawer({
   onContinue, onReview,
   summaryThinkingLabel = 'Reading the brief…',
   summaryContinueLabel = 'Continue →',
+  summaryLabel = 'proof. on this',
 }: ProofDrawerProps) {
   const [messages, setMessages] = useState<ProofMessage[]>([])
   const [input, setInput] = useState('')
@@ -188,9 +190,9 @@ export default function ProofDrawer({
                     style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
                   >
                     <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--mango)', marginBottom: 14 }}>
-                      On the brief
+                      {summaryLabel}
                     </div>
-                    <p style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 16, color: 'var(--dark)', lineHeight: 1.9, flex: 1, overflowY: 'auto' }}>
+                    <p style={{ fontFamily: 'var(--font-sans)', fontStyle: 'normal', fontWeight: 300, fontSize: 15, color: 'var(--dark)', lineHeight: 1.9, flex: 1, overflowY: 'auto' }}>
                       {summaryText}
                     </p>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 20, paddingTop: 16, borderTop: '1px solid rgba(184,179,172,0.25)' }}>

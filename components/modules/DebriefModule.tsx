@@ -326,7 +326,19 @@ Write 2-3 sentences. Is the angle a genuine bet? Is there productive tension bet
                     animate={{ opacity: activeId === null || isActive ? 1 : 0.42 }}
                     transition={{ duration: 0.35, delay: index * 0.08 }}
                     onClick={() => !isActive && setActiveId(section.id)}
-                    style={{ marginBottom: 68, cursor: 'default', position: 'relative' }}
+                    style={{
+                      marginBottom: isActive ? 40 : 68,
+                      cursor: 'default',
+                      position: 'relative',
+                      ...(isActive ? {
+                        background: '#FAF8F4',
+                        borderRadius: 12,
+                        padding: '28px 32px',
+                        marginLeft: -32,
+                        marginRight: -32,
+                        boxShadow: '0 1px 2px rgba(26,24,22,0.04), 0 4px 8px rgba(26,24,22,0.06), 0 16px 32px rgba(26,24,22,0.08), 0 0 0 0.5px rgba(26,24,22,0.05)',
+                      } : {}),
+                    }}
                   >
                     {/* Active left rule */}
                     <AnimatePresence>
