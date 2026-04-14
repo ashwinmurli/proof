@@ -438,7 +438,7 @@ Write 2-3 sentences. Is the angle a genuine bet? Is there productive tension bet
                                 onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(184,179,172,0.6)'; e.currentTarget.style.color = 'var(--concrete)' }}
                               >
                                 <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--mango)', display: 'inline-block', flexShrink: 0 }} />
-                                <span style={{ fontStyle: 'italic', fontFamily: 'var(--font-display)', fontSize: 12 }}>Ask proof. to revise</span>
+                                Ask proof. to revise
                               </button>
                             </>
                           ) : (
