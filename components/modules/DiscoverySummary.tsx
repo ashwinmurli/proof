@@ -22,7 +22,7 @@ export default function DiscoverySummary({ project }: DiscoverySummaryProps) {
   const [summaryText, setSummaryText] = useState(project.brief?.proofSummary && project.debrief?.proofSummary
     ? project.discoverySummary || ''
     : '')
-  const [phase, setPhase] = useState<'generating' | 'reading' | 'ready'>(
+  const [phase, setPhase] = useState<'generating' | 'ready'>(
     project.discoverySummary ? 'ready' : 'generating'
   )
 
@@ -74,9 +74,7 @@ No em dashes. No flattery. Direct.`
       onComplete: (text) => {
         setSummaryText(text)
         updateProject(project.id, { discoverySummary: text })
-        setPhase('reading')
-        // Brief pause, then move to ready
-        setTimeout(() => setPhase('ready'), 2000)
+        setPhase('ready')
       },
     })
   }

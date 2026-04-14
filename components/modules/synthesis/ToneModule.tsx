@@ -158,9 +158,10 @@ Be specific. The examples should be immediately recognisable. No em dashes.`
   const handleAdvance = useCallback(() => {
     if (!allFilled) { setDrawerOpen(true); return }
     if (!summaryStateRef.current) { fetchSummary(); return }
-    const hasName = project.name && project.name !== 'Untitled project'
-    router.push(`/project/${project.id}/synthesis/${hasName ? 'tagline' : 'naming'}`)
-  }, [allFilled, project.id, project.name, router])
+    // Go to Naming unless it's already been done
+    const namingDone = !!(project.synthesis?.naming?.chosen || project.synthesis?.naming?.territory)
+    router.push(`/project/${project.id}/synthesis/${namingDone ? 'tagline' : 'naming'}`)
+  }, [allFilled, project.id, project.synthesis?.naming, router])
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--surface-0)' }}>
