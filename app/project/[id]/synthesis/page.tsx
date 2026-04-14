@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { useProofStore } from '@/store'
 import { motion } from 'framer-motion'
 import Strip from '@/components/proof/Strip'
+import ProofContext from '@/components/proof/ProofContext'
 
 const MODULES = [
   { id: 'beliefs',     label: 'What we believe',         desc: 'Conviction, horizon, practice.',                    path: 'beliefs' },
@@ -64,29 +65,7 @@ export default function SynthesisPage() {
             This is where Discovery becomes a brand. Work through each module in order — each one builds on the last.
           </p>
 
-          {/* Reference cards */}
-          {(project.brief?.proofSummary || project.debrief?.proofSummary) && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 64 }}>
-              {project.brief?.proofSummary && (
-                <div style={{ padding: '16px 20px', background: '#FAF8F4', border: '1px solid rgba(184,179,172,0.35)', borderLeft: '1.5px solid var(--mango)', borderRadius: '0 8px 8px 0' }}>
-                  <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--mango)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 5 }}>
-                    <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--mango)', display: 'inline-block' }} />
-                    proof. on the brief
-                  </div>
-                  <p style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 13, color: 'var(--concrete)', lineHeight: 1.8 }}>{project.brief.proofSummary}</p>
-                </div>
-              )}
-              {project.debrief?.proofSummary && (
-                <div style={{ padding: '16px 20px', background: '#FAF8F4', border: '1px solid rgba(184,179,172,0.35)', borderLeft: '1.5px solid var(--mango)', borderRadius: '0 8px 8px 0' }}>
-                  <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--mango)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 5 }}>
-                    <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--mango)', display: 'inline-block' }} />
-                    proof. on the debrief
-                  </div>
-                  <p style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 13, color: 'var(--concrete)', lineHeight: 1.8 }}>{project.debrief.proofSummary}</p>
-                </div>
-              )}
-            </div>
-          )}
+          <ProofContext project={project} forModule="synthesis" />
 
           {/* Module list */}
           <div>

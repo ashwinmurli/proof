@@ -104,6 +104,7 @@ export interface ManifestoData {
 }
 
 export interface SynthesisData {
+  contextSummary?: string
   beliefs?: BeliefData
   values?: Value[]
   personality?: PersonalityData
