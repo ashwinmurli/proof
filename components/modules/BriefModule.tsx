@@ -52,16 +52,29 @@ export default function BriefModule({ project, mode = 'strategist' }: BriefModul
     setTimeout(() => textareaRefs.current[activeId]?.focus(), 400)
   }, [activeId])
 
+  const prevAnswers = useRef<Record<string, string>>({})
+
   const handleInput = useCallback((id: string, value: string) => {
     setLocalAnswers(prev => ({ ...prev, [id]: value }))
     saveAnswer(id, value)
-  }, [saveAnswer])
+    // If the answer has changed substantially from when we last generated a thought,
+    // invalidate so blur will trigger a fresh note
+    const prev = prevAnswers.current[id] || ''
+    const lengthDiff = Math.abs(value.length - prev.length)
+    if (lengthDiff > 40 && fetchedIds.has(id)) {
+      setFetchedIds(s => { const next = new Set(s); next.delete(id); return next })
+    }
+  }, [saveAnswer, fetchedIds])
 
+  // Record answer at time of proof. note generation
   const handleBlur = useCallback((id: string) => {
     const value = localAnswers[id]?.trim()
     if (!value || value.length < 28 || fetchedIds.has(id)) return
     clearTimeout(blurTimers.current[id])
-    blurTimers.current[id] = setTimeout(() => fetchThought(id, value), 800)
+    blurTimers.current[id] = setTimeout(() => {
+      prevAnswers.current[id] = value
+      fetchThought(id, value)
+    }, 800)
   }, [localAnswers, fetchedIds])
 
   const fetchThought = useCallback(async (id: string, answer: string) => {

@@ -240,11 +240,16 @@ export default function BrandHome({ project, readOnly = false }: { project: Proj
               <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 20 }}>
                 Brand Foundation
               </div>
-              <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 64, fontWeight: 400, color: 'var(--dark)', lineHeight: 1.0, letterSpacing: '-0.02em', marginBottom: 16 }}>
+              <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 64, fontWeight: 400, color: 'var(--dark)', lineHeight: 1.0, letterSpacing: '-0.02em', marginBottom: s.tagline?.chosen ? 20 : 16 }}>
                 {chosenName || brandName}
               </h1>
+              {s.tagline?.chosen && (
+                <p style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 22, fontWeight: 400, color: 'var(--concrete)', lineHeight: 1.4, maxWidth: 480, marginBottom: 20 }}>
+                  {s.tagline.chosen}
+                </p>
+              )}
               {project.description && (
-                <p style={{ fontSize: 16, color: 'var(--concrete)', fontWeight: 300, lineHeight: 1.75, maxWidth: 480 }}>
+                <p style={{ fontSize: 14, color: 'var(--stone)', fontWeight: 300, lineHeight: 1.75, maxWidth: 480 }}>
                   {project.description}
                 </p>
               )}
@@ -395,7 +400,7 @@ export default function BrandHome({ project, readOnly = false }: { project: Proj
           )}
 
           {/* 5. Name */}
-          {(s.naming?.chosen || (project.name && project.name !== 'Untitled project')) && (
+          {(s.naming?.chosen || s.naming?.territory) && (
             <section id="naming" ref={el => { sectionRefs.current['naming'] = el }}>
               <SectionLabel n="05" label="What we're called" />
               <div style={{ marginBottom: s.naming?.rationale ? 20 : 0 }}>
@@ -488,7 +493,7 @@ function sectionHasData(id: string, s: ReturnType<typeof extractSynthesis>, proj
     case 'values':      return !!(s.values?.length)
     case 'personality': return !!(s.personality?.tensions?.length)
     case 'tone':        return !!(s.tone?.poleA)
-    case 'naming':      return !!(s.naming?.chosen || (projectName && projectName !== 'Untitled project'))
+    case 'naming':      return !!(s.naming?.chosen || s.naming?.territory)
     case 'tagline':     return !!(s.tagline?.chosen)
     case 'manifesto':   return !!(s.manifesto?.final)
     default: return false
