@@ -433,11 +433,12 @@ Write 2-3 sentences. Is the angle a genuine bet? Is there productive tension bet
                               </button>
                               <button
                                 onClick={e => { e.stopPropagation(); openFeedback(section.id) }}
-                                style={{ fontFamily: 'var(--font-sans)', fontSize: 11, fontWeight: 500, color: 'var(--concrete)', background: 'none', border: '1px solid rgba(184,179,172,0.6)', borderRadius: 20, padding: '4px 14px', cursor: 'pointer', transition: 'all 0.15s' }}
-                                onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--mango)'; e.currentTarget.style.color = 'var(--mango)' }}
+                                style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: 'var(--concrete)', background: 'none', border: '1px solid rgba(184,179,172,0.6)', borderRadius: 20, padding: '4px 14px 4px 9px', cursor: 'pointer', transition: 'all 0.15s', display: 'flex', alignItems: 'center', gap: 6 }}
+                                onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,161,10,0.5)'; e.currentTarget.style.color = 'var(--dark)' }}
                                 onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(184,179,172,0.6)'; e.currentTarget.style.color = 'var(--concrete)' }}
                               >
-                                Ask proof. to revise
+                                <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--mango)', display: 'inline-block', flexShrink: 0 }} />
+                                <span style={{ fontStyle: 'italic', fontFamily: 'var(--font-display)', fontSize: 12 }}>Ask proof. to revise</span>
                               </button>
                             </>
                           ) : (
