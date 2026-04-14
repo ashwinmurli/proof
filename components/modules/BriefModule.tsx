@@ -98,6 +98,10 @@ export default function BriefModule({ project, mode = 'strategist' }: BriefModul
       onComplete: (text) => {
         setSummaryText(text)
         setSummaryState('arrived')
+        // Persist summary to project
+        updateProject(project.id, {
+          brief: { ...project.brief, answers: project.brief?.answers || {}, proofSummary: text }
+        })
       },
     })
   }, [localAnswers, project, stream])

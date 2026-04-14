@@ -23,6 +23,7 @@ export interface BriefAnswer {
 
 export interface BriefData {
   answers: Record<string, BriefAnswer>
+  proofSummary?: string
   completedAt?: string
 }
 
@@ -30,6 +31,7 @@ export interface DebriefData {
   situation: string
   challenge: string
   angle: string
+  proofSummary?: string
   completedAt?: string
 }
 

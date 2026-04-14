@@ -69,6 +69,7 @@ export default function DebriefModule({ project }: { project: Project }) {
   // Summary state
   const [summaryText, setSummaryText] = useState('')
   const [summaryState, setSummaryState] = useState<'thinking' | 'arrived' | null>(null)
+  const briefProofSummary = project.brief?.proofSummary || ''
 
   const textareaRefs = useRef<Record<string, HTMLTextAreaElement | null>>({})
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({})
@@ -218,7 +219,13 @@ Write 2-3 sentences. Is the angle a genuine bet? Is there productive tension bet
     await stream({
       project, mode: 'strategist', module: 'Debrief', prompt, maxTokens: 220,
       onChunk: () => {},
-      onComplete: (text) => { setSummaryText(text); setSummaryState('arrived') },
+      onComplete: (text) => {
+        setSummaryText(text)
+        setSummaryState('arrived')
+        updateProject(project.id, {
+          debrief: { ...values, proofSummary: text }
+        })
+      },
     })
   }
 
@@ -284,6 +291,30 @@ Write 2-3 sentences. Is the angle a genuine bet? Is there productive tension bet
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* proof.'s read on the brief — reference card */}
+        {briefProofSummary && (
+          <motion.div
+            initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.2 }}
+            style={{
+              marginBottom: 48,
+              padding: '20px 24px',
+              background: '#FAF8F4',
+              border: '1px solid rgba(184,179,172,0.35)',
+              borderLeft: '1.5px solid var(--mango)',
+              borderRadius: '0 8px 8px 0',
+            }}
+          >
+            <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--mango)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--mango)', display: 'inline-block' }} />
+              proof. on the brief
+            </div>
+            <p style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 14, color: 'var(--concrete)', lineHeight: 1.85 }}>
+              {briefProofSummary}
+            </p>
+          </motion.div>
+        )}
 
         {/* No brief warning */}
         {!briefSummary && generateState === 'idle' && (
