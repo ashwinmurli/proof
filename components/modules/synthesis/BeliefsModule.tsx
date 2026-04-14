@@ -423,7 +423,7 @@ Assess these in 2-3 sentences. Does the conviction pass the competitor test? Is 
         onClose={() => { setDrawerOpen(false); setSummaryState(null) }}
         summaryMode={isSummaryActive} summaryState={summaryState} summaryText={summaryText}
         summaryThinkingLabel="Reviewing the beliefs…" summaryContinueLabel="Continue to Values →"
-        summaryLabel="proof. on the beliefs"
+        summaryLabel="On the beliefs"
         onContinue={() => router.push(`/project/${project.id}/synthesis/values`)}
         onReview={() => { setSummaryState(null); setDrawerOpen(false) }}
         onScrollToQuestion={handleScroll}

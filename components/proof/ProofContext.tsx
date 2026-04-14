@@ -99,7 +99,7 @@ Write a single, unified piece of strategic context — 3-4 sentences. This is th
         marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6,
       }}>
         <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--mango)', display: 'inline-block' }} />
-        {loading ? 'proof. is thinking…' : 'proof. on the project'}
+        {loading ? 'proof. is thinking…' : 'On the project'}
       </div>
 
       {loading && !displayText ? (

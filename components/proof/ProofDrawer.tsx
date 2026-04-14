@@ -97,7 +97,7 @@ export default function ProofDrawer({
   onContinue, onReview,
   summaryThinkingLabel = 'Reading the brief…',
   summaryContinueLabel = 'Continue →',
-  summaryLabel = 'proof. on this',
+  summaryLabel = 'On this',
 }: ProofDrawerProps) {
   const [messages, setMessages] = useState<ProofMessage[]>([])
   const [streamingContent, setStreamingContent] = useState<Record<string, string>>({})
