@@ -129,9 +129,14 @@ export default function BriefModule({ project, mode = 'strategist' }: BriefModul
 
   const handleAdvance = useCallback(() => {
     if (answeredCount < 2) { setDrawerOpen(true); return }
+    // Show summary first if not yet seen — same as Cmd+Enter on last question
+    if (answeredCount >= 3 && !summaryState) {
+      fetchBriefSummary()
+      return
+    }
     updateProject(project.id, { status: 'debrief' })
     router.push(`/project/${project.id}/debrief`)
-  }, [answeredCount, project.id, updateProject, router])
+  }, [answeredCount, summaryState, fetchBriefSummary, project.id, updateProject, router])
 
   const isSummaryActive = summaryState === 'thinking' || summaryState === 'arrived'
 
@@ -250,7 +255,7 @@ export default function BriefModule({ project, mode = 'strategist' }: BriefModul
       <ProofDrawer
         project={project} mode={mode} module="Brief"
         open={drawerOpen || isSummaryActive}
-        onClose={() => { setDrawerOpen(false); if (!isSummaryActive) setSummaryState(null) }}
+        onClose={() => { setDrawerOpen(false); setSummaryState(null) }}
         thoughts={proofThoughts}
         questionLabels={questionLabels}
         answers={localAnswers}

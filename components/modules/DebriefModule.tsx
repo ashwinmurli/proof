@@ -382,29 +382,49 @@ Write 2-3 sentences. Is the angle a genuine bet? Is there productive tension bet
                       </div>
                     )}
 
-                    {/* Action row — commit or ask proof. to revise */}
+                    {/* Action row — changes based on edit state */}
                     <AnimatePresence>
-                      {isActive && value.trim().length > 10 && fb === 'idle' && !isStreaming && (
+                      {value.trim().length > 10 && fb === 'idle' && !isStreaming && (
                         <motion.div
                           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                          transition={{ delay: 0.4 }}
-                          style={{ marginTop: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+                          transition={{ delay: 0.2 }}
+                          style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 8 }}
                         >
-                          {/* Left: commit hint */}
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                            <kbd style={{ fontFamily: 'var(--font-sans)', fontSize: 10, background: '#EFECE5', border: '1px solid #D5D4D6', borderRadius: 3, padding: '2px 6px', color: 'var(--concrete)' }}>⌘ Enter</kbd>
-                            <span style={{ fontSize: 11, color: 'var(--stone)' }}>{isLast ? 'to finish' : 'to continue'}</span>
-                          </div>
-                          {/* Right: ask proof. to revise */}
-                          <button
-                            onClick={e => { e.stopPropagation(); openFeedback(section.id) }}
-                            style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: 'var(--concrete)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, transition: 'color 0.15s', display: 'flex', alignItems: 'center', gap: 4 }}
-                            onMouseEnter={e => (e.currentTarget.style.color = 'var(--mango)')}
-                            onMouseLeave={e => (e.currentTarget.style.color = 'var(--concrete)')}
-                          >
-                            <span style={{ fontSize: 10, color: 'inherit' }}>●</span>
-                            Ask proof. to revise
-                          </button>
+                          {!isActive ? (
+                            <>
+                              <button
+                                onClick={e => { e.stopPropagation(); setActiveId(section.id) }}
+                                style={{ fontFamily: 'var(--font-sans)', fontSize: 11, fontWeight: 500, color: 'var(--concrete)', background: 'none', border: '1px solid rgba(184,179,172,0.6)', borderRadius: 20, padding: '4px 14px', cursor: 'pointer', transition: 'all 0.15s' }}
+                                onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--concrete)'; e.currentTarget.style.color = 'var(--dark)' }}
+                                onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(184,179,172,0.6)'; e.currentTarget.style.color = 'var(--concrete)' }}
+                              >
+                                Edit
+                              </button>
+                              <button
+                                onClick={e => { e.stopPropagation(); openFeedback(section.id) }}
+                                style={{ fontFamily: 'var(--font-sans)', fontSize: 11, fontWeight: 500, color: 'var(--concrete)', background: 'none', border: '1px solid rgba(184,179,172,0.6)', borderRadius: 20, padding: '4px 14px', cursor: 'pointer', transition: 'all 0.15s' }}
+                                onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--mango)'; e.currentTarget.style.color = 'var(--mango)' }}
+                                onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(184,179,172,0.6)'; e.currentTarget.style.color = 'var(--concrete)' }}
+                              >
+                                Ask proof. to revise
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <button
+                                onClick={e => { e.stopPropagation(); setActiveId(null) }}
+                                style={{ fontFamily: 'var(--font-sans)', fontSize: 11, fontWeight: 500, color: 'var(--concrete)', background: 'none', border: '1px solid rgba(184,179,172,0.6)', borderRadius: 20, padding: '4px 14px', cursor: 'pointer', transition: 'all 0.15s' }}
+                                onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--concrete)'; e.currentTarget.style.color = 'var(--dark)' }}
+                                onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(184,179,172,0.6)'; e.currentTarget.style.color = 'var(--concrete)' }}
+                              >
+                                Done
+                              </button>
+                              <span style={{ fontSize: 11, color: 'var(--stone)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                                <kbd style={{ fontFamily: 'var(--font-sans)', fontSize: 10, background: '#EFECE5', border: '1px solid #D5D4D6', borderRadius: 3, padding: '2px 5px', color: 'var(--concrete)' }}>⌘ Enter</kbd>
+                                {isLast ? 'to finish' : 'to continue'}
+                              </span>
+                            </>
+                          )}
                         </motion.div>
                       )}
                     </AnimatePresence>
@@ -501,7 +521,7 @@ Write 2-3 sentences. Is the angle a genuine bet? Is there productive tension bet
       <ProofDrawer
         project={project} mode="strategist" module="Debrief"
         open={drawerOpen || isSummaryActive}
-        onClose={() => { setDrawerOpen(false); if (!isSummaryActive) setSummaryState(null) }}
+        onClose={() => { setDrawerOpen(false); setSummaryState(null) }}
         thoughts={thoughts}
         answers={values}
         questionLabels={{ situation: 'The Situation', challenge: 'The Challenge', angle: 'Our Angle' }}
