@@ -87,14 +87,20 @@ export default function BeliefsModule({ project }: { project: Project }) {
     setGenerateState('generating')
     const prompt = `${ctx}
 
-Now write the three belief statements for this brand. Be direct. Be specific. Start each with a strong verb.
+Write the three belief statements for this brand.
+
+BELIEF is the conviction — what this brand genuinely believes that most brands in its category won't say. It must be arguable. A competitor should read it and feel a sting. If it could appear on any brand's website without embarrassment, it fails.
+
+BUILDING is the vision — the specific future this brand is working toward. Not "a better world" or "a more connected future." What specifically exists, or doesn't exist, when this brand has done its work?
+
+WORKING is the mission — what the brand actually does, day to day, to make the BELIEF real. Concrete actions and choices, not principles.
 
 Write exactly:
-BELIEF: [What this brand believes — the conviction. 1-2 sentences. Specific enough to exclude competitors.]
-BUILDING: [What future the brand is creating — the vision. 1-2 sentences. Aspirational but grounded.]
-WORKING: [How the brand actually operates — the mission. 1-2 sentences. Specific actions, not principles.]
+BELIEF: [1-2 sentences. Starts with a strong verb. Specific enough that a competitor in this category could not claim it.]
+BUILDING: [1-2 sentences. Names what changes when the brand succeeds — specific, not abstract.]
+WORKING: [1-2 sentences. Describes actual behaviours and choices, not values.]
 
-No em dashes. No flattery. Make the BELIEF uncomfortable enough to mean something.`
+No em dashes. No flattery. The BELIEF should make the strategist pause.`
 
     await stream({
       project, mode: 'strategist', module: 'Beliefs', prompt, maxTokens: 400,

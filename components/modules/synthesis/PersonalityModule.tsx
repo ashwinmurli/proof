@@ -102,28 +102,35 @@ export default function PersonalityModule({ project }: { project: Project }) {
     setGenerating(true)
     const prompt = `${ctx}
 
-Write the brand personality for "${brandName}".
+Write the brand personality for "${brandName}" as three tension pairs and three scenario portraits.
 
-For each tension pair provide: the positive quality (1-3 words), its "never" counterpart (1-3 words), and a one-sentence description of what this specific tension means for this brand.
+A tension pair is not a balanced adjective list. It's a productive contradiction — the thing that makes this brand interesting rather than generic. The positive quality is what this brand genuinely is. The "never" is not the opposite — it's the excess or the lazy version of that quality that this brand specifically refuses.
 
-PAIR_1_POS: [positive quality]
-PAIR_1_NEG: [what it never becomes]
-PAIR_1_DESC: [what this tension means for ${brandName} specifically — one sentence, starting with "${brandName}"]
-PAIR_2_POS: [positive quality]
-PAIR_2_NEG: [what it never becomes]
-PAIR_2_DESC: [what this tension means for ${brandName} specifically]
-PAIR_3_POS: [positive quality]
-PAIR_3_NEG: [what it never becomes]
-PAIR_3_DESC: [what this tension means for ${brandName} specifically]
+Bad tension pair: "Friendly but never unprofessional" — every brand would claim this.
+Good tension pair: "Blunt but never cruel" — specific enough to describe a real choice the brand makes.
 
-DINNER: [${brandName} at a dinner party — 2 sentences]
-DINNER_EXAMPLE: [one sentence in ${brandName}'s actual voice at that dinner]
+The DESC must start with "${brandName}" and name the specific thing that makes this tension real for this brand — not a general observation about brands with this tension.
+
+PAIR_1_POS: [quality — 1-3 words]
+PAIR_1_NEG: [what it refuses to become — 1-3 words]
+PAIR_1_DESC: [${brandName} + one sentence on why this specific tension defines them]
+PAIR_2_POS: [quality — 1-3 words]
+PAIR_2_NEG: [what it refuses to become — 1-3 words]
+PAIR_2_DESC: [${brandName} + one sentence]
+PAIR_3_POS: [quality — 1-3 words]
+PAIR_3_NEG: [what it refuses to become — 1-3 words]
+PAIR_3_DESC: [${brandName} + one sentence]
+
+For the scenarios, be specific and concrete. The voice examples should sound like actual sentences this brand would write or say — not descriptions of how they communicate.
+
+DINNER: [${brandName} at a dinner party — 2 sentences describing how they show up]
+DINNER_EXAMPLE: [one sentence they'd actually say in that context]
 DIFFICULT: [${brandName} in a difficult conversation — 2 sentences]
-DIFFICULT_EXAMPLE: [one sentence in ${brandName}'s voice]
+DIFFICULT_EXAMPLE: [one sentence they'd actually say]
 DECISION: [${brandName} making a decision under pressure — 2 sentences]
-DECISION_EXAMPLE: [one sentence in ${brandName}'s voice]
+DECISION_EXAMPLE: [one sentence capturing their voice in that moment]
 
-No em dashes within the PAIR lines. The DESC lines should be specific to this brand, not generic.`
+No em dashes within the PAIR lines.`
 
     await stream({
       project, mode: 'strategist', module: 'Personality', prompt, maxTokens: 900,

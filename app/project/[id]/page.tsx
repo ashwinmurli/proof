@@ -177,37 +177,45 @@ export default function ProjectOverview() {
             </motion.div>
           )}
 
-          {/* Share brief with client */}
-          <div style={{
-            padding: '24px 28px',
-            background: '#FDFCFA',
-            border: '1px solid var(--aluminum)',
-            borderRadius: 10,
-          }}>
-            <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 10 }}>
-              Share brief with client
-            </div>
-            <p style={{ fontSize: 13, color: 'var(--concrete)', lineHeight: 1.75, fontWeight: 300, marginBottom: 16 }}>
-              Send this link to your client so they can fill in the brief directly. proof. will guide them — warmly, not critically.
-            </p>
-            <button
-              onClick={handleShare}
-              style={{
-                fontFamily: 'var(--font-sans)',
-                fontSize: 13,
-                fontWeight: 500,
-                background: copied ? 'var(--mango)' : 'var(--dark)',
-                color: '#FDFCFA',
-                border: 'none',
-                borderRadius: 5,
-                padding: '10px 20px',
-                cursor: 'pointer',
-                transition: 'background 0.2s',
-              }}
-            >
-              {copied ? 'Link copied ✓' : 'Copy client link'}
-            </button>
-          </div>
+          {/* Share */}
+          {(() => {
+            const hasSynthesis = !!(project.synthesis?.beliefs?.belief || project.synthesis?.manifesto?.final)
+            return (
+              <div style={{
+                marginTop: 32,
+                padding: '24px 28px',
+                background: 'var(--surface-1)',
+                border: '1px solid var(--aluminum)',
+                borderRadius: 10,
+              }}>
+                <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 10 }}>
+                  {hasSynthesis ? 'Share with client' : 'Share brief with client'}
+                </div>
+                <p style={{ fontSize: 13, color: 'var(--concrete)', lineHeight: 1.75, fontWeight: 300, marginBottom: 16 }}>
+                  {hasSynthesis
+                    ? 'Send this link to your client to share the Brand Home. proof. will show them the complete brand document.'
+                    : 'Send this link to your client so they can fill in the brief directly. proof. will guide them — warmly, not critically.'}
+                </p>
+                <button
+                  onClick={handleShare}
+                  style={{
+                    fontFamily: 'var(--font-sans)',
+                    fontSize: 13,
+                    fontWeight: 500,
+                    background: copied ? 'var(--mango)' : 'var(--dark)',
+                    color: '#FDFCFA',
+                    border: 'none',
+                    borderRadius: 5,
+                    padding: '10px 20px',
+                    cursor: 'pointer',
+                    transition: 'background 0.2s',
+                  }}
+                >
+                  {copied ? 'Link copied ✓' : hasSynthesis ? 'Copy Brand Home link' : 'Copy client link'}
+                </button>
+              </div>
+            )
+          })()}
         </motion.div>
       </main>
     </div>

@@ -51,22 +51,33 @@ export default function ValuesModule({ project }: { project: Project }) {
     setGenerating(true)
     const prompt = `${ctx}
 
-Write exactly 3 core values for this brand. Each must pass this test: would we hold it even if it became a competitive disadvantage?
+Write exactly 3 core values for this brand.
+
+What makes a value real vs decorative:
+- It changes how decisions get made, not just how they're described
+- The brand would hold it even if it became a competitive disadvantage
+- A competitor in this category could not claim it without looking dishonest
+- You can point to actual behaviour that proves it — decisions made, things refused, things built
+
+What to avoid:
+- Values that every brand in every category could claim (Integrity, Excellence, Innovation)
+- Values that describe outcomes rather than choices (Growth, Impact, Success)
+- Values so broad they can't be violated (Respect, Care, Transparency)
 
 For each value write:
-VALUE_1_NAME: [single word or short phrase]
-VALUE_1_DEFINITION: [what this means for this brand specifically — 1 sentence]
-VALUE_1_BEHAVIOUR: [what it looks like in action — 1 concrete sentence]
+VALUE_1_NAME: [single word or short phrase — the value as a noun, not a gerund]
+VALUE_1_DEFINITION: [what this value means specifically for this brand — 1 sentence, names the specific choice or stance]
+VALUE_1_BEHAVIOUR: [what it looks like when someone at this brand acts on it — 1 concrete, observable sentence]
 
 VALUE_2_NAME: [single word or short phrase]
-VALUE_2_DEFINITION: [what this means for this brand specifically — 1 sentence]
-VALUE_2_BEHAVIOUR: [what it looks like in action — 1 concrete sentence]
+VALUE_2_DEFINITION: [1 sentence]
+VALUE_2_BEHAVIOUR: [1 concrete sentence]
 
 VALUE_3_NAME: [single word or short phrase]
-VALUE_3_DEFINITION: [what this means for this brand specifically — 1 sentence]
-VALUE_3_BEHAVIOUR: [what it looks like in action — 1 concrete sentence]
+VALUE_3_DEFINITION: [1 sentence]
+VALUE_3_BEHAVIOUR: [1 concrete sentence]
 
-These must be real, not aspirational. Not what sounds good — what the brief shows is already true. No em dashes.`
+These must be traceable to what was found in the brief. Not aspirational — actual. No em dashes.`
 
     await stream({
       project, mode: 'strategist', module: 'Values', prompt, maxTokens: 500,
