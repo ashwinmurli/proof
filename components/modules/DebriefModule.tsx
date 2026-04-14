@@ -62,7 +62,7 @@ export default function DebriefModule({ project }: { project: Project }) {
   const [streamingSection, setStreamingSection] = useState<SectionId | null>(null)
   const [feedbackState, setFeedbackState] = useState<FeedbackState>({ situation: 'idle', challenge: 'idle', angle: 'idle' })
   const [feedbackText, setFeedbackText] = useState<Record<SectionId, string>>({ situation: '', challenge: '', angle: '' })
-  const [activeId, setActiveId] = useState<SectionId>('situation')
+  const [activeId, setActiveId] = useState<SectionId | null>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [thoughts, setThoughts] = useState<Record<string, string>>({})
 
@@ -185,7 +185,8 @@ Be direct. Be specific. No em dashes. No flattery.`
     })
   }
 
-  function handleKeyDown(e: React.KeyboardEvent, id: SectionId) {
+  function handleKeyDown(e: React.KeyboardEvent, id: SectionId | null) {
+    if (!id) return
     if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
       e.preventDefault()
       const idx = SECTIONS.findIndex(s => s.id === id)
@@ -299,7 +300,7 @@ Write 2-3 sentences. Is the angle a genuine bet? Is there productive tension bet
         {/* Sections */}
         <div>
           {SECTIONS.map((section, index) => {
-            const isActive = activeId === section.id
+            const isActive = activeId === section.id && generateState === 'done'
             const value = values[section.id]
             const isLast = index === SECTIONS.length - 1
             const isStreaming = streamingSection === section.id
@@ -312,10 +313,10 @@ Write 2-3 sentences. Is the angle a genuine bet? Is there productive tension bet
                   <motion.div
                     ref={el => { sectionRefs.current[section.id] = el }}
                     initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: isActive ? 1 : 0.42 }}
+                    animate={{ opacity: activeId === null || isActive ? 1 : 0.42 }}
                     transition={{ duration: 0.35, delay: index * 0.08 }}
                     onClick={() => !isActive && setActiveId(section.id)}
-                    style={{ marginBottom: 68, cursor: isActive ? 'default' : 'pointer', position: 'relative' }}
+                    style={{ marginBottom: 68, cursor: 'default', position: 'relative' }}
                   >
                     {/* Active left rule */}
                     <AnimatePresence>
@@ -348,24 +349,38 @@ Write 2-3 sentences. Is the angle a genuine bet? Is there productive tension bet
                       {section.question}
                     </div>
 
-                    {/* proof.'s interpretation — editable */}
-                    <textarea
-                      ref={el => { textareaRefs.current[section.id] = el }}
-                      value={value}
-                      onChange={e => handleInput(section.id, e.target.value)}
-                      onFocus={() => setActiveId(section.id)}
-                      onKeyDown={e => handleKeyDown(e, section.id)}
-                      placeholder={section.placeholder}
-                      style={{
-                        width: '100%', background: 'transparent', border: 'none',
-                        borderBottom: `1px solid ${isActive ? 'rgba(110,107,104,0.4)' : '#D5D4D6'}`,
-                        padding: '8px 0 16px', fontFamily: 'var(--font-display)',
-                        fontStyle: value ? 'italic' : 'normal',
-                        fontSize: 16, fontWeight: 400, color: 'var(--dark)',
-                        outline: 'none', resize: 'none', lineHeight: 1.85,
-                        minHeight: 60, transition: 'border-color 0.25s', display: 'block',
-                      }}
-                    />
+                    {/* proof.'s interpretation — read mode until clicked */}
+                    {isActive ? (
+                      <textarea
+                        ref={el => { textareaRefs.current[section.id] = el }}
+                        value={value}
+                        onChange={e => handleInput(section.id, e.target.value)}
+                        onKeyDown={e => handleKeyDown(e, section.id)}
+                        placeholder={section.placeholder}
+                        autoFocus
+                        style={{
+                          width: '100%', background: 'transparent', border: 'none',
+                          borderBottom: '1px solid rgba(110,107,104,0.4)',
+                          padding: '8px 0 16px', fontFamily: 'var(--font-display)',
+                          fontStyle: value ? 'italic' : 'normal',
+                          fontSize: 16, fontWeight: 400, color: 'var(--dark)',
+                          outline: 'none', resize: 'none', lineHeight: 1.85,
+                          minHeight: 60, display: 'block',
+                        }}
+                      />
+                    ) : (
+                      <div
+                        onClick={() => setActiveId(section.id)}
+                        style={{
+                          fontFamily: 'var(--font-display)', fontStyle: 'italic',
+                          fontSize: 16, fontWeight: 400, color: 'var(--dark)',
+                          lineHeight: 1.85, paddingBottom: 16, cursor: 'text',
+                          borderBottom: '1px solid transparent',
+                        }}
+                      >
+                        {value || <span style={{ color: 'var(--stone)', fontStyle: 'italic' }}>{section.placeholder}</span>}
+                      </div>
+                    )}
 
                     {/* Action row — commit or ask proof. to revise */}
                     <AnimatePresence>
