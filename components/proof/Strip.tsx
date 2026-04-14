@@ -22,35 +22,42 @@ export default function Strip({
 
   return (
     <div style={{
-      position: 'sticky', top: 0, zIndex: 10, height: 56,
-      background: '#F5F2EB',
-      borderBottom: '1px solid rgba(184,179,172,0.35)',
+      position: 'sticky', top: 0, zIndex: 10, height: 52,
+      background: 'var(--surface-0)',
+      borderBottom: '1px solid rgba(184,179,172,0.3)',
       display: 'grid',
       gridTemplateColumns: '1fr auto 1fr',
       alignItems: 'center',
       padding: '0 44px',
       flexShrink: 0,
     }}>
-      {/* Left — wordmark */}
+      {/* Left — wordmark links to project overview */}
       <button
         onClick={() => router.push(`/project/${project.id}`)}
-        style={{ fontFamily: 'var(--font-sans)', fontSize: 14, fontWeight: 300, letterSpacing: '0.15em', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--dark)', padding: 0, justifySelf: 'start' }}
+        style={{
+          fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 300,
+          letterSpacing: '0.15em', background: 'none', border: 'none',
+          cursor: 'pointer', color: 'var(--dark)', padding: 0, justifySelf: 'start',
+        }}
       >
         proof<span style={{ color: 'var(--mango)' }}>.</span>
       </button>
 
-      {/* Centre — project name above progress marks */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
-        <span style={{ fontSize: 11, color: 'var(--stone)', letterSpacing: '0.03em', lineHeight: 1 }}>
-          {project.name || 'Untitled'}
+      {/* Centre — phase + progress */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+        <span style={{
+          fontSize: 10, fontWeight: 500, letterSpacing: '0.12em',
+          textTransform: 'uppercase', color: 'var(--stone)', lineHeight: 1,
+        }}>
+          {phase}
         </span>
         {totalCount > 0 && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
             {Array.from({ length: totalCount }).map((_, i) => (
               <motion.div
                 key={i}
-                style={{ width: 18, height: 2, borderRadius: 1 }}
-                animate={{ background: i < answeredCount ? 'var(--mango)' : 'rgba(184,179,172,0.45)' }}
+                style={{ width: 16, height: 2, borderRadius: 1 }}
+                animate={{ background: i < answeredCount ? 'var(--mango)' : 'rgba(184,179,172,0.4)' }}
                 transition={{ duration: 0.4, delay: i * 0.04 }}
               />
             ))}
@@ -58,29 +65,30 @@ export default function Strip({
         )}
       </div>
 
-      {/* Right — notes + ask + settings */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, justifySelf: 'end' }}>
-        <AnimatePresence>
-          {thoughtCount > 0 && (
-            <motion.div initial={{ opacity: 0, x: 6 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 6 }} transition={{ duration: 0.2 }}>
+      {/* Right — proof. button (shows note count if present, otherwise Ask proof.) */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifySelf: 'end' }}>
+        <AnimatePresence mode="wait">
+          {thoughtCount > 0 ? (
+            <motion.div
+              key="notes"
+              initial={{ opacity: 0, x: 4 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 4 }}
+              transition={{ duration: 0.18 }}
+            >
               <ProofButton onClick={onAskProof} pulsing>
                 {thoughtCount} {thoughtCount === 1 ? 'note' : 'notes'}
               </ProofButton>
             </motion.div>
+          ) : (
+            <motion.div
+              key="ask"
+              initial={{ opacity: 0, x: 4 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 4 }}
+              transition={{ duration: 0.18 }}
+            >
+              <ProofButton onClick={onAskProof}>Ask proof.</ProofButton>
+            </motion.div>
           )}
         </AnimatePresence>
-
-        <ProofButton onClick={onAskProof} pulsing>Ask proof.</ProofButton>
-
-        <button
-          onClick={() => router.push('/settings')}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--stone)', fontSize: 15, lineHeight: 1, padding: '2px 4px', transition: 'color 0.18s' }}
-          onMouseEnter={e => (e.currentTarget.style.color = 'var(--concrete)')}
-          onMouseLeave={e => (e.currentTarget.style.color = 'var(--stone)')}
-        >⚙</button>
       </div>
-
-
     </div>
   )
 }

@@ -5,70 +5,73 @@
 
 ## What this is
 
-**proof.** is an AI-powered brand strategy tool. A creative director or strategist uses it to guide a client through Discovery (Brief → Debrief) and Synthesis (7 modules) to produce a complete brand foundation.
+**proof.** is an AI-powered brand strategy tool. A creative director or strategist uses it to guide a client through Discovery (Brief → Debrief → Discovery Summary) and Synthesis (7 modules) to produce a complete brand foundation.
 
 The AI partner is called **proof.** (lowercase, with period) — she has a point of view, challenges weak thinking, drafts from context, and responds to feedback. She speaks in short sentences, asks rather than tells, never flatters, never uses em dashes.
 
 **Live URL:** https://proof-pi-umber.vercel.app  
 **GitHub:** https://github.com/ashwinmurli/proof.git  
-**Token:** ghp_RRnRfeHLmPSu363eWfLqBJMKdACNN0xx7pj  
 **Stack:** Next.js 16, TypeScript, Tailwind CSS v4, Framer Motion, Zustand, Anthropic SDK  
-**Deploy:** Push to main → Vercel auto-deploys (~30s)
+**Deploy:** Push to main → Vercel auto-deploys (~30s)  
+**Git auth:** Use `https://ashwinmurli:<token>@github.com/ashwinmurli/proof.git`
 
 ---
 
 ## Codebase structure
 
 ```
-/home/claude/proof/  (or clone from GitHub)
-
 app/
-  page.tsx                          — Homepage, recent projects
+  page.tsx                          — Homepage (returning users see projects first, new project toggles)
   layout.tsx
-  globals.css                       — Design tokens, grain texture
+  globals.css                       — Design tokens, grain texture, CSS vars
   settings/page.tsx                 — API key storage in localStorage
   api/proof/route.ts                — Server-side streaming, reads x-proof-key header
   project/[id]/
-    page.tsx                        — Project overview
+    page.tsx                        — Project overview (stages list)
     brief/page.tsx
     debrief/page.tsx
+    discovery-summary/page.tsx      — NEW: Stage 4 of Discovery
     synthesis/
       page.tsx                      — Synthesis overview with module nav
       beliefs/page.tsx
       values/page.tsx
       personality/page.tsx
       tone/page.tsx
-      naming/page.tsx               — Stub (not yet built)
+      naming/page.tsx
       tagline/page.tsx
       manifesto/page.tsx
-  share/[token]/page.tsx            — Client-facing brief
+    brand-home/page.tsx             — NEW: Full brand document output
 
 components/
   proof/
-    Strip.tsx                       — Sticky top nav, progress dots, Ask proof. button
+    Strip.tsx                       — Sticky top nav: wordmark → project, phase label, Ask proof.
     ProofDrawer.tsx                 — Floating panel, sentence-fade streaming, summary mode
-    ProofButton.tsx                 — Reusable: mango dot + label, outline/solid variants
-    ProofContext.tsx                — Single synthesised card (replaces two-card pattern)
+    ProofButton.tsx                 — Mango dot + label, outline/solid variants
+    ProofContext.tsx                — Synthesised context card on Debrief + Synthesis pages
   modules/
-    BriefModule.tsx                 — 5 questions, floating active card, proof. notes
+    BriefModule.tsx                 — 5 questions, 30px active text, inline proof. notes
     DebriefModule.tsx               — proof. presents interpretation, push-back/revise flow
+    DiscoverySummary.tsx            — NEW: What we found / tension / the question
     synthesis/
-      BeliefsModule.tsx             — What we believe / What we're building / How we work
-      ValuesModule.tsx              — 3 values, stress test with verdict pills
-      PersonalityModule.tsx         — Tension pairs with swappable poles, scenario carousel
-      ToneModule.tsx                — Interactive spectrum selector, auto-updating examples
-      TaglineModule.tsx             — Auto-generates directions+variations, select-to-refine
-      ManifestoModule.tsx           — Fill-in-the-blank prompts, proof. synthesises
+      BeliefsModule.tsx
+      ValuesModule.tsx
+      PersonalityModule.tsx         — Tension pairs, scenario carousel
+      ToneModule.tsx
+      NamingModule.tsx              — Territory + 12 candidates, hover-reveal rationale
+      TaglineModule.tsx
+      ManifestoModule.tsx           — Final CTA goes to /brand-home
+  BrandHome.tsx                     — NEW: Full brand document, scroll-spy nav, copy buttons
 
 lib/
-  questions.ts                      — 5 brief questions (strategist + client versions)
-  prompts.ts                        — System prompts
-  useProofStream.ts                 — Streaming hook, reads proof-api-key from localStorage
-  useStreamSentences.ts             — Sentence-buffered streaming hook (built, not yet wired inline)
-  synthesisContext.ts               — buildSynthesisContext() — full project context for API calls
+  questions.ts                      — 5 brief questions
+  prompts.ts                        — System prompts (strategist + client modes)
+  useProofStream.ts                 — Streaming hook
+  useStreamSentences.ts             — Sentence-buffered streaming (built, partially used)
+  synthesisContext.ts               — buildSynthesisContext() — includes Discovery Summary,
+                                      chosen name, tagline for all Synthesis AI calls
 
 store/index.ts                      — Zustand with localStorage persistence
-types/index.ts                      — All types: Project, BriefData, DebriefData, SynthesisData, etc.
+types/index.ts                      — All types including discoverySummary on Project
 ```
 
 ---
@@ -77,10 +80,10 @@ types/index.ts                      — All types: Project, BriefData, DebriefDa
 
 **Palette:**
 - `--mango` #FFA10A — proof.'s colour. Used only for proof.'s presence, buttons, dots
-- `--marble` #EBE8E1
-- `--bg` #F5F2EB — page background
-- `--surface-0` #FAF8F4 — card surface (active floating card, scenario cards)
-- `--surface-1` #EDE9E2 — secondary surface (tension pole chips, inactive)
+- `--bg` #EFECE5 — page background
+- `--surface-0` #F5F2EB — page field (used as background in all module pages)
+- `--surface-1` #FAF8F4 — raised cards (active brief card, scenario cards)
+- `--surface-2` #FDFCFA — highest surface
 - `--aluminum` #D5D4D6
 - `--stone` #8C8780 — labels, secondary text
 - `--concrete` #686562 — body text
@@ -89,176 +92,124 @@ types/index.ts                      — All types: Project, BriefData, DebriefDa
 **Typography:**
 - Display/headings: Playfair Display (serif), italic for proof.'s short quotes only
 - Body/UI: DM Sans, weight 300 for body text, 500 for labels
-- Rule: **serif italic = short proof. quotes only** — all paragraphs, body text, proof. responses use DM Sans 300
+- **No h1 elements in module pages** — all modules use eyebrow (10px uppercase) + 15px description
+
+**Layout:**
+- All module main containers: `maxWidth: 660, padding: '72px 24px 120px'`
+- Strip height: 52px, `var(--surface-0)` background
+- Active question card: `var(--surface-1)`, borderRadius 14, shadow lift, -32px margin bleed
 
 **proof.'s visual identity:**
 - Mango dot (5-6px) + label = proof. is present or being invoked
-- `ProofButton` component: always has the dot, used for every action that invokes proof.
-- Send button in drawer: mango circle (not dark)
-- Summary labels: "On the beliefs", "On the project", etc. — never repeat "proof." twice
+- Strip shows phase label (uppercase, 10px) + progress bars centred
+- Single proof. button (shows note count OR "Ask proof.", not both)
 
-**Active question / floating card:**
-```js
-{
-  background: '#FAF8F4',
-  borderRadius: 12,
-  padding: '28px 32px',
-  marginLeft: -32,
-  marginRight: -32,
-  boxShadow: '0 1px 2px rgba(26,24,22,0.04), 0 4px 8px rgba(26,24,22,0.06), 0 16px 32px rgba(26,24,22,0.08), 0 0 0 0.5px rgba(26,24,22,0.05)',
-}
+---
+
+## Full product flow
+
 ```
-Inactive questions: 38% opacity. Active: full opacity + lifted card.
+/ (homepage)
+  → returning users: see project list with status labels, "New project" toggle
+  → new users: see new project form immediately
 
-**Grain texture:** CSS noise overlay on body, mix-blend-mode multiply, 0.028 opacity.
+/project/[id] (overview)
+  → Brief → Debrief → Discovery Summary → Synthesis → Brand Home
+
+Discovery:
+  Brief (5 questions, proof. notes inline, Cmd+Enter flow)
+  Debrief (proof. generates situation/challenge/angle, revise flow)
+  Discovery Summary (proof. generates: what we found / tension / question)
+
+Synthesis (7 modules, each auto-generates from full context):
+  1. Beliefs (what we believe / building / how we work)
+  2. Values (3 values, stress test with verdict pills)
+  3. Personality (tension pairs with swappable poles, scenario carousel)
+  4. Tone (spectrum selector, auto-updating voice examples)
+  5. Naming (territory + 12 candidates by type, hover-reveal rationale, lock)
+  6. Tagline (auto-generate directions + variations, select to refine, lock)
+  7. Manifesto (fill-in-blank prompts → proof. synthesises) → Brand Home
+
+Brand Home (/project/[id]/brand-home):
+  Scroll-spy left nav, all 7 sections, copy buttons, print export
+```
 
 ---
 
 ## Key interaction patterns
 
+### Brief
+- 30px active question text, 19px inactive
+- proof. note appears inline below textarea after blur (mango dot separator)
+- Streaming shows live as proof. types
+- Cmd+Enter advances to next question; on last question triggers brief summary in drawer
+
 ### Debrief pattern (proof. presents first)
-1. proof. auto-generates Situation / Challenge / Angle on load
-2. Renders as static italic prose (read mode)
-3. Click text → switches to edit mode (textarea with autoFocus)
-4. Action row below field: "Edit" pill | "● Ask proof. to revise" ProofButton
-5. Active edit mode: "Done" pill | ⌘ Enter hint
-6. Feedback panel: "proof. will rewrite this" header, textarea, "● Revise →" ProofButton
-7. ⌘ Enter on last field → proof. summary in drawer panel
+- proof. auto-generates Situation / Challenge / Angle on load
+- Read mode (italic prose) → click to edit → textarea with autoFocus
+- "Ask proof. to revise" → feedback input → proof. rewrites that section
+- Routes to Discovery Summary (not Synthesis directly)
+
+### Discovery Summary
+- proof. auto-generates on load from full brief + debrief context
+- Three sections stream in: What we found (22px serif), The tension (italic), The question
+- Persists to `project.discoverySummary`
 
 ### Synthesis module pattern (all 7 modules)
-- proof. drafts from `buildSynthesisContext()` (full project context) on load
-- Same push-back / revise flow as Debrief
-- ⌘ Enter → fetchSummary() → summary in drawer → Continue button
-- **Stale closure fix:** all `handleAdvance` callbacks use a `summaryStateRef` to avoid capturing stale state
+- proof. drafts from `buildSynthesisContext()` on load
+- Same push-back / revise flow
+- Cmd+Enter → fetchSummary() → summary in drawer → Continue button
+- Stale closure fix: all handleAdvance callbacks use summaryStateRef
 
 ### ProofDrawer
-- Summary mode: dims page, expands to 520px, sentences fade in one by one
-- Normal mode: 380px, notes tab + ask tab
-- `SentenceText` component: buffers streaming text, reveals complete sentences with opacity fade
-- Close (×) always clears both `drawerOpen` and `summaryState`
-
-### ProofContext card
-- Single synthesised card (not two separate brief/debrief cards)
-- On Debrief page: shows brief summary directly
-- On Synthesis page: proof. synthesises brief + debrief summaries into one unified 3-4 sentence statement on first load, persists to `synthesis.contextSummary`
+- Summary mode: dims page, expands to 520px, sentences fade in
+- Normal mode: 380px, ask tab (no notes tab unless thoughts exist)
 
 ---
 
-## Module-specific notes
-
-### Beliefs (1/7)
-- Three fields: "What we believe" / "What we're building" / "How we work"
-- proof. drafts all three from context
-- Summary label: "On the beliefs"
-
-### Values (2/7)
-- Exactly 3 values (not 5)
-- Each: name (28px italic serif input) + definition + behaviour
-- Stress test: ProofButton → proof. applies 3 hardest Motto questions
-- **Verdict pills:** green (PASSES) / amber (NEEDS WORK) / red (fails)
-
-### Personality (3/7) — most complex
-- **Tension pairs:** 3 cards. Each card: `pos` chip | "but never" | `neg` chip + description below
-- Click either pole → proof. generates 3 context-specific alternatives + freeform input
-- Selecting an alternative triggers `regenerateDesc()` to update the explanation
-- **Scenario carousel:** 3 cards (300px wide), horizontal scroll with `marginLeft: -24` breakout
-- **Auto-examples:** generated on load without button click. "New example" to regenerate.
-- Brand name used in labels: "Keel at a dinner party"
-
-### Tone (4/7)
-- proof. generates 3 options per pole as clickable chips
-- Selecting a different pole auto-regenerates the "sounds like / doesn't sound like" examples (800ms debounce)
-- Existing data: `generateOptions()` fetches alternatives if `poleOptions` is empty
-
-### Naming (5/7)
-- **Not yet built** — stub page exists at `/synthesis/naming`
-- Should implement Van Lancker naming process from the PDF
-
-### Tagline (6/7)
-- **Auto-generates** on arrival (directions + 12 variations in one pass)
-- Directions shown as compact reference card at top
-- Select up to 3 variations → "Refine N selected →" → 6 refined options
-- After refining: `selected` resets, phase back to 'selecting', lock buttons appear
-- Lock any variation → `phase: 'locked'`, locked tagline editable inline
-
-### Manifesto (7/7)
-- 6 Motto fill-in-the-blank prompts
-- Minimum 4 filled to unlock synthesis
-- "Write the manifesto →" → proof. synthesises into flowing brand voice piece
-- "Edit source material" returns to prompts. "Rewrite →" regenerates.
-
----
-
-## API / streaming
-
-**Route:** `POST /api/proof`  
-**Auth:** `x-proof-key` header (client's API key) or `ANTHROPIC_API_KEY` env var  
-**Model:** claude-sonnet-4-20250514  
-**Stream:** text/event-stream, chunked
-
-**Key hook:** `useProofStream` — reads key from localStorage, sends as header, handles streaming
-
-**Context builder:** `buildSynthesisContext(project)` in `lib/synthesisContext.ts`
-- Passes: project name, all brief answers, brief summary, debrief (situation/challenge/angle), debrief summary, all synthesis modules completed so far
-- Every Synthesis API call uses this — proof. always has full context
+## synthesisContext includes (in order):
+1. Project name + description
+2. Brief answers (all 5 questions)
+3. proof.'s brief summary
+4. Debrief (situation / challenge / angle)
+5. proof.'s debrief summary
+6. Discovery Summary (full text)
+7. Beliefs (when done)
+8. Values (when done)
+9. Personality tensions (when done)
+10. Tone spectrum (when done)
+11. Chosen name (when done)
+12. Chosen tagline (when done)
 
 ---
 
 ## Known issues / pending work
 
 ### High priority
-- [ ] **Naming module** — not built. Stub exists. Should implement Van Lancker 6-step process.
-- [ ] **Brand Home** — not built. The output page where all synthesis modules live as a coherent document.
-- [ ] **Design pass** — planned but not done. Key items:
-  - Question text too small (should be 32-36px)
-  - More breathing room between sections
-  - Motion that feels "inevitable" not just functional
+- [ ] **Brand Home** — needs a "share" or "export as PDF" flow for client delivery
+- [ ] **Share mode** — `/share/[token]` exists but hasn't been fully built out for post-synthesis sharing (currently only shares the brief)
 
 ### Medium priority
-- [ ] Wire `useStreamSentences` into inline proof. notes (currently still word-by-word in Brief module)
-- [ ] Research module (Stage 3 of Discovery) — not started
-- [ ] Discovery Summary (Stage 4) — not started
-- [ ] Client share mode improvements
+- [ ] Wire `useStreamSentences` into inline proof. notes in Brief (currently word-by-word)
+- [ ] Mobile responsiveness — Strip 44px padding clips on small screens
+- [ ] Tone module drawer doesn't pass full synthesis context when asking questions
 
 ### Low priority
-- [ ] proof. drawer in Tone module doesn't pass full synthesis context when asking questions (passes brief context only)
-- [ ] Naming module page is currently a stub
+- [ ] Discovery Summary doesn't show in project overview stages navigation (it's in the flow but not accessible via the overview page directly)
+- [ ] Project deletion — no way to delete a project from the homepage
 
 ---
 
 ## What was just being worked on
 
-The **Personality module** (`PersonalityModule.tsx`) was being actively iterated on. The last state:
-- Tension pairs show with swappable poles ✓
-- Brand-specific descriptions under each pair ✓
-- Scenario carousel with auto-examples ✓
-- The user wanted a different visual layout for the tension pair cards — they exported the page to Figma to sketch a new design. The Figma file is: https://www.figma.com/design/WqoEQcB4CXvfLn8W16gLZY
-
-The user will share a sketch of the desired tension card layout. When they do, implement it in `PersonalityModule.tsx`.
-
----
-
-## Product vision (brief)
-
-From `lucid-vision.md` and `lucid-method.md` (project files):
-
-- proof. is the AI presence. She challenges, not just assists. She never uses em dashes, never flatters, never says "you should" — she says "this tends to" or "a competitor could say this."
-- The design should feel like a **creative sanctuary** — strategy as painting, not typing. Warm, considered, alive. Not SaaS dashboard energy.
-- Design references: Ferrari Luce (LoveFrom), Linn LP12, Braun/Dieter Rams, *Her* (film)
-- "We made painting feel like typing, but we should have made typing feel like painting." — Amelia Wattenberger
-- Brands are relational not transactional. Every output gets the competitor test. Generic values get challenged structurally.
-
----
-
-## How to run locally
-
-```bash
-cd /home/claude/proof
-npm install
-npm run dev
-# Visit http://localhost:3000
-# Set API key at /settings
-```
+The last session fixed a series of bugs and did a design pass:
+- Removed all 52px h1 headers from synthesis modules (replaced with compact eyebrow + description)
+- Normalized padding (72px/120px) and maxWidth (660px) across all pages
+- Fixed `discoverySummary` typing (was `any` cast, now properly typed on Project)
+- Fixed Manifesto final CTA → routes to Brand Home not Synthesis overview
+- Replaced hardcoded `#F5F2EB` with `var(--surface-0)` across 9 files
+- Redesigned homepage: returning users see projects first, new project is toggleable, description is required
+- Redesigned Strip: single proof. button, clear phase label, CSS var background
 
 ## How to deploy
 

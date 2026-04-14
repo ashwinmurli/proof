@@ -3,16 +3,24 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useProofStore } from '@/store'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 
 function projectStageLabel(status: string): string {
   switch (status) {
-    case 'brief': return 'In Discovery — Brief'
-    case 'debrief': return 'In Discovery — Debrief'
-    case 'research': return 'In Discovery — Research'
-    case 'synthesis': return 'In Synthesis'
+    case 'brief': return 'Discovery — Brief'
+    case 'debrief': return 'Discovery — Debrief'
+    case 'synthesis': return 'Synthesis'
     case 'complete': return 'Complete'
     default: return 'Just started'
+  }
+}
+
+function projectPath(status: string, id: string): string {
+  switch (status) {
+    case 'brief': return `/project/${id}/brief`
+    case 'debrief': return `/project/${id}/debrief`
+    case 'synthesis': return `/project/${id}/synthesis`
+    default: return `/project/${id}`
   }
 }
 
@@ -23,18 +31,22 @@ export default function Home() {
   const [desc, setDesc] = useState('')
   const [loading, setLoading] = useState(false)
   const [hasApiKey, setHasApiKey] = useState(false)
+  const [showNewForm, setShowNewForm] = useState(false)
 
   const existingProjects = Object.values(projects).sort(
     (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
   )
+  const hasProjects = existingProjects.length > 0
 
   useEffect(() => {
     const key = localStorage.getItem('proof-api-key')
     setHasApiKey(!!key)
+    // Show form immediately if no projects
+    if (Object.keys(projects).length === 0) setShowNewForm(true)
   }, [])
 
   function handleStart() {
-    if (loading) return
+    if (loading || !desc.trim()) return
     setLoading(true)
     const id = createProject(name, desc)
     router.push(`/project/${id}/brief`)
@@ -42,7 +54,7 @@ export default function Home() {
 
   const inputStyle = {
     width: '100%',
-    background: '#FDFCFA',
+    background: 'var(--surface-2)',
     border: '1px solid var(--aluminum)',
     borderRadius: 6,
     padding: '12px 16px',
@@ -55,17 +67,18 @@ export default function Home() {
   } as React.CSSProperties
 
   return (
-    <main style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <main style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg)' }}>
       {/* Top strip */}
       <div style={{
         height: 52,
-        borderBottom: '1px solid rgba(194,189,183,0.5)',
+        borderBottom: '1px solid rgba(194,189,183,0.4)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: '0 44px',
+        background: 'var(--bg)',
       }}>
-        <div style={{ fontFamily: 'var(--font-sans)', fontSize: 14, fontWeight: 300, letterSpacing: '0.15em' }}>
+        <div style={{ fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 300, letterSpacing: '0.15em' }}>
           proof<span style={{ color: 'var(--mango)' }}>.</span>
         </div>
         <button
@@ -80,7 +93,7 @@ export default function Home() {
         >
           {!hasApiKey && (
             <span style={{
-              width: 6, height: 6, borderRadius: '50%',
+              width: 5, height: 5, borderRadius: '50%',
               background: 'var(--mango)', display: 'inline-block',
               animation: 'breathe 2s ease-in-out infinite',
             }} />
@@ -89,32 +102,73 @@ export default function Home() {
         </button>
       </div>
 
-      <div style={{ flex: 1, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '80px 24px' }}>
-        <div style={{ width: '100%', maxWidth: 440 }}>
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <div style={{ fontFamily: 'var(--font-sans)', fontSize: 28, fontWeight: 300, letterSpacing: '0.15em', marginBottom: 8 }}>
-              proof<span style={{ color: 'var(--mango)' }}>.</span>
+      <div style={{ flex: 1, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '64px 24px 80px' }}>
+        <div style={{ width: '100%', maxWidth: 420 }}>
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
+
+            {/* Wordmark */}
+            <div style={{ marginBottom: hasProjects ? 48 : 40 }}>
+              <div style={{ fontFamily: 'var(--font-sans)', fontSize: 24, fontWeight: 300, letterSpacing: '0.15em', marginBottom: 6 }}>
+                proof<span style={{ color: 'var(--mango)' }}>.</span>
+              </div>
+              {!hasProjects && (
+                <p style={{ fontSize: 14, color: 'var(--stone)', lineHeight: 1.7, fontWeight: 300 }}>
+                  Brand strategy that fits like a tailored suit.
+                </p>
+              )}
             </div>
-            <p style={{ fontSize: 14, color: 'var(--concrete)', lineHeight: 1.75, marginBottom: 52, fontWeight: 300 }}>
-              Brand strategy that fits like a tailored suit.
-            </p>
+
+            {/* Existing projects — shown first for returning users */}
+            {hasProjects && (
+              <div style={{ marginBottom: 48 }}>
+                <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 14 }}>
+                  Projects
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+                  {existingProjects.slice(0, 6).map((p, i) => (
+                    <motion.button
+                      key={p.id}
+                      initial={{ opacity: 0, x: -6 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.04, duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                      onClick={() => router.push(projectPath(p.status, p.id))}
+                      style={{
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                        padding: '13px 0',
+                        borderBottom: '1px solid rgba(194,189,183,0.35)',
+                        background: 'none', cursor: 'pointer', textAlign: 'left', width: '100%',
+                        transition: 'opacity 0.15s',
+                      } as React.CSSProperties}
+                      onMouseEnter={e => (e.currentTarget.style.opacity = '0.6')}
+                      onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+                    >
+                      <div>
+                        <div style={{ fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 400, color: 'var(--dark)', marginBottom: 2 }}>
+                          {p.name}
+                        </div>
+                        <div style={{ fontSize: 11, color: 'var(--stone)', fontWeight: 300 }}>
+                          {p.description
+                            ? (p.description.length > 48 ? p.description.slice(0, 48).trimEnd() + '…' : p.description)
+                            : projectStageLabel(p.status)}
+                        </div>
+                      </div>
+                      <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--aluminum)', flexShrink: 0, marginLeft: 12 }}>
+                        {projectStageLabel(p.status)}
+                      </div>
+                    </motion.button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* API key warning */}
             {!hasApiKey && (
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                 style={{
-                  padding: '14px 18px',
-                  background: '#FDFCFA',
-                  border: '1px solid var(--aluminum)',
-                  borderLeft: '2px solid var(--mango)',
-                  borderRadius: '0 6px 6px 0',
-                  marginBottom: 32,
+                  padding: '13px 16px', background: 'var(--surface-1)',
+                  border: '1px solid var(--aluminum)', borderLeft: '2px solid var(--mango)',
+                  borderRadius: '0 6px 6px 0', marginBottom: 24,
                 }}
               >
                 <p style={{ fontSize: 13, color: 'var(--concrete)', lineHeight: 1.6, fontWeight: 300 }}>
@@ -130,112 +184,105 @@ export default function Home() {
               </motion.div>
             )}
 
-            {/* New project */}
-            <div style={{ marginBottom: 20 }}>
-              <label style={{ display: 'block', fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 8 }}>
-                Working title or project name
-              </label>
-              <input
-                type="text"
-                value={name}
-                onChange={e => setName(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && document.getElementById('desc')?.focus()}
-                placeholder="e.g. Keel, or leave blank"
-                style={inputStyle}
-                onFocus={e => { e.target.style.borderColor = 'var(--mango)'; e.target.style.boxShadow = '0 0 0 3px rgba(255,161,10,0.08)' }}
-                onBlur={e => { e.target.style.borderColor = 'var(--aluminum)'; e.target.style.boxShadow = 'none' }}
-              />
-              <p style={{ fontSize: 11, color: 'var(--stone)', marginTop: 6, lineHeight: 1.6 }}>
-                The brand may not have a name yet. The Naming module handles that.
-              </p>
-            </div>
-
-            <div style={{ marginBottom: 28 }}>
-              <label style={{ display: 'block', fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 8 }}>
-                What is this brand building?
-              </label>
-              <input
-                id="desc"
-                type="text"
-                value={desc}
-                onChange={e => setDesc(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handleStart()}
-                placeholder="e.g. Financial planning for people going through divorce"
-                style={inputStyle}
-                onFocus={e => { e.target.style.borderColor = 'var(--mango)'; e.target.style.boxShadow = '0 0 0 3px rgba(255,161,10,0.08)' }}
-                onBlur={e => { e.target.style.borderColor = 'var(--aluminum)'; e.target.style.boxShadow = 'none' }}
-              />
-            </div>
-
-            <button
-              onClick={handleStart}
-              disabled={loading}
-              style={{
-                width: '100%',
-                background: loading ? 'var(--concrete)' : 'var(--dark)',
-                color: '#FDFCFA',
-                border: 'none',
-                borderRadius: 6,
-                padding: '14px',
-                fontFamily: 'var(--font-sans)',
-                fontSize: 13,
-                fontWeight: 500,
-                letterSpacing: '0.07em',
-                cursor: loading ? 'default' : 'pointer',
-                transition: 'background 0.2s',
-              }}
-              onMouseEnter={e => { if (!loading) (e.currentTarget.style.background = 'var(--mango)') }}
-              onMouseLeave={e => { if (!loading) (e.currentTarget.style.background = 'var(--dark)') }}
-            >
-              {loading ? 'Starting…' : 'Begin Discovery →'}
-            </button>
-
-            {/* Existing projects */}
-            {existingProjects.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.2 }}
-                style={{ marginTop: 56 }}
+            {/* New project — toggle for returning users */}
+            {hasProjects && !showNewForm ? (
+              <button
+                onClick={() => setShowNewForm(true)}
+                style={{
+                  fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 400,
+                  color: 'var(--stone)', background: 'none', border: 'none',
+                  cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: 7,
+                  transition: 'color 0.15s',
+                }}
+                onMouseEnter={e => (e.currentTarget.style.color = 'var(--dark)')}
+                onMouseLeave={e => (e.currentTarget.style.color = 'var(--stone)')}
               >
-                <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 16 }}>
-                  Recent projects
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                  {existingProjects.slice(0, 5).map(p => (
+                <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--mango)', display: 'inline-block' }} />
+                New project
+              </button>
+            ) : (
+              <AnimatePresence>
+                <motion.div
+                  initial={hasProjects ? { opacity: 0, y: 8 } : { opacity: 1, y: 0 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  <div style={{ marginBottom: 16 }}>
+                    <label style={{ display: 'block', fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 8 }}>
+                      Working title
+                    </label>
+                    <input
+                      type="text"
+                      value={name}
+                      onChange={e => setName(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && document.getElementById('desc')?.focus()}
+                      placeholder="e.g. Keel — or leave blank"
+                      style={inputStyle}
+                      onFocus={e => { e.target.style.borderColor = 'var(--mango)'; e.target.style.boxShadow = '0 0 0 3px rgba(255,161,10,0.08)' }}
+                      onBlur={e => { e.target.style.borderColor = 'var(--aluminum)'; e.target.style.boxShadow = 'none' }}
+                    />
+                  </div>
+
+                  <div style={{ marginBottom: 20 }}>
+                    <label style={{ display: 'block', fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 8 }}>
+                      What is this brand building?
+                    </label>
+                    <input
+                      id="desc"
+                      type="text"
+                      value={desc}
+                      onChange={e => setDesc(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && handleStart()}
+                      placeholder="e.g. Financial planning for people going through divorce"
+                      style={inputStyle}
+                      autoFocus={hasProjects}
+                      onFocus={e => { e.target.style.borderColor = 'var(--mango)'; e.target.style.boxShadow = '0 0 0 3px rgba(255,161,10,0.08)' }}
+                      onBlur={e => { e.target.style.borderColor = 'var(--aluminum)'; e.target.style.boxShadow = 'none' }}
+                    />
+                    {!desc.trim() && (
+                      <p style={{ fontSize: 11, color: 'var(--stone)', marginTop: 6, lineHeight: 1.5 }}>
+                        Required — seeds every AI call.
+                      </p>
+                    )}
+                  </div>
+
+                  <div style={{ display: 'flex', gap: 10 }}>
                     <button
-                      key={p.id}
-                      onClick={() => router.push(`/project/${p.id}`)}
+                      onClick={handleStart}
+                      disabled={loading || !desc.trim()}
                       style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        padding: '14px 0',
-                        borderBottom: '1px solid rgba(194,189,183,0.4)',
-                        background: 'none',
-                        cursor: 'pointer',
-                        textAlign: 'left',
-                        width: '100%',
-                        transition: 'opacity 0.15s',
-                      } as React.CSSProperties}
-                      onMouseEnter={e => (e.currentTarget.style.opacity = '0.65')}
-                      onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+                        flex: 1,
+                        background: loading || !desc.trim() ? 'var(--aluminum)' : 'var(--dark)',
+                        color: '#FDFCFA',
+                        border: 'none', borderRadius: 6, padding: '13px',
+                        fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 500,
+                        letterSpacing: '0.06em',
+                        cursor: loading || !desc.trim() ? 'default' : 'pointer',
+                        transition: 'background 0.2s',
+                      }}
+                      onMouseEnter={e => { if (!loading && desc.trim()) e.currentTarget.style.background = 'var(--mango)' }}
+                      onMouseLeave={e => { if (!loading && desc.trim()) e.currentTarget.style.background = 'var(--dark)' }}
                     >
-                      <div>
-                        <div style={{ fontFamily: 'var(--font-display)', fontSize: 17, fontWeight: 400, color: 'var(--dark)', marginBottom: 3 }}>
-                          {p.name}
-                        </div>
-                        <div style={{ fontSize: 12, color: 'var(--stone)', fontWeight: 300 }}>
-                          {p.description
-                            ? p.description.length > 52 ? p.description.slice(0, 52).trimEnd() + '…' : p.description
-                            : projectStageLabel(p.status)}
-                        </div>
-                      </div>
-                      <div style={{ fontSize: 12, color: 'var(--aluminum)' }}>→</div>
+                      {loading ? 'Starting…' : 'Begin Discovery →'}
                     </button>
-                  ))}
-                </div>
-              </motion.div>
+                    {hasProjects && (
+                      <button
+                        onClick={() => { setShowNewForm(false); setName(''); setDesc('') }}
+                        style={{
+                          background: 'none', border: '1px solid var(--aluminum)',
+                          borderRadius: 6, padding: '13px 16px',
+                          fontFamily: 'var(--font-sans)', fontSize: 13, color: 'var(--stone)',
+                          cursor: 'pointer', transition: 'border-color 0.15s, color 0.15s',
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--stone)'; e.currentTarget.style.color = 'var(--dark)' }}
+                        onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--aluminum)'; e.currentTarget.style.color = 'var(--stone)' }}
+                      >
+                        Cancel
+                      </button>
+                    )}
+                  </div>
+                </motion.div>
+              </AnimatePresence>
             )}
           </motion.div>
         </div>
