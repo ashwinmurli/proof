@@ -54,9 +54,17 @@ export default function ManifestoModule({ project }: { project: Project }) {
 The brand's raw manifesto material — sentence starters completed by the strategist:
 ${promptText}
 
-Now synthesise this into a manifesto in the brand's voice. Consumer-facing. Not a mission statement reworded. Something that makes the people it's for feel seen, and makes everyone else feel like it's not for them.
+Synthesise this into a manifesto in the brand's voice.
 
-Write it as a flowing piece, not bullet points. 150-250 words. In the brand's voice as established in the tone of voice work. No em dashes. No generic openings like "At [brand]…"`
+What a manifesto does: it makes the people it's for feel seen. It names what they already believe but haven't heard anyone say out loud. It makes everyone else feel like it's not for them — that's not a failure, that's the point.
+
+What to avoid:
+- Generic openings ("At [brand]…", "We believe in a world…")
+- Corporate abstractions ("transforming", "empowering", "enabling")
+- Anything that could appear in a competitor's about page
+- Lists, bullet points, sub-headers
+
+Write as a flowing piece. 150-250 words. In the brand's voice as established in the tone work — if the tone is direct, be direct; if it's lyrical, be lyrical. No em dashes.`
 
     await stream({
       project, mode: 'strategist', module: 'Manifesto', prompt, maxTokens: 600,

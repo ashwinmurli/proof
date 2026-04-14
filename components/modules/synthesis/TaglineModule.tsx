@@ -39,12 +39,24 @@ export default function TaglineModule({ project }: { project: Project }) {
   }
 
   async function generate() {
-    // Generate directions + variations in one pass
     const prompt = `${ctx}
 
 Generate 4 strategic directions for a tagline, then 3 variations for each direction (12 total).
 
-DIRECTION_1: [Name] — [one sentence on the strategic angle]
+Each direction should approach the brand from a different angle — not 4 variations of the same idea. Consider: the brand's conviction, the tension at its heart, what it gives people, what it refuses to be.
+
+A tagline earns its place when:
+- It couldn't be said by any other brand in this category
+- It couldn't be said any other way (the words are inevitable)
+- It does something: provokes, reveals, commits, challenges
+
+Avoid:
+- Questions ("Are you ready to...?")
+- Commands without weight ("Do more.", "Live better.")
+- Category descriptions ("The [adjective] [noun] for [audience]")
+- Anything a bank, airline, or tech company could also use
+
+DIRECTION_1: [Name] — [one sentence on the strategic angle this direction explores]
 DIRECTION_2: [Name] — [one sentence]
 DIRECTION_3: [Name] — [one sentence]
 DIRECTION_4: [Name] — [one sentence]
@@ -62,7 +74,7 @@ VARIATION_4_A: [tagline]
 VARIATION_4_B: [tagline]
 VARIATION_4_C: [tagline]
 
-A tagline earns its place when it couldn't be said by anyone else and couldn't be said any other way. Short. No em dashes.`
+Short. No em dashes. No exclamation marks.`
 
     await stream({
       project, mode: 'strategist', module: 'Tagline', prompt, maxTokens: 700,
@@ -91,7 +103,9 @@ A tagline earns its place when it couldn't be said by anyone else and couldn't b
 The strategist has shortlisted these tagline candidates:
 ${selected.map((s, i) => `${i+1}. ${s}`).join('\n')}
 
-Generate 6 refined variations that develop and sharpen these directions. Draw on the best of each.
+Generate 6 refined variations that develop and sharpen these. Each one should be more committed than where you started — less hedged, more specific, more inevitable.
+
+Push each one further: if it's a statement, make it bolder. If it's a claim, make it more specific. If it's poetic, make it sharper. Cut anything that could be removed without losing the meaning.
 
 REFINED_1: [tagline]
 REFINED_2: [tagline]
@@ -100,7 +114,7 @@ REFINED_4: [tagline]
 REFINED_5: [tagline]
 REFINED_6: [tagline]
 
-Each must be shorter, sharper, and more distinctive than what you started with. No em dashes.`
+No em dashes. No exclamation marks. Shorter is almost always better.`
 
     await stream({
       project, mode: 'strategist', module: 'Tagline', prompt, maxTokens: 300,
