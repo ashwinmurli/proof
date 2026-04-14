@@ -241,9 +241,8 @@ Write 2-3 sentences. Is the angle a genuine bet? Is there productive tension bet
 
   const handleAdvance = useCallback(() => {
     if (!allFilled) { setDrawerOpen(true); return }
-    updateProject(project.id, { status: 'synthesis' })
-    router.push(`/project/${project.id}/synthesis`)
-  }, [allFilled, project.id, updateProject, router])
+    router.push(`/project/${project.id}/discovery-summary`)
+  }, [allFilled, project.id, router])
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#F5F2EB' }}>
@@ -259,14 +258,11 @@ Write 2-3 sentences. Is the angle a genuine bet? Is there productive tension bet
 
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
-          <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 16 }}>
-            Discovery — Stage 2 of 4
+          <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 14 }}>
+            Discovery — 2 of 4
           </div>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 52, fontWeight: 400, color: 'var(--dark)', lineHeight: 1.06, letterSpacing: '-0.015em', marginBottom: 20 }}>
-            The Debrief
-          </h1>
-          <p style={{ fontSize: 15, color: 'var(--concrete)', lineHeight: 1.85, maxWidth: 460, marginBottom: 56, fontWeight: 300 }}>
-            This is proof.'s read of your brief. Not a summary — an interpretation. Push back where it's wrong.
+          <p style={{ fontSize: 15, color: 'var(--concrete)', lineHeight: 1.8, maxWidth: 440, marginBottom: 56, fontWeight: 300 }}>
+            proof.'s read of your brief. Not a summary — an interpretation. Push back where it's wrong.
           </p>
         </motion.div>
 
@@ -520,7 +516,7 @@ Write 2-3 sentences. Is the angle a genuine bet? Is there productive tension bet
               onMouseEnter={e => { if (allFilled) (e.currentTarget.style.background = 'var(--mango)') }}
               onMouseLeave={e => { if (allFilled) (e.currentTarget.style.background = 'var(--dark)') }}
             >
-              Continue to Synthesis →
+              Continue to Discovery Summary →
             </button>
           </div>
         )}
@@ -540,7 +536,7 @@ Write 2-3 sentences. Is the angle a genuine bet? Is there productive tension bet
         onContinue={handleAdvance}
         onReview={() => { setSummaryState(null); setDrawerOpen(false) }}
         summaryThinkingLabel="Reading the debrief…"
-        summaryContinueLabel="Continue to Synthesis →"
+        summaryContinueLabel="Continue to Discovery Summary →"
       />
 
       <style>{`textarea::placeholder { color: var(--stone); font-style: italic; } @keyframes blink { 50%{opacity:0} }`}</style>
