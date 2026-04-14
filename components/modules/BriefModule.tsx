@@ -152,7 +152,7 @@ export default function BriefModule({ project, mode = 'strategist' }: BriefModul
         totalCount={BRIEF_QUESTIONS.length}
       />
 
-      <main style={{ flex: 1, maxWidth: 680, width: '100%', margin: '0 auto', padding: '64px 24px 140px' }}>
+      <main style={{ flex: 1, maxWidth: 660, width: '100%', margin: '0 auto', padding: '72px 24px 120px' }}>
 
         {/* Compact header */}
         <motion.div

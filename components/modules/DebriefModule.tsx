@@ -241,8 +241,9 @@ Write 2-3 sentences. Is the angle a genuine bet? Is there productive tension bet
 
   const handleAdvance = useCallback(() => {
     if (!allFilled) { setDrawerOpen(true); return }
+    updateProject(project.id, { status: 'synthesis' })
     router.push(`/project/${project.id}/discovery-summary`)
-  }, [allFilled, project.id, router])
+  }, [allFilled, project.id, updateProject, router])
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#F5F2EB' }}>
@@ -254,7 +255,7 @@ Write 2-3 sentences. Is the angle a genuine bet? Is there productive tension bet
         totalCount={SECTIONS.length}
       />
 
-      <main style={{ flex: 1, maxWidth: 660, width: '100%', margin: '0 auto', padding: '80px 24px 120px' }}>
+      <main style={{ flex: 1, maxWidth: 660, width: '100%', margin: '0 auto', padding: '72px 24px 120px' }}>
 
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>

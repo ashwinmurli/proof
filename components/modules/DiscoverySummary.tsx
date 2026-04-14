@@ -20,10 +20,10 @@ export default function DiscoverySummary({ project }: DiscoverySummaryProps) {
 
   // Persist summary text on the project so it survives revisits
   const [summaryText, setSummaryText] = useState(project.brief?.proofSummary && project.debrief?.proofSummary
-    ? (project as any).discoverySummary || ''
+    ? project.discoverySummary || ''
     : '')
   const [phase, setPhase] = useState<'generating' | 'reading' | 'ready'>(
-    (project as any).discoverySummary ? 'ready' : 'generating'
+    project.discoverySummary ? 'ready' : 'generating'
   )
 
   const briefAnswers = BRIEF_QUESTIONS
@@ -73,7 +73,7 @@ No em dashes. No flattery. Direct.`
       onChunk: (text) => { setSummaryText(text) },
       onComplete: (text) => {
         setSummaryText(text)
-        updateProject(project.id, { ...(project as any), discoverySummary: text })
+        updateProject(project.id, { discoverySummary: text })
         setPhase('reading')
         // Brief pause, then move to ready
         setTimeout(() => setPhase('ready'), 2000)
@@ -110,7 +110,7 @@ No em dashes. No flattery. Direct.`
         totalCount={0}
       />
 
-      <main style={{ flex: 1, maxWidth: 640, width: '100%', margin: '0 auto', padding: '64px 24px 140px' }}>
+      <main style={{ flex: 1, maxWidth: 660, width: '100%', margin: '0 auto', padding: '72px 24px 120px' }}>
 
         {/* Header */}
         <motion.div

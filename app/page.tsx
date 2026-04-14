@@ -5,6 +5,17 @@ import { useRouter } from 'next/navigation'
 import { useProofStore } from '@/store'
 import { motion } from 'framer-motion'
 
+function projectStageLabel(status: string): string {
+  switch (status) {
+    case 'brief': return 'In Discovery — Brief'
+    case 'debrief': return 'In Discovery — Debrief'
+    case 'research': return 'In Discovery — Research'
+    case 'synthesis': return 'In Synthesis'
+    case 'complete': return 'Complete'
+    default: return 'Just started'
+  }
+}
+
 export default function Home() {
   const router = useRouter()
   const { createProject, projects } = useProofStore()
@@ -211,11 +222,13 @@ export default function Home() {
                       onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
                     >
                       <div>
-                        <div style={{ fontFamily: 'var(--font-display)', fontSize: 17, fontWeight: 400, color: 'var(--dark)', marginBottom: 2 }}>
+                        <div style={{ fontFamily: 'var(--font-display)', fontSize: 17, fontWeight: 400, color: 'var(--dark)', marginBottom: 3 }}>
                           {p.name}
                         </div>
                         <div style={{ fontSize: 12, color: 'var(--stone)', fontWeight: 300 }}>
-                          {p.description || p.status}
+                          {p.description
+                            ? p.description.length > 52 ? p.description.slice(0, 52).trimEnd() + '…' : p.description
+                            : projectStageLabel(p.status)}
                         </div>
                       </div>
                       <div style={{ fontSize: 12, color: 'var(--aluminum)' }}>→</div>

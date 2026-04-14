@@ -29,6 +29,11 @@ export function buildSynthesisContext(project: Project): string {
     parts.push('proof. on the debrief:\n' + project.debrief.proofSummary)
   }
 
+  // Discovery Summary — the closing statement of Discovery
+  if (project.discoverySummary) {
+    parts.push('Discovery Summary:\n' + project.discoverySummary)
+  }
+
   // Synthesis so far
   const s = project.synthesis
   if (!s) return parts.join('\n\n---\n\n')

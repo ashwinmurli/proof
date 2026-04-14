@@ -142,7 +142,7 @@ export default function BrandHome({ project }: { project: Project }) {
           width: 180, padding: '40px 0 40px 44px', flexShrink: 0,
         }}>
           {NAV_SECTIONS.map(({ id, label }) => {
-            const sectionHasContent = sectionHasData(id, s)
+            const sectionHasContent = sectionHasData(id, s, project.name)
             if (!sectionHasContent) return null
             const isActive = activeSection === id
             return (
@@ -438,13 +438,13 @@ export default function BrandHome({ project }: { project: Project }) {
   )
 }
 
-function sectionHasData(id: string, s: ReturnType<typeof extractSynthesis>): boolean {
+function sectionHasData(id: string, s: ReturnType<typeof extractSynthesis>, projectName?: string): boolean {
   switch (id) {
     case 'beliefs':     return !!(s.beliefs?.belief)
     case 'values':      return !!(s.values?.length)
     case 'personality': return !!(s.personality?.tensions?.length)
     case 'tone':        return !!(s.tone?.poleA)
-    case 'naming':      return !!(s.naming?.chosen)
+    case 'naming':      return !!(s.naming?.chosen || (projectName && projectName !== 'Untitled project'))
     case 'tagline':     return !!(s.tagline?.chosen)
     case 'manifesto':   return !!(s.manifesto?.final)
     default: return false

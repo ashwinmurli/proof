@@ -12,6 +12,7 @@ export interface Project {
   updatedAt: string
   brief?: BriefData
   debrief?: DebriefData
+  discoverySummary?: string
   synthesis?: SynthesisData
 }
 
