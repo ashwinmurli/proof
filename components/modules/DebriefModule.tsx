@@ -8,6 +8,7 @@ import { useProofStore } from '@/store'
 import { useProofStream } from '@/lib/useProofStream'
 import { BRIEF_QUESTIONS } from '@/lib/questions'
 import Strip from '@/components/proof/Strip'
+import ProofButton from '@/components/proof/ProofButton'
 import ProofDrawer from '@/components/proof/ProofDrawer'
 
 const SECTIONS = [
@@ -431,15 +432,7 @@ Write 2-3 sentences. Is the angle a genuine bet? Is there productive tension bet
                               >
                                 Edit
                               </button>
-                              <button
-                                onClick={e => { e.stopPropagation(); openFeedback(section.id) }}
-                                style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: 'var(--concrete)', background: 'none', border: '1px solid rgba(184,179,172,0.6)', borderRadius: 20, padding: '4px 14px 4px 9px', cursor: 'pointer', transition: 'all 0.15s', display: 'flex', alignItems: 'center', gap: 6 }}
-                                onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,161,10,0.5)'; e.currentTarget.style.color = 'var(--dark)' }}
-                                onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(184,179,172,0.6)'; e.currentTarget.style.color = 'var(--concrete)' }}
-                              >
-                                <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--mango)', display: 'inline-block', flexShrink: 0 }} />
-                                Ask proof. to revise
-                              </button>
+                              <ProofButton onClick={e => { e.stopPropagation(); openFeedback(section.id) }}>Ask proof. to revise</ProofButton>
                             </>
                           ) : (
                             <>
@@ -488,21 +481,14 @@ Write 2-3 sentences. Is the angle a genuine bet? Is there productive tension bet
                               }}
                             />
                             <div style={{ display: 'flex', gap: 10, marginTop: 12 }}>
-                              <button
+                              <ProofButton
                                 onClick={() => submitFeedback(section.id)}
                                 disabled={!feedbackText[section.id]?.trim() || fb === 'refining'}
-                                style={{
-                                  fontFamily: 'var(--font-sans)', fontSize: 12, fontWeight: 500,
-                                  background: !feedbackText[section.id]?.trim() || fb === 'refining' ? '#D5D4D6' : 'var(--dark)',
-                                  color: '#FDFCFA', border: 'none', borderRadius: 4, padding: '7px 16px',
-                                  cursor: !feedbackText[section.id]?.trim() || fb === 'refining' ? 'default' : 'pointer',
-                                  transition: 'background 0.18s',
-                                }}
-                                onMouseEnter={e => { if (feedbackText[section.id]?.trim() && fb !== 'refining') (e.currentTarget.style.background = 'var(--mango)') }}
-                                onMouseLeave={e => { if (feedbackText[section.id]?.trim() && fb !== 'refining') (e.currentTarget.style.background = 'var(--dark)') }}
+                                variant="solid"
+                                size="sm"
                               >
-                                {fb === 'refining' ? 'Refining…' : 'Refine →'}
-                              </button>
+                                {fb === 'refining' ? 'Refining…' : 'Revise →'}
+                              </ProofButton>
                               {fb === 'open' && (
                                 <button
                                   onClick={() => closeFeedback(section.id)}

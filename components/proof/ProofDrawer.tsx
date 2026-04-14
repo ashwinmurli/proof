@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Project, ProjectMode, ProofMessage } from '@/types'
 import { useProofStream } from '@/lib/useProofStream'
+import ProofButton from '@/components/proof/ProofButton'
 
 interface ProofDrawerProps {
   project: Project
@@ -327,11 +328,15 @@ export default function ProofDrawer({
                         <button
                           onClick={send}
                           disabled={streaming || !input.trim()}
-                          style={{ width: 34, height: 34, borderRadius: '50%', background: streaming || !input.trim() ? '#D5D4D6' : 'var(--dark)', border: 'none', cursor: streaming || !input.trim() ? 'default' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'background 0.18s' }}
-                          onMouseEnter={e => { if (!streaming && input.trim()) (e.currentTarget.style.background = 'var(--mango)') }}
-                          onMouseLeave={e => { if (!streaming && input.trim()) (e.currentTarget.style.background = 'var(--dark)') }}
+                          style={{
+                            width: 30, height: 30, borderRadius: '50%',
+                            background: streaming || !input.trim() ? '#D5D4D6' : 'var(--mango)',
+                            border: 'none', cursor: streaming || !input.trim() ? 'default' : 'pointer',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            flexShrink: 0, transition: 'background 0.18s',
+                          }}
                         >
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="#FDFCFA"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="#FDFCFA"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
                         </button>
                       </div>
                     </div>

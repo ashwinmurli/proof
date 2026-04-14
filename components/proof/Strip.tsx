@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Project } from '@/types'
+import ProofButton from '@/components/proof/ProofButton'
 
 interface StripProps {
   project: Project
@@ -61,35 +62,15 @@ export default function Strip({
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, justifySelf: 'end' }}>
         <AnimatePresence>
           {thoughtCount > 0 && (
-            <motion.button
-              initial={{ opacity: 0, x: 6 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 6 }}
-              transition={{ duration: 0.2 }}
-              onClick={onAskProof}
-              style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'none', border: 'none', cursor: 'pointer', padding: '3px 8px', borderRadius: 20, transition: 'background 0.15s' }}
-              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,161,10,0.08)')}
-              onMouseLeave={e => (e.currentTarget.style.background = 'none')}
-            >
-              <motion.div
-                style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--mango)' }}
-                animate={{ boxShadow: ['0 0 0 0px rgba(255,161,10,0.5)', '0 0 0 4px rgba(255,161,10,0)', '0 0 0 0px rgba(255,161,10,0.5)'] }}
-                transition={{ duration: 2.2, repeat: Infinity }}
-              />
-              <span style={{ fontSize: 11, color: 'var(--mango)', fontFamily: 'var(--font-display)', fontStyle: 'italic' }}>
+            <motion.div initial={{ opacity: 0, x: 6 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 6 }} transition={{ duration: 0.2 }}>
+              <ProofButton onClick={onAskProof} pulsing>
                 {thoughtCount} {thoughtCount === 1 ? 'note' : 'notes'}
-              </span>
-            </motion.button>
+              </ProofButton>
+            </motion.div>
           )}
         </AnimatePresence>
 
-        <button
-          onClick={onAskProof}
-          style={{ display: 'flex', alignItems: 'center', gap: 7, fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--concrete)', background: 'none', border: '1px solid rgba(184,179,172,0.6)', borderRadius: 20, padding: '5px 14px 5px 9px', cursor: 'pointer', transition: 'all 0.18s' }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--concrete)'; e.currentTarget.style.color = 'var(--dark)' }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(184,179,172,0.6)'; e.currentTarget.style.color = 'var(--concrete)' }}
-        >
-          <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--mango)', display: 'inline-block', animation: 'breathe 3s ease-in-out infinite' }} />
-          Ask proof.
-        </button>
+        <ProofButton onClick={onAskProof} pulsing>Ask proof.</ProofButton>
 
         <button
           onClick={() => router.push('/settings')}
@@ -99,7 +80,7 @@ export default function Strip({
         >⚙</button>
       </div>
 
-      <style>{`@keyframes breathe { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.35;transform:scale(0.65)} }`}</style>
+
     </div>
   )
 }
