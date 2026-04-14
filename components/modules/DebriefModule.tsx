@@ -329,36 +329,17 @@ Write 2-3 sentences. Is the angle a genuine bet? Is there productive tension bet
                     </AnimatePresence>
 
                     {/* Label row */}
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: isActive ? 'var(--concrete)' : 'var(--stone)', transition: 'color 0.3s' }}>
-                          {section.label}
-                        </div>
-                        {isStreaming && (
-                          <div style={{ display: 'flex', gap: 3 }}>
-                            {[0,1,2].map(i => (
-                              <motion.div key={i} style={{ width: 3, height: 3, borderRadius: '50%', background: 'var(--mango)' }}
-                                animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1, repeat: Infinity, delay: i * 0.15 }} />
-                            ))}
-                          </div>
-                        )}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+                      <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: isActive ? 'var(--concrete)' : 'var(--stone)', transition: 'color 0.3s' }}>
+                        {section.label}
                       </div>
-
-                      {/* Push back button — only when active and has content */}
-                      {isActive && value.trim().length > 10 && fb === 'idle' && !isStreaming && (
-                        <motion.button
-                          initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                          onClick={e => { e.stopPropagation(); openFeedback(section.id) }}
-                          style={{
-                            fontFamily: 'var(--font-sans)', fontSize: 11, color: 'var(--stone)',
-                            background: 'none', border: '1px solid rgba(184,179,172,0.5)',
-                            borderRadius: 20, padding: '4px 12px', cursor: 'pointer', transition: 'all 0.18s',
-                          }}
-                          onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--concrete)'; e.currentTarget.style.color = 'var(--dark)' }}
-                          onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(184,179,172,0.5)'; e.currentTarget.style.color = 'var(--stone)' }}
-                        >
-                          Push back →
-                        </motion.button>
+                      {isStreaming && (
+                        <div style={{ display: 'flex', gap: 3 }}>
+                          {[0,1,2].map(i => (
+                            <motion.div key={i} style={{ width: 3, height: 3, borderRadius: '50%', background: 'var(--mango)' }}
+                              animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1, repeat: Infinity, delay: i * 0.15 }} />
+                          ))}
+                        </div>
                       )}
                     </div>
 
@@ -386,13 +367,29 @@ Write 2-3 sentences. Is the angle a genuine bet? Is there productive tension bet
                       }}
                     />
 
-                    {/* Cmd+Enter hint */}
+                    {/* Action row — commit or ask proof. to revise */}
                     <AnimatePresence>
-                      {isActive && value.trim().length > 10 && (
-                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ delay: 0.5 }}
-                          style={{ marginTop: 8, fontSize: 11, color: 'var(--stone)', display: 'flex', alignItems: 'center', gap: 5 }}>
-                          <kbd style={{ fontFamily: 'var(--font-sans)', fontSize: 10, background: '#EFECE5', border: '1px solid #D5D4D6', borderRadius: 3, padding: '2px 6px', color: 'var(--concrete)' }}>⌘ Enter</kbd>
-                          <span>{isLast ? 'to finish the debrief' : 'to continue'}</span>
+                      {isActive && value.trim().length > 10 && fb === 'idle' && !isStreaming && (
+                        <motion.div
+                          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                          transition={{ delay: 0.4 }}
+                          style={{ marginTop: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+                        >
+                          {/* Left: commit hint */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                            <kbd style={{ fontFamily: 'var(--font-sans)', fontSize: 10, background: '#EFECE5', border: '1px solid #D5D4D6', borderRadius: 3, padding: '2px 6px', color: 'var(--concrete)' }}>⌘ Enter</kbd>
+                            <span style={{ fontSize: 11, color: 'var(--stone)' }}>{isLast ? 'to finish' : 'to continue'}</span>
+                          </div>
+                          {/* Right: ask proof. to revise */}
+                          <button
+                            onClick={e => { e.stopPropagation(); openFeedback(section.id) }}
+                            style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: 'var(--concrete)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, transition: 'color 0.15s', display: 'flex', alignItems: 'center', gap: 4 }}
+                            onMouseEnter={e => (e.currentTarget.style.color = 'var(--mango)')}
+                            onMouseLeave={e => (e.currentTarget.style.color = 'var(--concrete)')}
+                          >
+                            <span style={{ fontSize: 10, color: 'inherit' }}>●</span>
+                            Ask proof. to revise
+                          </button>
                         </motion.div>
                       )}
                     </AnimatePresence>
@@ -407,14 +404,14 @@ Write 2-3 sentences. Is the angle a genuine bet? Is there productive tension bet
                         >
                           <div style={{ padding: '16px 18px', background: '#FAF8F4', border: '1px solid rgba(184,179,172,0.35)', borderRadius: 8 }}>
                             <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--mango)', marginBottom: 10 }}>
-                              Tell proof. what's wrong
+                              proof. will rewrite this
                             </div>
                             <textarea
                               ref={el => { feedbackRefs.current[section.id] = el }}
                               value={feedbackText[section.id]}
                               onChange={e => setFeedbackText(prev => ({ ...prev, [section.id]: e.target.value }))}
                               onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitFeedback(section.id) } }}
-                              placeholder="This misses the point because… / The real tension is… / A competitor could say this…"
+                              placeholder="What's wrong with this? A competitor could say it / The real tension is / This misses…"
                               disabled={fb === 'refining'}
                               style={{
                                 width: '100%', background: 'transparent', border: 'none',
