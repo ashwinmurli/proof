@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Project, ProjectMode, ProofMessage } from '@/types'
 import { useProofStream } from '@/lib/useProofStream'
 import ProofButton from '@/components/proof/ProofButton'
+import { buildSynthesisContext } from '@/lib/synthesisContext'
 
 // Renders text sentence-by-sentence with fade-in
 function SentenceText({ text, streaming }: { text: string; streaming: boolean }) {
@@ -134,10 +135,8 @@ export default function ProofDrawer({
     const userMsg: ProofMessage = { id: crypto.randomUUID(), role: 'user', content: txt, createdAt: new Date().toISOString() }
     setMessages(prev => [...prev, userMsg])
 
-    const answersCtx = project.brief?.answers
-      ? Object.entries(project.brief.answers).filter(([, a]) => a.value?.trim()).map(([, a]) => `${a.id}: ${a.value}`).join('\n\n')
-      : ''
-    const prompt = answersCtx ? `Brief context:\n${answersCtx}\n\nUser: ${txt}` : txt
+    const ctx = buildSynthesisContext(project)
+    const prompt = ctx ? `${ctx}\n\nUser question: ${txt}` : txt
 
     const streamId = crypto.randomUUID()
     setActiveStreamId(streamId)
@@ -182,7 +181,9 @@ export default function ProofDrawer({
             exit={{ opacity: 0, y: -8, scale: 0.97 }}
             transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
             style={{
-              position: 'fixed', top: 60, right: 44,
+              position: 'fixed', top: 60,
+              right: 'max(16px, min(44px, 5vw))',
+              maxWidth: 'calc(100vw - 32px)',
               maxHeight: isSummaryOpen ? 560 : 480,
               background: '#FDFCFA',
               border: '1px solid rgba(184,179,172,0.5)',

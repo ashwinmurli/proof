@@ -135,7 +135,7 @@ export default function BrandHome({ project, readOnly = false }: { project: Proj
         position: 'sticky', top: 0, zIndex: 50,
         height: 52, borderBottom: '1px solid rgba(194,189,183,0.4)',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 44px', background: 'var(--bg)',
+        padding: '0 clamp(20px, 5vw, 44px)', background: 'var(--bg)',
         backdropFilter: 'blur(12px)',
       }}>
         {readOnly ? (
@@ -218,7 +218,7 @@ export default function BrandHome({ project, readOnly = false }: { project: Proj
         </nav>
 
         {/* Main content */}
-        <main style={{ flex: 1, maxWidth: 680, padding: '64px 44px 160px 0', minWidth: 0 }}>
+        <main style={{ flex: 1, maxWidth: 680, padding: '64px clamp(20px, 5vw, 44px) 160px 0', minWidth: 0 }}>
 
           {!hasAnyContent && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ paddingTop: 40 }}>
@@ -482,7 +482,10 @@ export default function BrandHome({ project, readOnly = false }: { project: Proj
         </main>
       </div>
 
-      <style>{`@media print { nav { display: none; } button { display: none !important; } }`}</style>
+      <style>{`
+        @media print { nav { display: none; } button { display: none !important; } }
+        @media (max-width: 640px) { nav { display: none !important; } }
+      `}</style>
     </div>
   )
 }

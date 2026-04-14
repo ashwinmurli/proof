@@ -106,12 +106,21 @@ Write it as a flowing piece, not bullet points. 150-250 words. In the brand's vo
           </motion.div>
         )}
 
-        {phase === 'synthesising' && (
+        {(phase === 'synthesising' || (phase === 'done' && !final)) && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{ display: 'flex', gap: 4 }}>
               {[0,1,2].map(i => <motion.div key={i} style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--mango)' }} animate={{ opacity: [0.3,1,0.3], scale: [0.8,1,0.8] }} transition={{ duration: 1.2, repeat: Infinity, delay: i*0.18 }} />)}
             </div>
             <span style={{ fontSize: 13, color: 'var(--stone)', fontFamily: 'var(--font-display)', fontStyle: 'italic' }}>proof. is writing the manifesto…</span>
+          </motion.div>
+        )}
+
+        {phase === 'synthesising' && final && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ marginTop: 32 }}>
+            <p style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 18, fontWeight: 400, color: 'var(--dark)', lineHeight: 1.9, opacity: 0.7 }}>
+              {final}
+              <span style={{ display: 'inline-block', width: 1.5, height: 16, background: 'var(--mango)', marginLeft: 3, verticalAlign: 'middle', animation: 'blink 0.9s step-end infinite' }} />
+            </p>
           </motion.div>
         )}
 
