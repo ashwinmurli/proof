@@ -246,7 +246,7 @@ Write 2-3 sentences. Is the angle a genuine bet? Is there productive tension bet
   }, [allFilled, project.id, updateProject, router])
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#F5F2EB' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--surface-0)' }}>
       <Strip
         project={project}
         phase="Discovery — Debrief"

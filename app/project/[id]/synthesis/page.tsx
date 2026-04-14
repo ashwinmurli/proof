@@ -49,7 +49,7 @@ export default function SynthesisPage() {
   const completedCount = MODULES.filter(m => isComplete(m.id)).length
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#F5F2EB' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--surface-0)' }}>
       <Strip project={project} phase="Synthesis" onAskProof={() => {}} />
 
       <main style={{ flex: 1, maxWidth: 660, width: '100%', margin: '0 auto', padding: '72px 24px 120px' }}>
@@ -102,7 +102,7 @@ export default function SynthesisPage() {
           </div>
 
           {/* Brand Home CTA */}
-          {completedCount >= 4 && (
+          {isComplete('manifesto') && (
             <motion.div
               initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
               style={{ marginTop: 48, display: 'flex', justifyContent: 'flex-end' }}

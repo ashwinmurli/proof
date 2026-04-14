@@ -250,7 +250,7 @@ No explanations. Just the words.`
   }, [allFilled, project.id, router])
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#F5F2EB' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--surface-0)' }}>
       <Strip project={project} phase="Synthesis — Personality" onAskProof={() => { setSummaryState(null); setDrawerOpen(true) }} />
       <main style={{ flex: 1, maxWidth: 660, width: '100%', margin: '0 auto', padding: '72px 24px 120px' }}>
 

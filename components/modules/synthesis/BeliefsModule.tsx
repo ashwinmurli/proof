@@ -201,7 +201,7 @@ Assess these in 2-3 sentences. Does the conviction pass the competitor test? Is 
   }, [allFilled, fetchSummary, project.id, router])
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#F5F2EB' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--surface-0)' }}>
       <Strip
         project={project} phase="Synthesis — Beliefs"
         onAskProof={() => { setSummaryState(null); setDrawerOpen(true) }}

@@ -163,7 +163,7 @@ Be specific. The examples should be immediately recognisable. No em dashes.`
   }, [allFilled, project.id, project.name, router])
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#F5F2EB' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--surface-0)' }}>
       <Strip project={project} phase="Synthesis — Tone" onAskProof={() => { setSummaryState(null); setDrawerOpen(true) }} />
       <main style={{ flex: 1, maxWidth: 660, width: '100%', margin: '0 auto', padding: '72px 24px 120px' }}>
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>

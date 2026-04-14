@@ -55,5 +55,13 @@ export function buildSynthesisContext(project: Project): string {
     parts.push(`Tone: between ${s.tone.poleA} and ${s.tone.poleB}`)
   }
 
+  if (s.naming?.chosen) {
+    parts.push(`Brand name: ${s.naming.chosen}`)
+  }
+
+  if (s.tagline?.chosen) {
+    parts.push(`Tagline: ${s.tagline.chosen}`)
+  }
+
   return parts.join('\n\n---\n\n')
 }
