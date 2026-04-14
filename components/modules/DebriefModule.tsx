@@ -97,17 +97,21 @@ export default function DebriefModule({ project }: { project: Project }) {
   async function generateAll() {
     setGenerateState('generating')
 
+    const proofBriefRead = project.brief?.proofSummary
+      ? `\n\nproof.'s read of the brief:\n${project.brief.proofSummary}`
+      : ''
+
     const prompt = `You have read this brand brief. Write a debrief — your interpretation, not a summary.
 
 Brief:
-${briefSummary}
+${briefSummary}${proofBriefRead}
 
 Write three sections, each labeled exactly:
-SITUATION: [1-2 sentences on what is actually going on — honest enough to be uncomfortable. Not flattering.]
-CHALLENGE: [1 sentence — the real strategic problem, often different from what the client stated. Specific enough to guide creative decisions.]
-ANGLE: [1-2 sentences — your point of view on how to approach this. A real bet, not a process description. Must fail the competitor test.]
+SITUATION: [1-2 sentences on what is actually going on — honest enough to be uncomfortable. Not flattering. Name the specific thing this brand is dealing with, not a generic market observation.]
+CHALLENGE: [1 sentence — the real strategic problem, often different from what the client stated. Specific enough to guide creative decisions. Must pass: would you give this same challenge to a different brand in this category?]
+ANGLE: [1-2 sentences — your point of view on how to approach this. A real bet, not a process description. If a competitor could adopt this angle without embarrassment, it's not an angle.]
 
-Be direct. Be specific. No em dashes. No flattery.`
+Be direct. Be specific. No em dashes. No flattery. The angle should make the strategist slightly nervous — that's how you know it's real.`
 
     await stream({
       project, mode: 'strategist', module: 'Debrief', prompt, maxTokens: 500,

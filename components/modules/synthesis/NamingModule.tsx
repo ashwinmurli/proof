@@ -75,11 +75,21 @@ You are helping name a brand. Based on everything above, do the following:
 TERRITORY: Write a single paragraph (2–3 sentences) defining the naming territory. What is the emotional and strategic space this name needs to occupy? What should it feel like? What should it never feel like?
 
 Then generate exactly 12 name candidates across different naming types. Each candidate gets:
-- The name itself
+- The name itself (1-2 words maximum, usually 1)
 - Its type (one of: Evocative, Invented, Experiential, Metaphor, Suggestive, Facet)
-- One sentence of logic: why this name earns its place for this specific brand.
+- One sentence of logic: the specific thread in this brand that this name pulls on.
 
-The names should be surprising, specific, and traceable to something real in the brand. No generic startup names. No appending "-ly" or "-io" to random words. No names that a competitor would immediately also want.
+What makes a name earn its place:
+- It is traceable to something real in the brief — a tension, a conviction, a specific observation
+- A competitor in this category would not immediately claim it
+- It has depth: you can see more in it the longer you look
+- It does not explain the brand — it opens a door to it
+
+What to avoid:
+- Generic startup suffixes (-ly, -io, -ify, -hub)
+- Names that merely describe the category
+- Names so abstract they could mean anything to anyone
+- Names that require explanation to understand why they fit
 
 Format exactly like this:
 
@@ -87,7 +97,7 @@ TERRITORY: [paragraph]
 
 NAME_1: [name]
 TYPE_1: [type]
-LOGIC_1: [one sentence]
+LOGIC_1: [one sentence — the specific reason this name fits this brand, not a general observation]
 
 NAME_2: [name]
 TYPE_2: [type]
