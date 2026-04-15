@@ -243,8 +243,8 @@ Assess these in 2-3 sentences. Does the conviction pass the competitor test? Is 
           )}
         </AnimatePresence>
 
-        {/* Fields */}
-        <div>
+        {/* Fields — always-visible cards */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {FIELDS.map((field, index) => {
             const isActive = activeId === field.id
             const value = values[field.id]
@@ -260,56 +260,33 @@ Assess these in 2-3 sentences. Does the conviction pass the competitor test? Is 
                   <motion.div
                     ref={el => { sectionRefs.current[field.id] = el }}
                     initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: activeId === null || isActive ? 1 : 0.38 }}
-                    transition={{ duration: 0.35, delay: index * 0.06 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: index * 0.06 }}
                     style={{
-                      marginBottom: isActive ? 36 : 64,
-                      position: 'relative',
-                      ...(isActive ? {
-                        background: '#FAF8F4',
-                        borderRadius: 12,
-                        padding: '28px 32px',
-                        marginLeft: -32,
-                        marginRight: -32,
-                        boxShadow: '0 1px 2px rgba(26,24,22,0.04), 0 4px 8px rgba(26,24,22,0.06), 0 16px 32px rgba(26,24,22,0.08), 0 0 0 0.5px rgba(26,24,22,0.05)',
-                      } : {}),
+                      background: 'var(--surface-1)',
+                      borderRadius: 14,
+                      border: `1px solid ${isActive ? 'rgba(255,161,10,0.3)' : 'rgba(184,179,172,0.25)'}`,
+                      borderLeft: `1.5px solid ${isActive ? 'var(--mango)' : 'rgba(184,179,172,0.25)'}`,
+                      padding: '24px 28px',
+                      boxShadow: isActive
+                        ? '0 1px 2px rgba(26,24,22,0.04), 0 4px 12px rgba(26,24,22,0.07), 0 0 0 0 transparent'
+                        : '0 1px 3px rgba(26,24,22,0.04)',
+                      transition: 'border-color 0.2s, box-shadow 0.2s',
                     }}
                   >
-                    {/* Active rule */}
-                    <AnimatePresence>
-                      {isActive && (
-                        <motion.div initial={{ scaleY: 0 }} animate={{ scaleY: 1 }} exit={{ scaleY: 0 }}
-                          transition={{ duration: 0.3, ease: [0.16,1,0.3,1] }}
-                          style={{ position: 'absolute', left: -20, top: 0, bottom: 0, width: 1.5, background: 'var(--mango)', borderRadius: 1, transformOrigin: 'top' }} />
-                      )}
-                    </AnimatePresence>
-
-                    {/* Label + hint */}
-                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, marginBottom: 14 }}>
-                      <div>
-                        <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: isActive ? 'var(--concrete)' : 'var(--stone)', transition: 'color 0.3s', marginBottom: 4 }}>
-                          {field.label}
-                        </div>
-                        {isActive && (
-                          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                            style={{ fontSize: 12, color: 'var(--stone)', fontWeight: 300, fontStyle: 'italic' }}>
-                            {field.hint}
-                          </motion.div>
-                        )}
+                    {/* Label + streaming dots */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                      <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--stone)' }}>
+                        {field.label}
                       </div>
                       {isStreaming && (
-                        <div style={{ display: 'flex', gap: 3, paddingTop: 2 }}>
+                        <div style={{ display: 'flex', gap: 3 }}>
                           {[0,1,2].map(i => (
                             <motion.div key={i} style={{ width: 3, height: 3, borderRadius: '50%', background: 'var(--mango)' }}
                               animate={{ opacity: [0.3,1,0.3] }} transition={{ duration: 1, repeat: Infinity, delay: i*0.15 }} />
                           ))}
                         </div>
                       )}
-                    </div>
-
-                    {/* Question */}
-                    <div style={{ fontFamily: 'var(--font-display)', fontSize: isActive ? 24 : 19, fontWeight: 400, color: 'var(--dark)', lineHeight: 1.4, marginBottom: 16, transition: 'font-size 0.35s cubic-bezier(0.16,1,0.3,1)', letterSpacing: '-0.005em' }}>
-                      {field.question}
                     </div>
 
                     {/* Content — read or edit */}
@@ -321,54 +298,58 @@ Assess these in 2-3 sentences. Does the conviction pass the competitor test? Is 
                         onKeyDown={e => handleKeyDown(e, field.id)}
                         placeholder={field.placeholder}
                         autoFocus
-                        style={{ width: '100%', background: 'transparent', border: 'none', borderBottom: '1px solid rgba(110,107,104,0.4)', padding: '8px 0 16px', fontFamily: 'var(--font-display)', fontStyle: value ? 'italic' : 'normal', fontSize: 16, fontWeight: 400, color: 'var(--dark)', outline: 'none', resize: 'none', lineHeight: 1.85, minHeight: 60, display: 'block' }}
+                        style={{ width: '100%', background: 'transparent', border: 'none', padding: '4px 0 16px', fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 18, fontWeight: 400, color: 'var(--dark)', outline: 'none', resize: 'none', lineHeight: 1.75, minHeight: 72, display: 'block' }}
                       />
                     ) : (
-                      <div onClick={() => setActiveId(field.id)} style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 16, color: 'var(--dark)', lineHeight: 1.85, paddingBottom: 16, cursor: 'text', borderBottom: '1px solid transparent' }}>
-                        {value || <span style={{ color: 'var(--stone)', fontStyle: 'italic' }}>{field.placeholder}</span>}
+                      <div
+                        onClick={() => { setActiveId(field.id); setTimeout(() => textareaRefs.current[field.id]?.focus(), 80) }}
+                        style={{ fontFamily: 'var(--font-display)', fontStyle: value ? 'italic' : 'normal', fontSize: 18, color: value ? 'var(--dark)' : 'var(--stone)', lineHeight: 1.75, paddingBottom: 16, cursor: 'text', minHeight: 56 }}
+                      >
+                        {value || field.placeholder}
                       </div>
                     )}
 
-                    {/* Action row */}
-                    <AnimatePresence>
-                      {value.trim().length > 10 && !fb && !isRefining && (
-                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                          transition={{ delay: 0.2 }}
-                          style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
-                          {!isActive ? (
-                            <>
-                              <button onClick={() => setActiveId(field.id)}
-                                style={{ fontFamily: 'var(--font-sans)', fontSize: 11, fontWeight: 500, color: 'var(--concrete)', background: 'none', border: '1px solid rgba(184,179,172,0.6)', borderRadius: 20, padding: '4px 14px', cursor: 'pointer', transition: 'all 0.15s' }}
-                                onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--concrete)'; e.currentTarget.style.color = 'var(--dark)' }}
-                                onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(184,179,172,0.6)'; e.currentTarget.style.color = 'var(--concrete)' }}>
-                                Edit
-                              </button>
-                              <ProofButton onClick={() => setFeedbackOpen(field.id)}>Ask proof. to revise</ProofButton>
-                            </>
-                          ) : (
-                            <>
-                              <button onClick={() => setActiveId(null)}
-                                style={{ fontFamily: 'var(--font-sans)', fontSize: 11, fontWeight: 500, color: 'var(--concrete)', background: 'none', border: '1px solid rgba(184,179,172,0.6)', borderRadius: 20, padding: '4px 14px', cursor: 'pointer', transition: 'all 0.15s' }}
-                                onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--concrete)'; e.currentTarget.style.color = 'var(--dark)' }}
-                                onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(184,179,172,0.6)'; e.currentTarget.style.color = 'var(--concrete)' }}>
-                                Done
-                              </button>
-                              <span style={{ fontSize: 11, color: 'var(--stone)', display: 'flex', alignItems: 'center', gap: 4 }}>
-                                <kbd style={{ fontFamily: 'var(--font-sans)', fontSize: 10, background: '#EFECE5', border: '1px solid #D5D4D6', borderRadius: 3, padding: '2px 5px', color: 'var(--concrete)' }}>⌘ Enter</kbd>
-                                {isLast ? 'to finish' : 'to continue'}
-                              </span>
-                            </>
-                          )}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                    {/* Divider */}
+                    <div style={{ height: 1, background: 'rgba(184,179,172,0.25)', marginBottom: 16 }} />
 
-                    {/* Feedback */}
+                    {/* Actions inside card */}
+                    {!fb && !isRefining && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        {isActive ? (
+                          <>
+                            <button onClick={() => setActiveId(null)}
+                              style={{ fontFamily: 'var(--font-sans)', fontSize: 11, fontWeight: 500, color: 'var(--concrete)', background: 'none', border: '1px solid rgba(184,179,172,0.6)', borderRadius: 20, padding: '4px 14px', cursor: 'pointer', transition: 'all 0.15s' }}
+                              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--concrete)'; e.currentTarget.style.color = 'var(--dark)' }}
+                              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(184,179,172,0.6)'; e.currentTarget.style.color = 'var(--concrete)' }}>
+                              Done
+                            </button>
+                            <span style={{ fontSize: 11, color: 'var(--stone)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                              <kbd style={{ fontFamily: 'var(--font-sans)', fontSize: 10, background: 'var(--bg)', border: '1px solid var(--aluminum)', borderRadius: 3, padding: '2px 5px', color: 'var(--concrete)' }}>⌘ Enter</kbd>
+                              {isLast ? 'to finish' : 'to continue'}
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <button onClick={() => { setActiveId(field.id); setTimeout(() => textareaRefs.current[field.id]?.focus(), 80) }}
+                              style={{ fontFamily: 'var(--font-sans)', fontSize: 11, fontWeight: 500, color: 'var(--concrete)', background: 'none', border: '1px solid rgba(184,179,172,0.6)', borderRadius: 20, padding: '4px 14px', cursor: 'pointer', transition: 'all 0.15s' }}
+                              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--concrete)'; e.currentTarget.style.color = 'var(--dark)' }}
+                              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(184,179,172,0.6)'; e.currentTarget.style.color = 'var(--concrete)' }}>
+                              Edit
+                            </button>
+                            {value.trim().length > 10 && (
+                              <ProofButton onClick={() => setFeedbackOpen(field.id)}>Ask proof. to revise</ProofButton>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Feedback panel */}
                     <AnimatePresence>
                       {(fb || isRefining) && (
                         <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
                           transition={{ duration: 0.3, ease: [0.16,1,0.3,1] }} style={{ overflow: 'hidden', marginTop: 16 }}>
-                          <div style={{ padding: '16px 18px', background: '#FAF8F4', border: '1px solid rgba(184,179,172,0.35)', borderRadius: 8 }}>
+                          <div style={{ padding: '16px 18px', background: 'var(--bg)', border: '1px solid rgba(184,179,172,0.35)', borderRadius: 8 }}>
                             <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--mango)', marginBottom: 10 }}>
                               proof. will rewrite this
                             </div>

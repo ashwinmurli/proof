@@ -201,7 +201,7 @@ export default function ProofDrawer({
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 18px 0', flexShrink: 0 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <motion.span
-                  style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--mango)', display: 'inline-block' }}
+                  style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--mango)', display: 'inline-block', flexShrink: 0 }}
                   animate={summaryState === 'thinking'
                     ? { scale: [1, 1.4, 1], opacity: [1, 0.4, 1] }
                     : { boxShadow: ['0 0 0 0px rgba(255,161,10,0.4)', '0 0 0 4px rgba(255,161,10,0)', '0 0 0 0px rgba(255,161,10,0.4)'] }
@@ -209,7 +209,9 @@ export default function ProofDrawer({
                   transition={{ duration: summaryState === 'thinking' ? 1 : 2.5, repeat: Infinity }}
                 />
                 <span style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--stone)' }}>
-                  proof.
+                  {summaryState === 'thinking'
+                    ? `proof. ${summaryThinkingLabel.toLowerCase()}`
+                    : 'proof.'}
                 </span>
               </div>
               {(!isSummaryOpen || summaryState === 'arrived') && (
@@ -227,11 +229,7 @@ export default function ProofDrawer({
               <div style={{ flex: 1, padding: '16px 20px 20px', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                 {summaryState === 'thinking' && (
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                    style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12 }}>
-                    <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--mango)', display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--mango)', display: 'inline-block' }} />
-                      {summaryThinkingLabel}
-                    </div>
+                    style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 12 }}>
                     <div style={{ display: 'flex', gap: 4 }}>
                       {[0,1,2].map(i => (
                         <motion.div key={i} style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--mango)' }}

@@ -90,10 +90,10 @@ Write a single, unified piece of strategic context — 3-4 sentences. This is th
       style={{
         marginBottom: 48,
         padding: '20px 24px',
-        background: '#FAF8F4',
+        background: 'var(--surface-1)',
         border: '1px solid rgba(184,179,172,0.35)',
         borderLeft: '1.5px solid var(--mango)',
-        borderRadius: '0 8px 8px 0',
+        borderRadius: 12,
       }}
     >
       <div style={{

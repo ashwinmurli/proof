@@ -180,80 +180,102 @@ Assess in 2 sentences. Do these feel real or aspirational? Is there anything her
         </AnimatePresence>
 
         {generated && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 48 }}>
-            {values.map((v, i) => (
-              <motion.div key={v.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
-                style={{ paddingBottom: 48, borderBottom: i < 2 ? '1px solid rgba(213,212,214,0.4)' : 'none' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {values.map((v, i) => {
+              const challenge = challenges[v.id]
+              const isRunning = challenges[v.id] === ''
+              const passes = challenge && /^PASSES/i.test(challenge)
+              const needsWork = challenge && /^NEEDS WORK/i.test(challenge)
+              const pillBg = passes ? 'rgba(34,197,94,0.12)' : needsWork ? 'rgba(251,146,60,0.15)' : challenge ? 'rgba(239,68,68,0.12)' : undefined
+              const pillColor = passes ? '#15803d' : needsWork ? '#c2610c' : '#b91c1c'
+              const pillLabel = passes ? 'Passes' : needsWork ? 'Needs work' : 'Fails'
 
-                <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 16 }}>
-                  Value {i + 1}
-                </div>
+              return (
+                <motion.div key={v.id}
+                  initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.08 }}
+                  style={{
+                    background: 'var(--surface-1)',
+                    borderRadius: 14,
+                    border: '1px solid rgba(184,179,172,0.25)',
+                    borderLeft: passes ? '1.5px solid #15803d' : needsWork ? '1.5px solid #c2610c' : '1.5px solid rgba(184,179,172,0.25)',
+                    padding: '24px 28px',
+                    boxShadow: '0 1px 3px rgba(26,24,22,0.04)',
+                    transition: 'border-color 0.3s',
+                  }}>
 
-                {/* Name */}
-                <input
-                  value={v.name}
-                  onChange={e => updateValue(v.id, 'name', e.target.value)}
-                  placeholder="The value"
-                  style={{ width: '100%', background: 'transparent', border: 'none', borderBottom: '1px solid rgba(110,107,104,0.3)', padding: '4px 0 10px', fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 400, fontStyle: 'italic', color: 'var(--dark)', outline: 'none', marginBottom: 20 }}
-                />
-
-                {/* Definition */}
-                <div style={{ marginBottom: 16 }}>
-                  <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 8 }}>What it means</div>
-                  <textarea
-                    value={v.definition}
-                    onChange={e => updateValue(v.id, 'definition', e.target.value)}
-                    placeholder="What this value means specifically for this brand."
-                    style={{ width: '100%', background: 'transparent', border: 'none', borderBottom: '1px solid rgba(213,212,214,0.4)', padding: '6px 0 12px', fontFamily: 'var(--font-sans)', fontSize: 15, fontWeight: 300, color: 'var(--dark)', outline: 'none', resize: 'none', lineHeight: 1.75, minHeight: 52 }}
+                  {/* Value number + name */}
+                  <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 10 }}>
+                    Value {i + 1}
+                  </div>
+                  <input
+                    value={v.name}
+                    onChange={e => updateValue(v.id, 'name', e.target.value)}
+                    placeholder="The value"
+                    style={{ width: '100%', background: 'transparent', border: 'none', padding: '2px 0 12px', fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 400, fontStyle: 'italic', color: 'var(--dark)', outline: 'none' }}
                   />
-                </div>
 
-                {/* Behaviour */}
-                <div style={{ marginBottom: 20 }}>
-                  <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 8 }}>What it looks like</div>
-                  <textarea
-                    value={v.behaviour}
-                    onChange={e => updateValue(v.id, 'behaviour', e.target.value)}
-                    placeholder="A concrete description of this value in action."
-                    style={{ width: '100%', background: 'transparent', border: 'none', borderBottom: '1px solid rgba(213,212,214,0.4)', padding: '6px 0 12px', fontFamily: 'var(--font-sans)', fontSize: 15, fontWeight: 300, color: 'var(--dark)', outline: 'none', resize: 'none', lineHeight: 1.75, minHeight: 52 }}
-                  />
-                </div>
+                  {/* Divider */}
+                  <div style={{ height: 1, background: 'rgba(184,179,172,0.25)', marginBottom: 18 }} />
 
-                {/* Stress test */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <ProofButton onClick={() => challengeValue(v)} size="sm">
-                    {challenges[v.id] !== undefined ? 'Re-test this value' : 'Stress test →'}
-                  </ProofButton>
-                </div>
+                  {/* Definition */}
+                  <div style={{ marginBottom: 14 }}>
+                    <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 8 }}>What it means</div>
+                    <textarea
+                      value={v.definition}
+                      onChange={e => updateValue(v.id, 'definition', e.target.value)}
+                      placeholder="What this value means specifically for this brand."
+                      style={{ width: '100%', background: 'transparent', border: 'none', padding: '4px 0 8px', fontFamily: 'var(--font-sans)', fontSize: 14, fontWeight: 300, color: 'var(--dark)', outline: 'none', resize: 'none', lineHeight: 1.75, minHeight: 44 }}
+                    />
+                  </div>
 
-                {challenges[v.id] && (
-                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
-                    style={{ marginTop: 16 }}>
-                    {(() => {
-                      const text = challenges[v.id]
-                      const passes = /^PASSES/i.test(text)
-                      const needsWork = /^NEEDS WORK/i.test(text)
-                      const pillBg = passes ? 'rgba(34,197,94,0.12)' : needsWork ? 'rgba(251,146,60,0.15)' : 'rgba(239,68,68,0.12)'
-                      const pillColor = passes ? '#15803d' : needsWork ? '#c2610c' : '#b91c1c'
-                      const pillLabel = passes ? 'Passes' : needsWork ? 'Needs work' : 'Fails'
-                      return (
+                  {/* Behaviour */}
+                  <div style={{ marginBottom: 18 }}>
+                    <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 8 }}>What it looks like</div>
+                    <textarea
+                      value={v.behaviour}
+                      onChange={e => updateValue(v.id, 'behaviour', e.target.value)}
+                      placeholder="A concrete description of this value in action."
+                      style={{ width: '100%', background: 'transparent', border: 'none', padding: '4px 0 8px', fontFamily: 'var(--font-sans)', fontSize: 14, fontWeight: 300, color: 'var(--dark)', outline: 'none', resize: 'none', lineHeight: 1.75, minHeight: 44 }}
+                    />
+                  </div>
+
+                  {/* Stress test result — inline, always visible if run */}
+                  {(challenge || isRunning) && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                      style={{ marginBottom: 18, padding: '14px 16px', background: 'var(--bg)', borderRadius: 8, border: `1px solid ${pillBg || 'rgba(184,179,172,0.2)'}` }}>
+                      {isRunning ? (
+                        <div style={{ display: 'flex', gap: 4 }}>
+                          {[0,1,2].map(j => <motion.div key={j} style={{ width: 3, height: 3, borderRadius: '50%', background: 'var(--mango)' }} animate={{ opacity: [0.3,1,0.3] }} transition={{ duration: 1, repeat: Infinity, delay: j*0.15 }} />)}
+                        </div>
+                      ) : (
                         <>
-                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: pillBg, borderRadius: 20, padding: '3px 10px', marginBottom: 10 }}>
-                            <span style={{ width: 4, height: 4, borderRadius: '50%', background: pillColor, display: 'inline-block' }} />
-                            <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: pillColor }}>{pillLabel}</span>
-                          </div>
-                          <div style={{ paddingLeft: 16, borderLeft: '1.5px solid rgba(184,179,172,0.4)' }}>
-                            <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 13, color: 'var(--dark)', lineHeight: 1.8, margin: 0 }}>
-                              {text.replace(/^(PASSES|NEEDS WORK)[.\s]*/i, '')}
-                            </p>
-                          </div>
+                          {pillBg && (
+                            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: pillBg, borderRadius: 20, padding: '3px 10px', marginBottom: 10 }}>
+                              <span style={{ width: 4, height: 4, borderRadius: '50%', background: pillColor, display: 'inline-block' }} />
+                              <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: pillColor }}>{pillLabel}</span>
+                            </div>
+                          )}
+                          <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 13, color: 'var(--dark)', lineHeight: 1.8, margin: 0 }}>
+                            {challenge.replace(/^(PASSES|NEEDS WORK)[.\s]*/i, '')}
+                          </p>
                         </>
-                      )
-                    })()}
-                  </motion.div>
-                )}
-              </motion.div>
-            ))}
+                      )}
+                    </motion.div>
+                  )}
+
+                  {/* Divider before actions */}
+                  <div style={{ height: 1, background: 'rgba(184,179,172,0.2)', marginBottom: 14 }} />
+
+                  {/* Actions inside card */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <ProofButton onClick={() => challengeValue(v)} size="sm">
+                      {challenge ? 'Re-test →' : 'Stress test →'}
+                    </ProofButton>
+                  </div>
+                </motion.div>
+              )
+            })}
           </div>
         )}
 

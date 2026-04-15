@@ -297,17 +297,17 @@ No explanations. Just the words.`
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {pairs.map((pair, i) => (
                   <motion.div key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }}
-                    style={{ background: '#FAF8F4', borderRadius: 12, padding: '24px 28px', border: '1px solid rgba(184,179,172,0.25)', boxShadow: '0 1px 4px rgba(26,24,22,0.04)' }}>
+                    style={{ background: 'var(--surface-1)', borderRadius: 12, padding: '24px 28px', border: '1px solid rgba(184,179,172,0.25)', boxShadow: '0 1px 4px rgba(26,24,22,0.04)' }}>
 
                     {/* Poles row */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: pair.description ? 14 : 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 14 }}>
 
                       {/* Positive pole */}
                       <div style={{ position: 'relative', flex: 1 }}>
                         <div onClick={() => openSwap(i, 'pos')}
-                          style={{ padding: '10px 16px', background: swapOpen?.pair === i && swapOpen.side === 'pos' ? 'var(--dark)' : '#EDE9E2', borderRadius: 8, cursor: 'pointer', transition: 'all 0.18s', userSelect: 'none' }}>
-                          <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 400, color: swapOpen?.pair === i && swapOpen.side === 'pos' ? '#FDFCFA' : 'var(--dark)', lineHeight: 1.2 }}>
-                            {pair.pos || <span style={{ color: 'var(--stone)', fontSize: 16 }}>Click to set</span>}
+                          style={{ padding: '10px 16px', background: swapOpen?.pair === i && swapOpen.side === 'pos' ? 'var(--dark)' : 'var(--surface-0)', borderRadius: 8, cursor: 'pointer', transition: 'all 0.18s', userSelect: 'none' }}>
+                          <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 400, color: swapOpen?.pair === i && swapOpen.side === 'pos' ? '#FDFCFA' : 'var(--dark)', lineHeight: 1.2, textTransform: 'lowercase' }}>
+                            {pair.pos || <span style={{ color: 'var(--stone)', fontSize: 16, textTransform: 'none' }}>Click to set</span>}
                           </div>
                         </div>
 
@@ -316,7 +316,7 @@ No explanations. Just the words.`
                           {swapOpen?.pair === i && swapOpen.side === 'pos' && (
                             <motion.div initial={{ opacity: 0, y: -4, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -4, scale: 0.98 }}
                               transition={{ duration: 0.15, ease: [0.16,1,0.3,1] }}
-                              style={{ position: 'absolute', top: '100%', left: 0, right: 0, marginTop: 6, background: '#FDFCFA', border: '1px solid rgba(184,179,172,0.5)', borderRadius: 10, overflow: 'hidden', zIndex: 20, boxShadow: '0 8px 24px rgba(26,24,22,0.12)' }}>
+                              style={{ position: 'absolute', top: '100%', left: 0, right: 0, marginTop: 6, background: 'var(--surface-2)', border: '1px solid rgba(184,179,172,0.5)', borderRadius: 10, overflow: 'hidden', zIndex: 20, boxShadow: '0 8px 24px rgba(26,24,22,0.12)' }}>
                               {swapOpen.loading ? (
                                 <div style={{ padding: '14px 16px', display: 'flex', gap: 4 }}>
                                   {[0,1,2].map(j => <motion.div key={j} style={{ width: 3, height: 3, borderRadius: '50%', background: 'var(--mango)' }} animate={{ opacity: [0.3,1,0.3] }} transition={{ duration: 1, repeat: Infinity, delay: j*0.15 }} />)}
@@ -326,12 +326,12 @@ No explanations. Just the words.`
                                   {swapOpen.options.map((opt, oi) => (
                                     <div key={oi} onClick={() => selectOption(i, 'pos', opt)}
                                       style={{ padding: '12px 16px', cursor: 'pointer', fontFamily: 'var(--font-display)', fontSize: 18, color: 'var(--dark)', borderBottom: oi < swapOpen.options.length - 1 ? '1px solid rgba(213,212,214,0.3)' : 'none', transition: 'background 0.12s' }}
-                                      onMouseEnter={e => e.currentTarget.style.background = '#F5F2EB'}
+                                      onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-0)'}
                                       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                                       {opt}
                                     </div>
                                   ))}
-                                  <div style={{ padding: '10px 16px', borderTop: '1px solid rgba(213,212,214,0.25)', background: '#FAFAF8' }}>
+                                  <div style={{ padding: '10px 16px', borderTop: '1px solid rgba(213,212,214,0.25)', background: 'var(--surface-1)' }}>
                                     <input autoFocus defaultValue={pair.pos} placeholder="Write your own…"
                                       onKeyDown={e => { if (e.key === 'Enter') selectOption(i, 'pos', (e.target as HTMLInputElement).value) }}
                                       style={{ width: '100%', background: 'transparent', border: 'none', outline: 'none', fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 300, color: 'var(--dark)' }} />
@@ -348,9 +348,9 @@ No explanations. Just the words.`
                       {/* Negative pole */}
                       <div style={{ position: 'relative', flex: 1 }}>
                         <div onClick={() => openSwap(i, 'neg')}
-                          style={{ padding: '10px 16px', background: swapOpen?.pair === i && swapOpen.side === 'neg' ? 'var(--dark)' : '#EDE9E2', borderRadius: 8, cursor: 'pointer', transition: 'all 0.18s', userSelect: 'none' }}>
-                          <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 400, color: swapOpen?.pair === i && swapOpen.side === 'neg' ? '#FDFCFA' : 'var(--concrete)', lineHeight: 1.2 }}>
-                            {pair.neg || <span style={{ color: 'var(--stone)', fontSize: 16 }}>Click to set</span>}
+                          style={{ padding: '10px 16px', background: swapOpen?.pair === i && swapOpen.side === 'neg' ? 'var(--dark)' : 'var(--surface-0)', borderRadius: 8, cursor: 'pointer', transition: 'all 0.18s', userSelect: 'none' }}>
+                          <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 400, color: swapOpen?.pair === i && swapOpen.side === 'neg' ? '#FDFCFA' : 'var(--concrete)', lineHeight: 1.2, textTransform: 'lowercase' }}>
+                            {pair.neg || <span style={{ color: 'var(--stone)', fontSize: 16, textTransform: 'none' }}>Click to set</span>}
                           </div>
                         </div>
 
@@ -358,7 +358,7 @@ No explanations. Just the words.`
                           {swapOpen?.pair === i && swapOpen.side === 'neg' && (
                             <motion.div initial={{ opacity: 0, y: -4, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -4, scale: 0.98 }}
                               transition={{ duration: 0.15, ease: [0.16,1,0.3,1] }}
-                              style={{ position: 'absolute', top: '100%', left: 0, right: 0, marginTop: 6, background: '#FDFCFA', border: '1px solid rgba(184,179,172,0.5)', borderRadius: 10, overflow: 'hidden', zIndex: 20, boxShadow: '0 8px 24px rgba(26,24,22,0.12)' }}>
+                              style={{ position: 'absolute', top: '100%', left: 0, right: 0, marginTop: 6, background: 'var(--surface-2)', border: '1px solid rgba(184,179,172,0.5)', borderRadius: 10, overflow: 'hidden', zIndex: 20, boxShadow: '0 8px 24px rgba(26,24,22,0.12)' }}>
                               {swapOpen.loading ? (
                                 <div style={{ padding: '14px 16px', display: 'flex', gap: 4 }}>
                                   {[0,1,2].map(j => <motion.div key={j} style={{ width: 3, height: 3, borderRadius: '50%', background: 'var(--mango)' }} animate={{ opacity: [0.3,1,0.3] }} transition={{ duration: 1, repeat: Infinity, delay: j*0.15 }} />)}
@@ -368,12 +368,12 @@ No explanations. Just the words.`
                                   {swapOpen.options.map((opt, oi) => (
                                     <div key={oi} onClick={() => selectOption(i, 'neg', opt)}
                                       style={{ padding: '12px 16px', cursor: 'pointer', fontFamily: 'var(--font-display)', fontSize: 18, color: 'var(--dark)', borderBottom: oi < swapOpen.options.length - 1 ? '1px solid rgba(213,212,214,0.3)' : 'none', transition: 'background 0.12s' }}
-                                      onMouseEnter={e => e.currentTarget.style.background = '#F5F2EB'}
+                                      onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-0)'}
                                       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                                       {opt}
                                     </div>
                                   ))}
-                                  <div style={{ padding: '10px 16px', borderTop: '1px solid rgba(213,212,214,0.25)', background: '#FAFAF8' }}>
+                                  <div style={{ padding: '10px 16px', borderTop: '1px solid rgba(213,212,214,0.25)', background: 'var(--surface-1)' }}>
                                     <input autoFocus defaultValue={pair.neg} placeholder="Write your own…"
                                       onKeyDown={e => { if (e.key === 'Enter') selectOption(i, 'neg', (e.target as HTMLInputElement).value) }}
                                       style={{ width: '100%', background: 'transparent', border: 'none', outline: 'none', fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 300, color: 'var(--dark)' }} />
@@ -386,12 +386,10 @@ No explanations. Just the words.`
                       </div>
                     </div>
 
-                    {/* Description — what this tension means for this brand */}
-                    {pair.description && (
-                      <p style={{ fontSize: 13, color: 'var(--concrete)', fontWeight: 300, lineHeight: 1.7, margin: 0, fontFamily: 'var(--font-sans)' }}>
-                        {pair.description}
-                      </p>
-                    )}
+                    {/* Description — always visible */}
+                    <p style={{ fontSize: 13, color: pair.description ? 'var(--concrete)' : 'var(--aluminum)', fontWeight: 300, lineHeight: 1.7, margin: 0, fontFamily: 'var(--font-sans)', fontStyle: pair.description ? 'normal' : 'italic' }}>
+                      {pair.description || 'proof. is writing a description…'}
+                    </p>
                   </motion.div>
                 ))}
               </div>
