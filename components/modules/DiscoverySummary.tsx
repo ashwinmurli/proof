@@ -147,27 +147,11 @@ No em dashes. No flattery. No markdown formatting. Direct.`
 
   // Dotted divider with punched half-circles
   function PunchedDivider() {
-    const circleStyle = (side: 'left' | 'right'): React.CSSProperties => ({
-      position: 'absolute',
-      [side]: -29,
-      top: '50%',
-      transform: 'translateY(-50%)',
-      width: 20,
-      height: 20,
-      borderRadius: '50%',
-      background: 'var(--bg)',
-      border: '1px solid rgba(184,179,172,0.3)',
-      zIndex: 3,
-    })
     return (
-      <div style={{ position: 'relative', height: 20, margin: '20px 0' }}>
-        <div style={circleStyle('left')} />
-        <div style={{
-          position: 'absolute', left: -18, right: -18, top: '50%', transform: 'translateY(-50%)',
-          borderTop: '1.5px dotted rgba(184,179,172,0.45)',
-        }} />
-        <div style={circleStyle('right')} />
-      </div>
+      <div style={{
+        margin: '24px -28px',
+        borderTop: '1.5px dotted rgba(184,179,172,0.45)',
+      }} />
     )
   }
 
