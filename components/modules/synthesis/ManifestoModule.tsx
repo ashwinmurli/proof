@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback, useEffect } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import { Project } from '@/types'
@@ -37,11 +37,9 @@ export default function ManifestoModule({ project }: { project: Project }) {
   const filledCount = PROMPTS.filter(p => prompts[p.id]?.trim()).length
   const allFilled = filledCount >= 4
 
-  // Focus textarea when entering edit mode
   useEffect(() => {
     if (editing && editRef.current) {
       editRef.current.focus()
-      // Place cursor at end
       const len = editRef.current.value.length
       editRef.current.setSelectionRange(len, len)
     }
@@ -59,28 +57,36 @@ export default function ManifestoModule({ project }: { project: Project }) {
   async function synthesise() {
     setPhase('synthesising')
     setEditing(false)
-    const promptText = PROMPTS.filter(p => prompts[p.id]?.trim())
-      .map(p => `${p.starter} ${prompts[p.id]}`).join('\n')
+    setFinal('')
+
+    const filledPrompts = PROMPTS.filter(p => prompts[p.id]?.trim())
+    const rawMaterial = filledPrompts.map(p => `${p.starter} ${prompts[p.id]}`).join('\n')
 
     const prompt = `${ctx}
 
-The brand's raw manifesto material — sentence starters completed by the strategist:
-${promptText}
+The strategist has written these raw statements about the brand:
+${rawMaterial}
 
-Synthesise this into a manifesto in the brand's voice.
+Now write the manifesto. Not a synthesis of these sentences — a transformation of them.
 
-What a manifesto does: it makes the people it's for feel seen. It names what they already believe but haven't heard anyone say out loud. It makes everyone else feel like it's not for them — that's not a failure, that's the point.
+Forget the sentence starters. Use what they're pointing at: the belief underneath, the conviction, the thing that makes this brand different from every other brand that exists.
 
-What to avoid:
-- Generic openings ("At [brand]…", "We believe in a world…")
-- Corporate abstractions ("transforming", "empowering", "enabling")
-- Anything that could appear in a competitor's about page
-- Lists, bullet points, sub-headers
+What you are writing: a monologue. Something someone would read aloud to a room. Something that starts with a statement so specific it could only be about this brand, builds through the middle with the rhythm of someone who has thought about this for a long time, and ends with something the reader will remember. A passage from a book. The opening of something.
 
-Write as a flowing piece with 2-3 distinct paragraphs. 150-250 words total. In the brand's voice as established in the tone work — if the tone is direct, be direct; if it's lyrical, be lyrical. Separate paragraphs with a blank line. No em dashes.`
+The people it's for should feel seen. Like someone finally said the thing they've been thinking. The people it's not for should feel that too — that this isn't for them. That is not a failure. That is the whole point.
+
+Rules:
+- Open with a specific observation or statement — not "We believe" or "At [brand]" or any version of "In a world where"
+- Short sentences can interrupt long ones. That rhythm is intentional
+- No corporate abstractions: no "transforming", "empowering", "enabling", "journey", "solution"
+- No em dashes
+- No bullet points, headers, or lists
+- 2-3 paragraphs, 180-280 words total
+- Separate paragraphs with a blank line
+- Speak as if you mean it. Because you do.`
 
     await stream({
-      project, mode: 'strategist', module: 'Manifesto', prompt, maxTokens: 600,
+      project, mode: 'strategist', module: 'Manifesto', prompt, maxTokens: 700,
       onChunk: (text) => setFinal(text),
       onComplete: (text) => {
         setFinal(text)
@@ -102,7 +108,7 @@ Write as a flowing piece with 2-3 distinct paragraphs. 150-250 words total. In t
           <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 14 }}>Synthesis — 7 of 7</div>
           <p style={{ fontSize: 15, color: 'var(--concrete)', lineHeight: 1.85, maxWidth: 460, marginBottom: 56, fontWeight: 300 }}>
             {phase === 'prompts'
-              ? 'Complete the sentences honestly. Don\'t overthink them — proof. will shape them into the manifesto.'
+              ? 'Complete the sentences. proof. will transform them into the manifesto — not synthesise them, transform them.'
               : phase === 'done'
               ? 'Click anywhere in the text to edit it directly.'
               : 'proof. is writing…'}
@@ -117,22 +123,23 @@ Write as a flowing piece with 2-3 distinct paragraphs. 150-250 words total. In t
                 <motion.div key={p.id}
                   initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.05 }}
-                  style={{ paddingBottom: 32, marginBottom: 32, borderBottom: i < PROMPTS.length - 1 ? '1px solid rgba(194,189,183,0.3)' : 'none' }}
+                  style={{ paddingBottom: 32, marginBottom: 32, borderBottom: i < PROMPTS.length - 1 ? '1px solid rgba(194,189,183,0.25)' : 'none' }}
                 >
-                  {/* Starter + answer on same visual line */}
-                  <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', gap: '0 8px' }}>
+                  {/* Starter (dark) + answer (mango) on same visual line */}
+                  <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', gap: '0 6px' }}>
                     <span style={{
                       fontFamily: 'var(--font-display)',
                       fontStyle: 'italic',
                       fontSize: 22,
                       fontWeight: 400,
                       color: 'var(--dark)',
-                      lineHeight: 1.5,
+                      lineHeight: 1.55,
                       whiteSpace: 'nowrap',
+                      flexShrink: 0,
                     }}>
                       {p.starter}
                     </span>
-                    <div style={{ flex: '1 1 200px', minWidth: 0 }}>
+                    <div style={{ flex: '1 1 180px', minWidth: 0 }}>
                       <textarea
                         value={prompts[p.id] || ''}
                         onChange={e => handlePrompt(p.id, e.target.value)}
@@ -142,18 +149,18 @@ Write as a flowing piece with 2-3 distinct paragraphs. 150-250 words total. In t
                           width: '100%',
                           background: 'transparent',
                           border: 'none',
-                          borderBottom: `1px solid ${prompts[p.id]?.trim() ? 'rgba(110,107,104,0.3)' : 'rgba(213,212,214,0.5)'}`,
+                          borderBottom: `1px solid ${prompts[p.id]?.trim() ? 'rgba(255,161,10,0.3)' : 'rgba(213,212,214,0.4)'}`,
                           padding: '2px 0 8px',
                           fontFamily: 'var(--font-display)',
                           fontStyle: 'italic',
                           fontSize: 22,
                           fontWeight: 400,
-                          color: 'var(--dark)',
+                          color: prompts[p.id]?.trim() ? 'var(--mango)' : 'var(--stone)',
                           outline: 'none',
                           resize: 'none',
-                          lineHeight: 1.5,
+                          lineHeight: 1.55,
                           display: 'block',
-                          transition: 'border-color 0.2s',
+                          transition: 'color 0.2s, border-color 0.2s',
                         }}
                       />
                     </div>
@@ -161,6 +168,31 @@ Write as a flowing piece with 2-3 distinct paragraphs. 150-250 words total. In t
                 </motion.div>
               ))}
             </div>
+
+            {/* Preview — filled prompts flowing together */}
+            <AnimatePresence>
+              {filledCount >= 2 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4 }}
+                  style={{ marginBottom: 40, padding: '24px 28px', background: 'var(--surface-1)', borderRadius: 12, border: '1px solid rgba(184,179,172,0.2)' }}
+                >
+                  <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 16 }}>
+                    The raw material
+                  </div>
+                  <p style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 17, fontWeight: 400, lineHeight: 1.75, margin: 0 }}>
+                    {PROMPTS.filter(p => prompts[p.id]?.trim()).map((p, i, arr) => (
+                      <span key={p.id}>
+                        <span style={{ color: 'var(--dark)' }}>{p.starter} </span>
+                        <span style={{ color: 'var(--mango)' }}>{prompts[p.id]?.replace(/^…/, '').trim()}</span>
+                        {i < arr.length - 1 ? <span style={{ color: 'var(--stone)' }}>{'. '}</span> : '.'}
+                      </span>
+                    ))}
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 32, borderTop: '1px solid rgba(213,212,214,0.35)', marginTop: 8 }}>
               <button onClick={() => router.push(`/project/${project.id}/synthesis/tagline`)}
@@ -174,10 +206,9 @@ Write as a flowing piece with 2-3 distinct paragraphs. 150-250 words total. In t
           </motion.div>
         )}
 
-        {/* ── SYNTHESISING PHASE — stream visible ── */}
+        {/* ── SYNTHESISING PHASE ── */}
         {phase === 'synthesising' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            {/* Loading indicator */}
             {!final && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 32 }}>
                 <div style={{ display: 'flex', gap: 4 }}>
@@ -189,21 +220,22 @@ Write as a flowing piece with 2-3 distinct paragraphs. 150-250 words total. In t
                 </div>
               </div>
             )}
-            {/* Live stream output */}
             {final && (
-              <div style={{ opacity: 0.7 }}>
-                {final.split(/\n\n+/).map((para, i) => (
+              <div>
+                {final.split(/\n\n+/).map((para, i, arr) => (
                   <p key={i} style={{
-                    fontFamily: 'var(--font-sans)',
-                    fontSize: 20,
-                    fontWeight: 300,
+                    fontFamily: 'var(--font-display)',
+                    fontStyle: 'italic',
+                    fontSize: 22,
+                    fontWeight: 400,
                     color: 'var(--dark)',
-                    lineHeight: 1.85,
-                    marginBottom: 28,
+                    lineHeight: 1.7,
+                    marginBottom: i < arr.length - 1 ? 32 : 0,
+                    opacity: 0.75,
                   }}>
                     {para.trim()}
-                    {i === final.split(/\n\n+/).length - 1 && (
-                      <span style={{ display: 'inline-block', width: 1.5, height: 16, background: 'var(--mango)', marginLeft: 3, verticalAlign: 'middle', animation: 'blink 0.9s step-end infinite' }} />
+                    {i === arr.length - 1 && (
+                      <span style={{ display: 'inline-block', width: 1.5, height: 18, background: 'var(--mango)', marginLeft: 3, verticalAlign: 'middle', animation: 'blink 0.9s step-end infinite' }} />
                     )}
                   </p>
                 ))}
@@ -212,12 +244,11 @@ Write as a flowing piece with 2-3 distinct paragraphs. 150-250 words total. In t
           </motion.div>
         )}
 
-        {/* ── DONE PHASE — document view with inline edit ── */}
+        {/* ── DONE PHASE ── */}
         {phase === 'done' && (
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
 
             {editing ? (
-              /* Edit mode — full textarea */
               <div style={{ marginBottom: 40 }}>
                 <textarea
                   ref={editRef}
@@ -229,37 +260,39 @@ Write as a flowing piece with 2-3 distinct paragraphs. 150-250 words total. In t
                     border: 'none',
                     borderBottom: '1px solid rgba(110,107,104,0.3)',
                     padding: '0 0 20px',
-                    fontFamily: 'var(--font-sans)',
-                    fontSize: 20,
-                    fontWeight: 300,
+                    fontFamily: 'var(--font-display)',
+                    fontStyle: 'italic',
+                    fontSize: 22,
+                    fontWeight: 400,
                     color: 'var(--dark)',
                     outline: 'none',
                     resize: 'none',
-                    lineHeight: 1.85,
+                    lineHeight: 1.7,
                     minHeight: 200,
                   }}
                 />
                 <button
                   onClick={() => setEditing(false)}
-                  style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--stone)', background: 'none', border: 'none', cursor: 'pointer', marginTop: 10 }}
+                  style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--stone)', background: 'none', border: 'none', cursor: 'pointer', marginTop: 12 }}
                 >
                   Done editing
                 </button>
               </div>
             ) : (
-              /* Read mode — editorial paragraphs, click to edit */
+              /* Read mode — large italic serif, click to edit */
               <div
                 onClick={() => setEditing(true)}
                 style={{ marginBottom: 40, cursor: 'text' }}
               >
                 {paragraphs.map((para, i) => (
                   <p key={i} style={{
-                    fontFamily: 'var(--font-sans)',
-                    fontSize: 20,
-                    fontWeight: 300,
+                    fontFamily: 'var(--font-display)',
+                    fontStyle: 'italic',
+                    fontSize: 22,
+                    fontWeight: 400,
                     color: 'var(--dark)',
-                    lineHeight: 1.85,
-                    marginBottom: i < paragraphs.length - 1 ? 28 : 0,
+                    lineHeight: 1.7,
+                    marginBottom: i < paragraphs.length - 1 ? 32 : 0,
                   }}>
                     {para}
                   </p>
@@ -299,7 +332,7 @@ Write as a flowing piece with 2-3 distinct paragraphs. 150-250 words total. In t
       <ProofDrawer project={project} mode="strategist" module="Manifesto"
         open={drawerOpen} onClose={() => setDrawerOpen(false)} />
       <style>{`
-        textarea::placeholder { color: var(--stone); font-style: italic; }
+        textarea::placeholder { color: var(--aluminum); font-style: italic; }
         @keyframes blink { 50% { opacity: 0; } }
       `}</style>
     </div>
