@@ -148,28 +148,24 @@ No em dashes. No flattery. No markdown formatting. Direct.`
   // Dotted divider with punched half-circles
   function PunchedDivider() {
     return (
-      <div style={{ position: 'relative', height: 1, margin: '28px 0' }}>
-        {/* Left half-circle */}
+      <div style={{ position: 'relative', height: 20, margin: '20px 0' }}>
+        {/* Left half-circle — punched out of card edge, perfectly round */}
         <div style={{
-          position: 'absolute', left: -28, top: '50%', transform: 'translateY(-50%)',
-          width: 16, height: 16, borderRadius: '0 8px 8px 0',
+          position: 'absolute', left: -38, top: '50%', transform: 'translateY(-50%)',
+          width: 20, height: 20, borderRadius: '50%',
           background: 'var(--surface-0)',
-          border: '1px solid rgba(184,179,172,0.3)',
-          borderLeft: 'none',
           zIndex: 2,
         }} />
-        {/* Dotted line */}
+        {/* Dotted line — extends from circle edge to circle edge */}
         <div style={{
-          position: 'absolute', left: 0, right: 0, top: 0,
-          borderTop: '1.5px dotted rgba(184,179,172,0.5)',
+          position: 'absolute', left: -28, right: -28, top: '50%', transform: 'translateY(-50%)',
+          borderTop: '1.5px dotted rgba(184,179,172,0.45)',
         }} />
         {/* Right half-circle */}
         <div style={{
-          position: 'absolute', right: -28, top: '50%', transform: 'translateY(-50%)',
-          width: 16, height: 16, borderRadius: '8px 0 0 8px',
+          position: 'absolute', right: -38, top: '50%', transform: 'translateY(-50%)',
+          width: 20, height: 20, borderRadius: '50%',
           background: 'var(--surface-0)',
-          border: '1px solid rgba(184,179,172,0.3)',
-          borderRight: 'none',
           zIndex: 2,
         }} />
       </div>
@@ -241,7 +237,7 @@ No em dashes. No flattery. No markdown formatting. Direct.`
                     proof.'s thoughts on what we found
                   </div>
                   {found ? (
-                    <p style={{ fontFamily: 'var(--font-sans)', fontSize: 15, fontWeight: 300, color: 'var(--dark)', lineHeight: 1.85, margin: 0 }}>
+                    <p style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 400, color: 'var(--dark)', lineHeight: 1.75, margin: 0 }}>
                       {renderHighlighted(found)}
                     </p>
                   ) : (
@@ -264,7 +260,7 @@ No em dashes. No flattery. No markdown formatting. Direct.`
                   <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--aluminum)', marginBottom: 14 }}>
                     proof.'s thoughts on the tension
                   </div>
-                  <p style={{ fontFamily: 'var(--font-sans)', fontSize: 15, fontWeight: 300, color: 'var(--dark)', lineHeight: 1.85, margin: 0 }}>
+                  <p style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 400, color: 'var(--dark)', lineHeight: 1.75, margin: 0 }}>
                     {renderHighlighted(tension)}
                   </p>
                 </div>
@@ -279,7 +275,7 @@ No em dashes. No flattery. No markdown formatting. Direct.`
                   <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--aluminum)', marginBottom: 14 }}>
                     proof.'s thoughts on the question we answer
                   </div>
-                  <p style={{ fontFamily: 'var(--font-sans)', fontSize: 15, fontWeight: 300, color: 'var(--dark)', lineHeight: 1.85, margin: 0 }}>
+                  <p style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 400, color: 'var(--dark)', lineHeight: 1.75, margin: 0 }}>
                     {renderHighlighted(question)}
                   </p>
                 </div>
