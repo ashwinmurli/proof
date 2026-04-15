@@ -308,8 +308,8 @@ Write 2-3 sentences. Is the angle a genuine bet? Is there productive tension bet
           </motion.div>
         )}
 
-        {/* Sections */}
-        <div>
+        {/* Sections — always-visible cards */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {SECTIONS.map((section, index) => {
             const isActive = activeId === section.id && generateState === 'done'
             const value = values[section.id]
@@ -324,55 +324,36 @@ Write 2-3 sentences. Is the angle a genuine bet? Is there productive tension bet
                   <motion.div
                     ref={el => { sectionRefs.current[section.id] = el }}
                     initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: activeId === null || isActive ? 1 : 0.42 }}
-                    transition={{ duration: 0.35, delay: index * 0.08 }}
-                    onClick={() => !isActive && setActiveId(section.id)}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: index * 0.06 }}
                     style={{
-                      marginBottom: isActive ? 40 : 68,
-                      cursor: 'default',
-                      position: 'relative',
-                      ...(isActive ? {
-                        background: '#FAF8F4',
-                        borderRadius: 12,
-                        padding: '28px 32px',
-                        marginLeft: -32,
-                        marginRight: -32,
-                        boxShadow: '0 1px 2px rgba(26,24,22,0.04), 0 4px 8px rgba(26,24,22,0.06), 0 16px 32px rgba(26,24,22,0.08), 0 0 0 0.5px rgba(26,24,22,0.05)',
-                      } : {}),
+                      background: 'var(--surface-1)',
+                      borderRadius: 14,
+                      border: `1px solid ${isActive ? 'rgba(255,161,10,0.3)' : 'rgba(184,179,172,0.25)'}`,
+                      borderLeft: `1.5px solid ${isActive ? 'var(--mango)' : 'rgba(184,179,172,0.25)'}`,
+                      padding: '24px 28px',
+                      boxShadow: isActive
+                        ? '0 1px 2px rgba(26,24,22,0.04), 0 4px 12px rgba(26,24,22,0.07)'
+                        : '0 1px 3px rgba(26,24,22,0.04)',
+                      transition: 'border-color 0.2s, box-shadow 0.2s',
                     }}
                   >
-                    {/* Active left rule */}
-                    <AnimatePresence>
-                      {isActive && (
-                        <motion.div
-                          initial={{ scaleY: 0, opacity: 0 }} animate={{ scaleY: 1, opacity: 1 }} exit={{ scaleY: 0, opacity: 0 }}
-                          transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                          style={{ position: 'absolute', left: -20, top: 0, bottom: 0, width: 1.5, background: 'var(--mango)', borderRadius: 1, transformOrigin: 'top' }}
-                        />
-                      )}
-                    </AnimatePresence>
-
-                    {/* Label row */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-                      <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: isActive ? 'var(--concrete)' : 'var(--stone)', transition: 'color 0.3s' }}>
+                    {/* Label + streaming dots */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                      <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--stone)' }}>
                         {section.label}
                       </div>
                       {isStreaming && (
                         <div style={{ display: 'flex', gap: 3 }}>
                           {[0,1,2].map(i => (
                             <motion.div key={i} style={{ width: 3, height: 3, borderRadius: '50%', background: 'var(--mango)' }}
-                              animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1, repeat: Infinity, delay: i * 0.15 }} />
+                              animate={{ opacity: [0.3,1,0.3] }} transition={{ duration: 1, repeat: Infinity, delay: i*0.15 }} />
                           ))}
                         </div>
                       )}
                     </div>
 
-                    {/* Question */}
-                    <div style={{ fontFamily: 'var(--font-display)', fontSize: isActive ? 22 : 18, fontWeight: 400, color: 'var(--dark)', lineHeight: 1.45, marginBottom: 16, transition: 'font-size 0.35s cubic-bezier(0.16,1,0.3,1)', letterSpacing: '-0.005em' }}>
-                      {section.question}
-                    </div>
-
-                    {/* proof.'s interpretation — read mode until clicked */}
+                    {/* Content — read or edit */}
                     {isActive ? (
                       <textarea
                         ref={el => { textareaRefs.current[section.id] = el }}
@@ -381,110 +362,77 @@ Write 2-3 sentences. Is the angle a genuine bet? Is there productive tension bet
                         onKeyDown={e => handleKeyDown(e, section.id)}
                         placeholder={section.placeholder}
                         autoFocus
-                        style={{
-                          width: '100%', background: 'transparent', border: 'none',
-                          borderBottom: '1px solid rgba(110,107,104,0.4)',
-                          padding: '8px 0 16px', fontFamily: 'var(--font-display)',
-                          fontStyle: value ? 'italic' : 'normal',
-                          fontSize: 16, fontWeight: 400, color: 'var(--dark)',
-                          outline: 'none', resize: 'none', lineHeight: 1.85,
-                          minHeight: 60, display: 'block',
-                        }}
+                        style={{ width: '100%', background: 'transparent', border: 'none', padding: '4px 0 16px', fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 18, fontWeight: 400, color: 'var(--dark)', outline: 'none', resize: 'none', lineHeight: 1.75, minHeight: 72, display: 'block' }}
                       />
                     ) : (
                       <div
-                        onClick={() => setActiveId(section.id)}
-                        style={{
-                          fontFamily: 'var(--font-display)', fontStyle: 'italic',
-                          fontSize: 16, fontWeight: 400, color: 'var(--dark)',
-                          lineHeight: 1.85, paddingBottom: 16, cursor: 'text',
-                          borderBottom: '1px solid transparent',
-                        }}
+                        onClick={() => { if (generateState === 'done') setActiveId(section.id) }}
+                        style={{ fontFamily: 'var(--font-display)', fontStyle: value ? 'italic' : 'normal', fontSize: 18, color: value ? 'var(--dark)' : 'var(--stone)', lineHeight: 1.75, paddingBottom: 16, cursor: generateState === 'done' ? 'text' : 'default', minHeight: 40 }}
                       >
-                        {value || <span style={{ color: 'var(--stone)', fontStyle: 'italic' }}>{section.placeholder}</span>}
+                        {value || section.placeholder}
                       </div>
                     )}
 
-                    {/* Action row — changes based on edit state */}
-                    <AnimatePresence>
-                      {value.trim().length > 10 && fb === 'idle' && !isStreaming && (
-                        <motion.div
-                          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                          transition={{ delay: 0.2 }}
-                          style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 8 }}
-                        >
-                          {!isActive ? (
-                            <>
-                              <button
-                                onClick={e => { e.stopPropagation(); setActiveId(section.id) }}
-                                style={{ fontFamily: 'var(--font-sans)', fontSize: 11, fontWeight: 500, color: 'var(--concrete)', background: 'none', border: '1px solid rgba(184,179,172,0.6)', borderRadius: 20, padding: '4px 14px', cursor: 'pointer', transition: 'all 0.15s' }}
-                                onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--concrete)'; e.currentTarget.style.color = 'var(--dark)' }}
-                                onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(184,179,172,0.6)'; e.currentTarget.style.color = 'var(--concrete)' }}
-                              >
-                                Edit
-                              </button>
-                              <ProofButton onClick={e => { e.stopPropagation(); openFeedback(section.id) }}>Ask proof. to revise</ProofButton>
-                            </>
-                          ) : (
-                            <>
-                              <button
-                                onClick={e => { e.stopPropagation(); setActiveId(null) }}
-                                style={{ fontFamily: 'var(--font-sans)', fontSize: 11, fontWeight: 500, color: 'var(--concrete)', background: 'none', border: '1px solid rgba(184,179,172,0.6)', borderRadius: 20, padding: '4px 14px', cursor: 'pointer', transition: 'all 0.15s' }}
-                                onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--concrete)'; e.currentTarget.style.color = 'var(--dark)' }}
-                                onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(184,179,172,0.6)'; e.currentTarget.style.color = 'var(--concrete)' }}
-                              >
-                                Done
-                              </button>
+                    {/* Divider */}
+                    <div style={{ height: 1, background: 'rgba(184,179,172,0.25)', marginBottom: 14 }} />
+
+                    {/* Actions */}
+                    {fb === 'idle' && !isStreaming && generateState === 'done' && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        {isActive ? (
+                          <>
+                            <button onClick={() => setActiveId(null)}
+                              style={{ fontFamily: 'var(--font-sans)', fontSize: 11, fontWeight: 500, color: 'var(--concrete)', background: 'none', border: '1px solid rgba(184,179,172,0.6)', borderRadius: 20, padding: '4px 14px', cursor: 'pointer', transition: 'all 0.15s' }}
+                              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--concrete)'; e.currentTarget.style.color = 'var(--dark)' }}
+                              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(184,179,172,0.6)'; e.currentTarget.style.color = 'var(--concrete)' }}>
+                              Done
+                            </button>
+                            {!isLast && (
                               <span style={{ fontSize: 11, color: 'var(--stone)', display: 'flex', alignItems: 'center', gap: 4 }}>
-                                <kbd style={{ fontFamily: 'var(--font-sans)', fontSize: 10, background: '#EFECE5', border: '1px solid #D5D4D6', borderRadius: 3, padding: '2px 5px', color: 'var(--concrete)' }}>⌘ Enter</kbd>
-                                {isLast ? 'to finish' : 'to continue'}
+                                <kbd style={{ fontFamily: 'var(--font-sans)', fontSize: 10, background: 'var(--bg)', border: '1px solid var(--aluminum)', borderRadius: 3, padding: '2px 5px', color: 'var(--concrete)' }}>⌘ Enter</kbd>
+                                to continue
                               </span>
-                            </>
-                          )}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                            )}
+                          </>
+                        ) : value.trim().length > 10 ? (
+                          <>
+                            <button onClick={e => { e.stopPropagation(); setActiveId(section.id) }}
+                              style={{ fontFamily: 'var(--font-sans)', fontSize: 11, fontWeight: 500, color: 'var(--concrete)', background: 'none', border: '1px solid rgba(184,179,172,0.6)', borderRadius: 20, padding: '4px 14px', cursor: 'pointer', transition: 'all 0.15s' }}
+                              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--concrete)'; e.currentTarget.style.color = 'var(--dark)' }}
+                              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(184,179,172,0.6)'; e.currentTarget.style.color = 'var(--concrete)' }}>
+                              Edit
+                            </button>
+                            <ProofButton onClick={e => { e.stopPropagation(); openFeedback(section.id) }}>Ask proof. to revise</ProofButton>
+                          </>
+                        ) : null}
+                      </div>
+                    )}
 
                     {/* Push back input */}
                     <AnimatePresence>
                       {(fb === 'open' || fb === 'refining') && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                          style={{ overflow: 'hidden', marginTop: 16 }}
-                        >
-                          <div style={{ padding: '16px 18px', background: '#FAF8F4', border: '1px solid rgba(184,179,172,0.35)', borderRadius: 8 }}>
+                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.3, ease: [0.16,1,0.3,1] }} style={{ overflow: 'hidden', marginTop: 16 }}>
+                          <div style={{ padding: '14px 16px', background: 'var(--bg)', border: '1px solid rgba(184,179,172,0.35)', borderRadius: 8 }}>
                             <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--mango)', marginBottom: 10 }}>
-                              proof. will rewrite this
+                              proof. will revise this
                             </div>
                             <textarea
                               ref={el => { feedbackRefs.current[section.id] = el }}
                               value={feedbackText[section.id]}
                               onChange={e => setFeedbackText(prev => ({ ...prev, [section.id]: e.target.value }))}
                               onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitFeedback(section.id) } }}
-                              placeholder="What's wrong with this? A competitor could say it / The real tension is / This misses…"
+                              placeholder="What's wrong with this?"
                               disabled={fb === 'refining'}
-                              style={{
-                                width: '100%', background: 'transparent', border: 'none',
-                                borderBottom: '1px solid rgba(184,179,172,0.5)', padding: '4px 0 10px',
-                                fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 300, color: 'var(--dark)',
-                                outline: 'none', resize: 'none', lineHeight: 1.7, minHeight: 44,
-                              }}
+                              style={{ width: '100%', background: 'transparent', border: 'none', borderBottom: '1px solid rgba(184,179,172,0.5)', padding: '4px 0 10px', fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 300, color: 'var(--dark)', outline: 'none', resize: 'none', lineHeight: 1.7, minHeight: 44 }}
                             />
                             <div style={{ display: 'flex', gap: 10, marginTop: 12 }}>
-                              <ProofButton
-                                onClick={() => submitFeedback(section.id)}
-                                disabled={!feedbackText[section.id]?.trim() || fb === 'refining'}
-                                variant="solid"
-                                size="sm"
-                              >
-                                {fb === 'refining' ? 'Refining…' : 'Revise →'}
+                              <ProofButton onClick={() => submitFeedback(section.id)} disabled={!feedbackText[section.id]?.trim() || fb === 'refining'} variant="solid" size="sm" style={{ borderRadius: 5 }}>
+                                {fb === 'refining' ? 'Revising…' : 'Revise →'}
                               </ProofButton>
-                              {fb === 'open' && (
-                                <button
-                                  onClick={() => closeFeedback(section.id)}
-                                  style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--stone)', background: 'none', border: 'none', cursor: 'pointer', padding: '7px 0' }}
-                                >
+                              {fb !== 'refining' && (
+                                <button onClick={() => { setFeedbackState(prev => ({ ...prev, [section.id]: 'idle' })); setFeedbackText(prev => ({ ...prev, [section.id]: '' })) }}
+                                  style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--stone)', background: 'none', border: 'none', cursor: 'pointer', padding: '7px 0' }}>
                                   Cancel
                                 </button>
                               )}

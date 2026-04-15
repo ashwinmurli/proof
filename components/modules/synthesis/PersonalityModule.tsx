@@ -35,7 +35,12 @@ export default function PersonalityModule({ project }: { project: Project }) {
     existing?.tensions?.length
       ? existing.tensions.map(t => {
           const m = t.match(/^(.+?)\s+but never\s+(.+?)(?:\s*—\s*(.+))?$/)
-          return { pos: m?.[1]?.trim() || t, neg: m?.[2]?.trim() || '', description: m?.[3]?.trim() || '' }
+          const neg = m?.[2]?.trim() || ''
+          return {
+            pos: m?.[1]?.trim() || t,
+            neg: neg.replace(/^never\s+/i, ''),  // strip leading "never" if model included it
+            description: m?.[3]?.trim() || ''
+          }
         })
       : [
           { pos: '', neg: '', description: '' },
@@ -61,6 +66,19 @@ export default function PersonalityModule({ project }: { project: Project }) {
   const [summaryText, setSummaryText] = useState('')
   const summaryStateRef = useRef<'thinking' | 'arrived' | null>(null)
   useEffect(() => { summaryStateRef.current = summaryState }, [summaryState])
+
+  // Close swap dropdown on click outside
+  useEffect(() => {
+    if (!swapOpen) return
+    function handleClickOutside(e: MouseEvent) {
+      const target = e.target as HTMLElement
+      if (!target.closest('[data-swap-container]')) {
+        setSwapOpen(null)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [swapOpen])
 
   const ctx = buildSynthesisContext(project)
   const allFilled = pairs.some(p => p.pos && p.neg) && Object.values(scenarios).every(s => s.trim())
@@ -141,7 +159,7 @@ No em dashes within the PAIR lines.`
       onComplete: (text) => {
         const newPairs: TensionPair[] = [1, 2, 3].map(n => ({
           pos: text.match(new RegExp(`PAIR_${n}_POS:\\s*(.+?)(?=\\n|$)`))?.[1]?.trim() || '',
-          neg: text.match(new RegExp(`PAIR_${n}_NEG:\\s*(.+?)(?=\\n|$)`))?.[1]?.trim() || '',
+          neg: (text.match(new RegExp(`PAIR_${n}_NEG:\\s*(.+?)(?=\\n|$)`))?.[1]?.trim() || '').replace(/^never\s+/i, ''),
           description: text.match(new RegExp(`PAIR_${n}_DESC:\\s*(.+?)(?=\\n|$)`))?.[1]?.trim() || '',
         }))
 
@@ -202,10 +220,10 @@ No explanations. Just the words.`
   }
 
   function selectOption(pairIdx: number, side: 'pos' | 'neg', value: string) {
+    const cleanValue = side === 'neg' ? value.replace(/^never\s+/i, '') : value
     const next = pairs.map((p, i) => {
       if (i !== pairIdx) return p
-      const updated = { ...p, [side]: value }
-      // Regenerate description for this pair
+      const updated = { ...p, [side]: cleanValue }
       regenerateDesc(i, updated.pos, updated.neg)
       return updated
     })
@@ -303,7 +321,7 @@ No explanations. Just the words.`
                     <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 14 }}>
 
                       {/* Positive pole */}
-                      <div style={{ position: 'relative', flex: 1 }}>
+                      <div data-swap-container style={{ position: 'relative', flex: 1 }}>
                         <div onClick={() => openSwap(i, 'pos')}
                           style={{ padding: '10px 16px', background: swapOpen?.pair === i && swapOpen.side === 'pos' ? 'var(--dark)' : 'var(--surface-0)', borderRadius: 8, cursor: 'pointer', transition: 'all 0.18s', userSelect: 'none' }}>
                           <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 400, color: swapOpen?.pair === i && swapOpen.side === 'pos' ? '#FDFCFA' : 'var(--dark)', lineHeight: 1.2, textTransform: 'lowercase' }}>
@@ -346,7 +364,7 @@ No explanations. Just the words.`
                       <div style={{ fontSize: 12, color: 'var(--stone)', fontWeight: 300, flexShrink: 0, letterSpacing: '0.02em' }}>but never</div>
 
                       {/* Negative pole */}
-                      <div style={{ position: 'relative', flex: 1 }}>
+                      <div data-swap-container style={{ position: 'relative', flex: 1 }}>
                         <div onClick={() => openSwap(i, 'neg')}
                           style={{ padding: '10px 16px', background: swapOpen?.pair === i && swapOpen.side === 'neg' ? 'var(--dark)' : 'var(--surface-0)', borderRadius: 8, cursor: 'pointer', transition: 'all 0.18s', userSelect: 'none' }}>
                           <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 400, color: swapOpen?.pair === i && swapOpen.side === 'neg' ? '#FDFCFA' : 'var(--concrete)', lineHeight: 1.2, textTransform: 'lowercase' }}>
@@ -396,9 +414,17 @@ No explanations. Just the words.`
             </div>
 
             {/* Scenario carousel — fixed width container with proper overflow */}
-            <div style={{ marginBottom: 48 }}>
+            <div style={{ marginBottom: 48, overflow: 'visible' }}>
               <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 20 }}>The person</div>
-              <div style={{ display: 'flex', gap: 16, overflowX: 'auto', marginLeft: -24, marginRight: -24, paddingLeft: 24, paddingRight: 48, paddingBottom: 16, scrollSnapType: 'x mandatory' }}>
+              <div style={{
+                display: 'flex', gap: 16,
+                overflowX: 'auto',
+                marginLeft: -24, marginRight: -24,
+                paddingLeft: 24, paddingRight: 24,
+                paddingBottom: 16,
+                scrollSnapType: 'x mandatory',
+                WebkitOverflowScrolling: 'touch',
+              }}>
                 {SCENARIO_KEYS.map(({ key, getLabel }) => {
                   const value = scenarios[key as keyof typeof scenarios]
                   const example = examples[key]
@@ -420,7 +446,7 @@ No explanations. Just the words.`
                             {[0,1,2].map(i => <motion.div key={i} style={{ width: 3, height: 3, borderRadius: '50%', background: 'var(--mango)' }} animate={{ opacity: [0.3,1,0.3] }} transition={{ duration: 1.2, repeat: Infinity, delay: i*0.18 }} />)}
                           </div>
                         ) : example ? (
-                          <p style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 14, color: 'var(--dark)', lineHeight: 1.7, margin: '0 0 10px' }}>"{example}"</p>
+                          <p style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 14, color: 'var(--dark)', lineHeight: 1.7, margin: '0 0 10px' }}>"{example.replace(/^["'"']|["'"']$/g, '')}"</p>
                         ) : (
                           <p style={{ fontSize: 13, color: 'var(--stone)', fontWeight: 300, margin: '0 0 10px', fontStyle: 'italic' }}>Generating…</p>
                         )}
