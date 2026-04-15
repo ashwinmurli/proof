@@ -26,6 +26,7 @@ export default function TaglineModule({ project }: { project: Project }) {
   )
   const [refining, setRefining] = useState(false)
   const [refinedVariations, setRefinedVariations] = useState<string[]>([])
+  const [refinedFrom, setRefinedFrom] = useState<string[]>([]) // originals that were refined
   const [drawerOpen, setDrawerOpen] = useState(false)
 
   const ctx = buildSynthesisContext(project)
@@ -98,6 +99,7 @@ Short. No em dashes. No exclamation marks.`
   async function refineSelected() {
     setRefining(true)
     setPhase('refining')
+    setRefinedFrom(selected) // save originals for display
     const prompt = `${ctx}
 
 The strategist has shortlisted these tagline candidates:
@@ -213,6 +215,18 @@ No em dashes. No exclamation marks. Shorter is almost always better.`
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 32 }}>
                 <div style={{ display: 'flex', gap: 4 }}>{[0,1,2].map(i => <motion.div key={i} style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--mango)' }} animate={{ opacity: [0.3,1,0.3] }} transition={{ duration: 1.2, repeat: Infinity, delay: i*0.18 }} />)}</div>
                 <span style={{ fontSize: 13, color: 'var(--stone)', fontFamily: 'var(--font-display)', fontStyle: 'italic' }}>proof. is sharpening the selected directions…</span>
+              </div>
+            )}
+
+            {/* Refined-from context — show originals that were selected */}
+            {!refining && refinedVariations.length > 0 && refinedFrom.length > 0 && (
+              <div style={{ marginBottom: 24, padding: '14px 18px', background: 'var(--bg)', borderRadius: 8, border: '1px solid rgba(184,179,172,0.3)' }}>
+                <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 10 }}>Refined from</div>
+                {refinedFrom.map((v, i) => (
+                  <div key={i} style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 14, color: 'var(--concrete)', lineHeight: 1.6, marginBottom: i < refinedFrom.length - 1 ? 4 : 0 }}>
+                    {v}
+                  </div>
+                ))}
               </div>
             )}
 
