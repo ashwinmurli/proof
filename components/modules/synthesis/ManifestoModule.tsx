@@ -26,7 +26,11 @@ export default function ManifestoModule({ project }: { project: Project }) {
   const { stream } = useProofStream()
 
   const existing = project.synthesis?.manifesto
-  const [prompts, setPrompts] = useState<Record<string, string>>(existing?.prompts || {})
+  // Pre-fill with placeholder text if no existing prompts — gives the user a starting point
+  const defaultPrompts = Object.fromEntries(PROMPTS.map(p => [p.id, p.placeholder.replace(/^…/, '')]))
+  const [prompts, setPrompts] = useState<Record<string, string>>(
+    existing?.prompts && Object.keys(existing.prompts).length > 0 ? existing.prompts : defaultPrompts
+  )
   const [final, setFinal] = useState(existing?.final || '')
   const [phase, setPhase] = useState<'prompts' | 'synthesising' | 'done'>(existing?.final ? 'done' : 'prompts')
   const [editing, setEditing] = useState(false)
@@ -143,7 +147,7 @@ Rules:
                       <textarea
                         value={prompts[p.id] || ''}
                         onChange={e => handlePrompt(p.id, e.target.value)}
-                        placeholder={p.placeholder}
+                        placeholder="…"
                         rows={1}
                         style={{
                           width: '100%',

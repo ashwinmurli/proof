@@ -31,6 +31,8 @@ export default function ValuesModule({ project }: { project: Project }) {
   const [generating, setGenerating] = useState(false)
   const [generated, setGenerated] = useState(existing.length > 0 && existing[0].name !== '')
   const [challenges, setChallenges] = useState<Record<string, string>>({})
+  const [rewriting, setRewriting] = useState<Record<string, boolean>>({})
+  const [rewriteDone, setRewriteDone] = useState<Record<string, boolean>>({})
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [summaryState, setSummaryState] = useState<'thinking' | 'arrived' | null>(null)
   const [summaryText, setSummaryText] = useState('')
@@ -141,8 +143,10 @@ VALUE_BEHAVIOUR: [what it looks like in action — 1 concrete sentence]
 
 No em dashes.`
 
-    // Clear challenge while rewriting
-    setChallenges(prev => ({ ...prev, [v.id]: '' }))
+    // Clear challenge and mark as rewriting
+    setChallenges(prev => { const n = { ...prev }; delete n[v.id]; return n })
+    setRewriting(prev => ({ ...prev, [v.id]: true }))
+    setRewriteDone(prev => { const n = { ...prev }; delete n[v.id]; return n })
     await stream({
       project, mode: 'strategist', module: 'Values', prompt, maxTokens: 200,
       onChunk: () => {},
@@ -160,6 +164,8 @@ No em dashes.`
           setValues(next)
           save(next)
         }
+        setRewriting(prev => { const n = { ...prev }; delete n[v.id]; return n })
+        setRewriteDone(prev => ({ ...prev, [v.id]: true }))
         // Remove the challenge result — value has been rewritten, stress test is stale
         setChallenges(prev => { const n = { ...prev }; delete n[v.id]; return n })
       },
@@ -284,6 +290,27 @@ Assess in 2 sentences. Do these feel real or aspirational? Is there anything her
                     />
                   </div>
 
+                  {/* Rewriting indicator */}
+                  {rewriting[v.id] && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                      style={{ marginBottom: 18, padding: '14px 16px', background: 'var(--bg)', borderRadius: 8, border: '1px solid rgba(184,179,172,0.2)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <div style={{ display: 'flex', gap: 4 }}>
+                        {[0,1,2].map(j => <motion.div key={j} style={{ width: 3, height: 3, borderRadius: '50%', background: 'var(--mango)' }} animate={{ opacity: [0.3,1,0.3] }} transition={{ duration: 1, repeat: Infinity, delay: j*0.15 }} />)}
+                      </div>
+                      <span style={{ fontSize: 12, color: 'var(--stone)', fontWeight: 300 }}>proof. is rewriting…</span>
+                    </motion.div>
+                  )}
+
+                  {/* Rewrite done confirmation — run fresh stress test or move on */}
+                  {rewriteDone[v.id] && !rewriting[v.id] && !challenge && (
+                    <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
+                      style={{ marginBottom: 18, padding: '12px 16px', background: 'var(--bg)', borderRadius: 8, border: '1px solid rgba(184,179,172,0.2)' }}>
+                      <p style={{ fontSize: 12, color: 'var(--stone)', fontWeight: 300, lineHeight: 1.65, margin: 0 }}>
+                        proof. has rewritten this. Run a fresh stress test to check it, or move on.
+                      </p>
+                    </motion.div>
+                  )}
+
                   {/* Stress test result — inline, always visible if run */}
                   {(challenge || isRunning) && (
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
@@ -303,7 +330,7 @@ Assess in 2 sentences. Do these feel real or aspirational? Is there anything her
                           <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 13, color: 'var(--dark)', lineHeight: 1.8, margin: 0 }}>
                             {challenge.replace(/^\*\*[^*]+\*\*:?\s*/i, '').replace(/^(PASSES|NEEDS WORK)[.\s]*/i, '')}
                           </p>
-                          {!passes && (
+                          {!passes && !rewriting[v.id] && (
                             <button
                               onClick={() => rewriteValue(v, challenge)}
                               style={{ fontFamily: 'var(--font-sans)', fontSize: 11, fontWeight: 500, color: 'var(--concrete)', background: 'none', border: '1px solid rgba(184,179,172,0.6)', borderRadius: 20, padding: '4px 14px', cursor: 'pointer', marginTop: 12, transition: 'all 0.15s', display: 'inline-block' }}
