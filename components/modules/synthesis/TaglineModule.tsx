@@ -18,15 +18,15 @@ export default function TaglineModule({ project }: { project: Project }) {
 
   const existing = project.synthesis?.tagline
   const [directions, setDirections] = useState<string[]>(existing?.directions || [])
-  // allVariations is the flat ordered list: initial 12, then each refine batch appended
   const [allVariations, setAllVariations] = useState<string[]>(existing?.variations || [])
-  const [selected, setSelected] = useState<string[]>(existing?.chosen ? [existing.chosen] : [])
+  // visibleSet: what's shown in the list — all variations initially, then selected+refined after each refine pass
+  const [visibleSet, setVisibleSet] = useState<string[]>(existing?.variations || [])
+  const [selected, setSelected] = useState<string[]>([])  // never seed from existing.chosen
   const [finalChosen, setFinalChosen] = useState(existing?.chosen || '')
   const [phase, setPhase] = useState<'loading' | 'selecting' | 'locked'>(
     existing?.chosen ? 'locked' : existing?.variations?.length ? 'selecting' : 'loading'
   )
   const [refining, setRefining] = useState(false)
-  // Track where each refinement batch starts (to show dividers)
   const [refineBatches, setRefineBatches] = useState<number[]>([])
   const [drawerOpen, setDrawerOpen] = useState(false)
 
@@ -93,6 +93,7 @@ Short. No em dashes. No exclamation marks.`
         }
         setDirections(dirs)
         setAllVariations(vars)
+        setVisibleSet(vars)
         setRefineBatches([])
         save(dirs, vars, '')
         setPhase('selecting')
@@ -124,13 +125,16 @@ No em dashes. No exclamation marks. Shorter is almost always better.`
       onChunk: () => {},
       onComplete: (text) => {
         const refined = [1,2,3].map(n => text.match(new RegExp(`REFINED_${n}:\\s*(.+?)(?=\\n|$)`))?.[1]?.trim() || '').filter(Boolean)
+        const selectedSnapshot = selected.slice() // capture before clearing
         setAllVariations(prev => {
           const next = [...prev, ...refined]
-          // Record where this batch starts
-          setRefineBatches(batches => [...batches, prev.length])
           save(directions, next, finalChosen)
           return next
         })
+        // Visible list: selected originals at top, refined below — with divider at refined start
+        const newVisible = [...selectedSnapshot, ...refined]
+        setVisibleSet(newVisible)
+        setRefineBatches([selectedSnapshot.length]) // divider after the selected originals
         setSelected([])
         setRefining(false)
       },
@@ -195,10 +199,11 @@ No em dashes. No exclamation marks. Shorter is almost always better.`
                 <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--mango)', display: 'inline-block' }} />
                 <span style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--mango)' }}>Locked</span>
               </div>
-              <input
+              <textarea
                 value={finalChosen}
                 onChange={e => { setFinalChosen(e.target.value); save(directions, allVariations, e.target.value) }}
-                style={{ width: '100%', background: 'transparent', border: 'none', padding: '0 0 4px', fontFamily: 'var(--font-display)', fontSize: 32, fontStyle: 'italic', color: 'var(--dark)', outline: 'none' }}
+                rows={Math.max(1, Math.ceil(finalChosen.length / 32))}
+                style={{ width: '100%', background: 'transparent', border: 'none', padding: '0 0 4px', fontFamily: 'var(--font-display)', fontSize: 32, fontStyle: 'italic', color: 'var(--dark)', outline: 'none', resize: 'none', lineHeight: 1.25 }}
               />
               <div style={{ height: 1, background: 'rgba(184,179,172,0.2)', margin: '16px 0' }} />
               <div style={{ display: 'flex', gap: 10 }}>
@@ -256,9 +261,9 @@ No em dashes. No exclamation marks. Shorter is almost always better.`
             )}
 
             {/* Unified list — originals + all refined batches */}
-            {!refining && allVariations.length > 0 && (
+            {!refining && visibleSet.length > 0 && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 0, marginBottom: 32 }}>
-                {allVariations.map((v, i) => {
+                {visibleSet.map((v, i) => {
                   const isSelected = selected.includes(v)
                   const isBatchStart = hasDividerAt(i)
 
@@ -316,7 +321,7 @@ No em dashes. No exclamation marks. Shorter is almost always better.`
             )}
 
             {/* Actions */}
-            {!refining && allVariations.length > 0 && (
+            {!refining && visibleSet.length > 0 && (
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 24, borderTop: '1px solid rgba(213,212,214,0.4)' }}>
                 <button onClick={() => router.push(`/project/${project.id}/synthesis/tone`)}
                   style={{ fontFamily: 'var(--font-sans)', fontSize: 13, color: 'var(--stone)', background: 'none', border: 'none', cursor: 'pointer' }}>
