@@ -11,12 +11,12 @@ interface StripProps {
   onAskProof: () => void
   thoughtCount?: number
   answeredCount?: number
-  totalCount?: number
+  totalCount?: number  // if not passed, dashes are hidden
 }
 
 export default function Strip({
   project, phase, onAskProof,
-  thoughtCount = 0, answeredCount = 0, totalCount = 5,
+  thoughtCount = 0, answeredCount = 0, totalCount,
 }: StripProps) {
   const router = useRouter()
 
@@ -31,9 +31,9 @@ export default function Strip({
       padding: '0 clamp(20px, 5vw, 44px)',
       flexShrink: 0,
     }}>
-      {/* Left — wordmark links to project overview */}
+      {/* Left — wordmark always goes to homepage */}
       <button
-        onClick={() => router.push(`/project/${project.id}`)}
+        onClick={() => router.push('/')}
         style={{
           fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 300,
           letterSpacing: '0.15em', background: 'none', border: 'none',
@@ -43,7 +43,7 @@ export default function Strip({
         proof<span style={{ color: 'var(--mango)' }}>.</span>
       </button>
 
-      {/* Centre — phase + progress */}
+      {/* Centre — phase label + optional progress dashes */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
         <span style={{
           fontSize: 10, fontWeight: 500, letterSpacing: '0.12em',
@@ -51,7 +51,7 @@ export default function Strip({
         }}>
           {phase}
         </span>
-        {totalCount > 0 && (
+        {totalCount !== undefined && totalCount > 0 && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
             {Array.from({ length: totalCount }).map((_, i) => (
               <motion.div
@@ -65,7 +65,7 @@ export default function Strip({
         )}
       </div>
 
-      {/* Right — proof. button (shows note count if present, otherwise Ask proof.) */}
+      {/* Right — proof. button */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifySelf: 'end' }}>
         <AnimatePresence mode="wait">
           {thoughtCount > 0 ? (

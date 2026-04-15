@@ -315,57 +315,61 @@ export default function BriefModule({ project, mode = 'strategist' }: BriefModul
                             exit={{ opacity: 0, y: 5 }}
                             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
                             style={{
-                              marginTop: 20,
-                              paddingTop: 16,
-                              borderTop: '1px solid rgba(255,161,10,0.18)',
-                              display: 'flex',
-                              gap: 12,
-                              alignItems: 'flex-start',
+                              marginTop: 16,
+                              padding: '14px 16px',
+                              background: 'var(--bg)',
+                              border: '1px solid rgba(255,161,10,0.2)',
+                              borderLeft: '1.5px solid var(--mango)',
+                              borderRadius: 8,
                             }}
                           >
-                            <motion.div
-                              style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--mango)', flexShrink: 0, marginTop: 5 }}
-                              animate={showStream
-                                ? { scale: [1, 1.5, 1], opacity: [0.7, 1, 0.7] }
-                                : { opacity: 1 }
-                              }
-                              transition={showStream ? { duration: 1, repeat: Infinity } : {}}
-                            />
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <p style={{
-                                fontFamily: 'var(--font-sans)',
-                                fontSize: 13,
-                                fontWeight: 300,
-                                color: 'var(--concrete)',
-                                lineHeight: 1.85,
-                                margin: '0 0 8px',
-                              }}>
-                                {displayThought || ''}
-                                {showStream && (
-                                  <span style={{ display: 'inline-block', width: 1.5, height: 11, background: 'var(--mango)', marginLeft: 2, verticalAlign: 'middle', animation: 'blink 0.9s step-end infinite' }} />
-                                )}
-                              </p>
-                              {!showStream && proofThoughts[q.id] && (
-                                <button
-                                  onClick={() => {
-                                    // Clear the cached thought and re-fetch
-                                    setProofThoughts(prev => { const n = { ...prev }; delete n[q.id]; return n })
-                                    setFetchedIds(prev => { const n = new Set(prev); n.delete(q.id); return n })
-                                    const val = localAnswers[q.id]?.trim()
-                                    if (val) fetchThought(q.id, val)
-                                  }}
-                                  style={{
-                                    fontFamily: 'var(--font-sans)', fontSize: 11, color: 'var(--aluminum)',
-                                    background: 'none', border: 'none', cursor: 'pointer', padding: 0,
-                                    transition: 'color 0.15s',
-                                  }}
-                                  onMouseEnter={e => e.currentTarget.style.color = 'var(--mango)'}
-                                  onMouseLeave={e => e.currentTarget.style.color = 'var(--aluminum)'}
-                                >
-                                  ↺ different angle
-                                </button>
-                              )}
+                            {/* proof. label */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                              <motion.div
+                                style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--mango)', flexShrink: 0 }}
+                                animate={showStream
+                                  ? { scale: [1, 1.5, 1], opacity: [0.7, 1, 0.7] }
+                                  : { opacity: 1 }
+                                }
+                                transition={showStream ? { duration: 1, repeat: Infinity } : {}}
+                              />
+                              <span style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--mango)' }}>
+                                proof.
+                              </span>
                             </div>
+                            <p style={{
+                              fontFamily: 'var(--font-sans)',
+                              fontSize: 13,
+                              fontWeight: 300,
+                              color: 'var(--concrete)',
+                              lineHeight: 1.85,
+                              margin: 0,
+                            }}>
+                              {displayThought || ''}
+                              {showStream && (
+                                <span style={{ display: 'inline-block', width: 1.5, height: 11, background: 'var(--mango)', marginLeft: 2, verticalAlign: 'middle', animation: 'blink 0.9s step-end infinite' }} />
+                              )}
+                            </p>
+                            {!showStream && proofThoughts[q.id] && (
+                              <button
+                                onClick={() => {
+                                  setProofThoughts(prev => { const n = { ...prev }; delete n[q.id]; return n })
+                                  setFetchedIds(prev => { const n = new Set(prev); n.delete(q.id); return n })
+                                  const val = localAnswers[q.id]?.trim()
+                                  if (val) fetchThought(q.id, val)
+                                }}
+                                style={{
+                                  fontFamily: 'var(--font-sans)', fontSize: 11, fontWeight: 400,
+                                  color: 'var(--stone)', background: 'none', border: 'none',
+                                  cursor: 'pointer', padding: '8px 0 0', display: 'block',
+                                  transition: 'color 0.15s',
+                                }}
+                                onMouseEnter={e => e.currentTarget.style.color = 'var(--mango)'}
+                                onMouseLeave={e => e.currentTarget.style.color = 'var(--stone)'}
+                              >
+                                ↺ different angle
+                              </button>
+                            )}
                           </motion.div>
                         )}
                       </AnimatePresence>

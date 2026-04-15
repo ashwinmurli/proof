@@ -116,7 +116,6 @@ No em dashes. No flattery. Direct.`
         project={project}
         phase="Discovery Summary"
         onAskProof={() => {}}
-        totalCount={0}
       />
 
       <main style={{ flex: 1, maxWidth: 660, width: '100%', margin: '0 auto', padding: '72px 24px 120px' }}>
