@@ -68,14 +68,17 @@ export default function PersonalityModule({ project }: { project: Project }) {
 
   useEffect(() => { if (!generated) generate() }, [])
 
-  // Auto-generate all examples when first generated
+  // Auto-generate examples sequentially when first generated (avoids stream abort)
   useEffect(() => {
     if (generated && Object.values(scenarios).some(s => s)) {
-      SCENARIO_KEYS.forEach(({ key }) => {
-        if (scenarios[key as keyof typeof scenarios] && !examples[key]) {
-          genExample(key)
-        }
-      })
+      const missing = SCENARIO_KEYS.filter(({ key }) =>
+        scenarios[key as keyof typeof scenarios] && !examples[key]
+      )
+      if (missing.length > 0) {
+        // Generate one at a time — each fires after the previous completes
+        // via the onComplete chain; just kick off the first
+        genExample(missing[0].key)
+      }
     }
   }, [generated])
 
@@ -235,7 +238,19 @@ No explanations. Just the words.`
     await stream({
       project, mode: 'strategist', module: 'Personality', prompt, maxTokens: 80,
       onChunk: () => {},
-      onComplete: (t) => { setExamples(prev => ({ ...prev, [key]: t.trim() })); setGeneratingExample(null) },
+      onComplete: (t) => {
+        const result = t.trim()
+        setExamples(prev => {
+          const next = { ...prev, [key]: result }
+          // Chain to next missing example
+          const nextKey = SCENARIO_KEYS.find(s =>
+            s.key !== key && scenarios[s.key as keyof typeof scenarios] && !next[s.key]
+          )?.key
+          if (nextKey) setTimeout(() => genExample(nextKey), 50)
+          return next
+        })
+        setGeneratingExample(null)
+      },
     })
   }
 
@@ -385,12 +400,12 @@ No explanations. Just the words.`
             {/* Scenario carousel — fixed width container with proper overflow */}
             <div style={{ marginBottom: 48 }}>
               <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 20 }}>The person</div>
-              <div style={{ display: 'flex', gap: 16, overflowX: 'auto', marginLeft: -24, marginRight: -24, paddingLeft: 24, paddingRight: 24, paddingBottom: 12 }}>
+              <div style={{ display: 'flex', gap: 16, overflowX: 'auto', marginLeft: -24, marginRight: -24, paddingLeft: 24, paddingRight: 48, paddingBottom: 16, scrollSnapType: 'x mandatory' }}>
                 {SCENARIO_KEYS.map(({ key, getLabel }) => {
                   const value = scenarios[key as keyof typeof scenarios]
                   const example = examples[key]
                   return (
-                    <div key={key} style={{ flexShrink: 0, width: 300, background: '#FAF8F4', borderRadius: 12, border: '1px solid rgba(184,179,172,0.25)', padding: '22px 24px', boxShadow: '0 2px 8px rgba(26,24,22,0.05)' }}>
+                    <div key={key} style={{ flexShrink: 0, width: 300, background: 'var(--surface-1)', borderRadius: 12, border: '1px solid rgba(184,179,172,0.25)', padding: '22px 24px', boxShadow: '0 2px 8px rgba(26,24,22,0.05)', scrollSnapAlign: 'start' }}>
                       <div style={{ fontSize: 12, color: 'var(--stone)', fontWeight: 400, marginBottom: 12, letterSpacing: '0.01em' }}>{getLabel(brandName)}</div>
                       <textarea value={value}
                         onChange={e => { const next = { ...scenarios, [key]: e.target.value }; setScenarios(next); save(pairs, next) }}

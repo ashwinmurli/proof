@@ -9,6 +9,17 @@ import { useProofStream } from '@/lib/useProofStream'
 import { BRIEF_QUESTIONS } from '@/lib/questions'
 import Strip from '@/components/proof/Strip'
 
+
+// Strip markdown formatting from model output
+function stripMarkdown(text: string): string {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, '$1')  // **bold**
+    .replace(/\*(.+?)\*/g, '$1')        // *italic*
+    .replace(/^#+\s+/gm, '')            // # headers
+    .replace(/^\s*[-*]\s+/gm, '')      // bullet points
+    .trim()
+}
+
 interface DiscoverySummaryProps {
   project: Project
 }
@@ -93,9 +104,9 @@ No em dashes. No flattery. Direct.`
     return summaryText.match(pattern)?.[1]?.trim() || ''
   }
 
-  const found = parseSection('WHAT WE FOUND', 'THE TENSION')
-  const tension = parseSection('THE TENSION', 'THE QUESTION WE\'RE ANSWERING IN SYNTHESIS')
-  const question = parseSection('THE QUESTION WE\'RE ANSWERING IN SYNTHESIS', null)
+  const found = stripMarkdown(parseSection('WHAT WE FOUND', 'THE TENSION'))
+  const tension = stripMarkdown(parseSection('THE TENSION', "THE QUESTION WE'RE ANSWERING IN SYNTHESIS"))
+  const question = stripMarkdown(parseSection("THE QUESTION WE'RE ANSWERING IN SYNTHESIS", null))
 
   const isStreaming = phase === 'generating'
 
@@ -145,20 +156,28 @@ No em dashes. No flattery. Direct.`
           </div>
         )}
 
-        {/* Three sections — appear as they stream in */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+        {/* Three sections */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
-          {/* What we found */}
+          {/* What we found — the main card */}
           <AnimatePresence>
             {(found || isStreaming) && (
               <motion.div
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                style={{ paddingBottom: 48, marginBottom: 48, borderBottom: '1px solid rgba(194,189,183,0.35)' }}
+                style={{
+                  background: 'var(--surface-1)',
+                  borderRadius: 14,
+                  border: '1px solid rgba(184,179,172,0.3)',
+                  borderLeft: '1.5px solid var(--mango)',
+                  padding: '28px 32px',
+                  boxShadow: '0 1px 2px rgba(26,24,22,0.04), 0 4px 12px rgba(26,24,22,0.06)',
+                }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
-                  <span style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--stone)' }}>
+                  <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--mango)', display: 'inline-block' }} />
+                  <span style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--mango)' }}>
                     What we found
                   </span>
                   {isStreaming && !found && (
@@ -172,12 +191,11 @@ No em dashes. No flattery. Direct.`
                 </div>
                 {found && (
                   <p style={{
-                    fontFamily: 'var(--font-display)',
-                    fontSize: 22,
-                    fontWeight: 400,
+                    fontFamily: 'var(--font-sans)',
+                    fontSize: 17,
+                    fontWeight: 300,
                     color: 'var(--dark)',
-                    lineHeight: 1.55,
-                    letterSpacing: '-0.005em',
+                    lineHeight: 1.75,
                   }}>
                     {found}
                   </p>
@@ -192,19 +210,26 @@ No em dashes. No flattery. Direct.`
               <motion.div
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
-                style={{ paddingBottom: 48, marginBottom: 48, borderBottom: '1px solid rgba(194,189,183,0.35)' }}
+                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.05 }}
+                style={{
+                  background: 'var(--surface-1)',
+                  borderRadius: 14,
+                  border: '1px solid rgba(184,179,172,0.3)',
+                  padding: '28px 32px',
+                  boxShadow: '0 1px 2px rgba(26,24,22,0.04), 0 4px 12px rgba(26,24,22,0.06)',
+                }}
               >
-                <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 20 }}>
+                <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 16 }}>
                   The tension
                 </div>
                 <p style={{
                   fontFamily: 'var(--font-display)',
                   fontStyle: 'italic',
-                  fontSize: 20,
+                  fontSize: 22,
                   fontWeight: 400,
                   color: 'var(--dark)',
-                  lineHeight: 1.6,
+                  lineHeight: 1.55,
+                  letterSpacing: '-0.005em',
                 }}>
                   {tension}
                 </p>
@@ -218,25 +243,28 @@ No em dashes. No flattery. Direct.`
               <motion.div
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
-                style={{ marginBottom: 64 }}
+                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
+                style={{
+                  background: 'var(--surface-1)',
+                  borderRadius: 14,
+                  border: '1px solid rgba(184,179,172,0.3)',
+                  padding: '28px 32px',
+                  boxShadow: '0 1px 2px rgba(26,24,22,0.04), 0 4px 12px rgba(26,24,22,0.06)',
+                  marginBottom: 48,
+                }}
               >
-                <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 20 }}>
+                <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 16 }}>
                   The question Synthesis answers
                 </div>
-                <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
-                  <div style={{ width: 2, height: '100%', background: 'var(--mango)', borderRadius: 1, flexShrink: 0, alignSelf: 'stretch', minHeight: 32 }} />
-                  <p style={{
-                    fontFamily: 'var(--font-sans)',
-                    fontSize: 18,
-                    fontWeight: 300,
-                    color: 'var(--dark)',
-                    lineHeight: 1.65,
-                    flex: 1,
-                  }}>
-                    {question}
-                  </p>
-                </div>
+                <p style={{
+                  fontFamily: 'var(--font-sans)',
+                  fontSize: 17,
+                  fontWeight: 400,
+                  color: 'var(--dark)',
+                  lineHeight: 1.65,
+                }}>
+                  {question}
+                </p>
               </motion.div>
             )}
           </AnimatePresence>
