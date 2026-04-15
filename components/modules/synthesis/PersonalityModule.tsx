@@ -413,65 +413,62 @@ No explanations. Just the words.`
               </div>
             </div>
 
-            {/* Tension pairs section ends here — carousel is outside main */}
+            {/* Tension pairs section ends here */}
           </motion.div>
         )}
       </main>
 
-      {/* Scenario carousel — full width, outside constrained main */}
+      {/* Scenario section — vertical stack, inside normal layout flow */}
       {generated && (
-        <div style={{ marginBottom: 0 }}>
-          <div style={{ maxWidth: 660, width: '100%', margin: '0 auto', padding: '0 24px' }}>
-            <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 20 }}>The person</div>
-          </div>
-          <div style={{
-            display: 'flex', gap: 16,
-            overflowX: 'auto',
-            paddingLeft: 'max(24px, calc((100vw - 612px) / 2))',
-            paddingRight: 'max(24px, calc((100vw - 612px) / 2))',
-            paddingBottom: 16,
-            scrollSnapType: 'x mandatory',
-            WebkitOverflowScrolling: 'touch',
-          }}>
+        <div style={{ maxWidth: 660, width: '100%', margin: '0 auto', padding: '0 24px 80px' }}>
+          <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 20 }}>The person</div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {SCENARIO_KEYS.map(({ key, getLabel }) => {
               const value = scenarios[key as keyof typeof scenarios]
               const example = examples[key]
               return (
-                <div key={key} style={{ flexShrink: 0, width: 300, background: 'var(--surface-1)', borderRadius: 12, border: '1px solid rgba(184,179,172,0.25)', padding: '22px 24px', boxShadow: '0 2px 8px rgba(26,24,22,0.05)', scrollSnapAlign: 'start' }}>
-                  <div style={{ fontSize: 12, color: 'var(--stone)', fontWeight: 400, marginBottom: 12, letterSpacing: '0.01em' }}>{getLabel(brandName)}</div>
-                  <textarea value={value}
-                    onChange={e => { const next = { ...scenarios, [key]: e.target.value }; setScenarios(next); save(pairs, next) }}
-                    placeholder={`How does ${brandName} behave here?`}
-                    style={{ width: '100%', background: 'transparent', border: 'none', outline: 'none', resize: 'none', fontFamily: 'var(--font-sans)', fontSize: 14, fontWeight: 300, color: 'var(--dark)', lineHeight: 1.8, minHeight: 72 }} />
-                  <div style={{ borderTop: '1px solid rgba(184,179,172,0.25)', paddingTop: 14, marginTop: 10 }}>
-                    <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--mango)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 5 }}>
-                      <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--mango)', display: 'inline-block' }} />
-                      In their voice
+                <div key={key} style={{ background: 'var(--surface-1)', borderRadius: 12, border: '1px solid rgba(184,179,172,0.25)', padding: '22px 28px', boxShadow: '0 1px 3px rgba(26,24,22,0.04)' }}>
+                  <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start' }}>
+                    {/* Scenario description */}
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 12, color: 'var(--stone)', fontWeight: 400, marginBottom: 10, letterSpacing: '0.01em' }}>{getLabel(brandName)}</div>
+                      <textarea value={value}
+                        onChange={e => { const next = { ...scenarios, [key]: e.target.value }; setScenarios(next); save(pairs, next) }}
+                        placeholder={`How does ${brandName} behave here?`}
+                        style={{ width: '100%', background: 'transparent', border: 'none', outline: 'none', resize: 'none', fontFamily: 'var(--font-sans)', fontSize: 14, fontWeight: 300, color: 'var(--dark)', lineHeight: 1.8, minHeight: 64 }} />
                     </div>
-                    {generatingExample === key ? (
-                      <div style={{ display: 'flex', gap: 4, marginBottom: 10 }}>
-                        {[0,1,2].map(i => <motion.div key={i} style={{ width: 3, height: 3, borderRadius: '50%', background: 'var(--mango)' }} animate={{ opacity: [0.3,1,0.3] }} transition={{ duration: 1.2, repeat: Infinity, delay: i*0.18 }} />)}
+
+                    {/* Divider */}
+                    <div style={{ width: 1, background: 'rgba(184,179,172,0.25)', alignSelf: 'stretch', flexShrink: 0 }} />
+
+                    {/* Voice example */}
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--mango)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 5 }}>
+                        <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--mango)', display: 'inline-block' }} />
+                        In their voice
                       </div>
-                    ) : example ? (
-                      <p style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 14, color: 'var(--dark)', lineHeight: 1.7, margin: '0 0 10px' }}>"{example.replace(/^["'"']|["'"']$/g, '')}"</p>
-                    ) : (
-                      <p style={{ fontSize: 13, color: 'var(--stone)', fontWeight: 300, margin: '0 0 10px', fontStyle: 'italic' }}>Generating…</p>
-                    )}
-                    {!generatingExample && value.trim() && (
-                      <ProofButton onClick={() => genExample(key)} size="sm">New example</ProofButton>
-                    )}
+                      {generatingExample === key ? (
+                        <div style={{ display: 'flex', gap: 4, marginBottom: 10 }}>
+                          {[0,1,2].map(i => <motion.div key={i} style={{ width: 3, height: 3, borderRadius: '50%', background: 'var(--mango)' }} animate={{ opacity: [0.3,1,0.3] }} transition={{ duration: 1.2, repeat: Infinity, delay: i*0.18 }} />)}
+                        </div>
+                      ) : example ? (
+                        <p style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 15, color: 'var(--dark)', lineHeight: 1.65, margin: '0 0 12px' }}>"{example.replace(/^["'"']|["'"']$/g, '')}"</p>
+                      ) : (
+                        <p style={{ fontSize: 13, color: 'var(--stone)', fontWeight: 300, margin: '0 0 12px', fontStyle: 'italic' }}>Generating…</p>
+                      )}
+                      {!generatingExample && value.trim() && (
+                        <ProofButton onClick={() => genExample(key)} size="sm">New example</ProofButton>
+                      )}
+                    </div>
                   </div>
                 </div>
               )
             })}
           </div>
-        </div>
-      )}
 
-      {/* Nav footer */}
-      {generated && (
-        <div style={{ maxWidth: 660, width: '100%', margin: '0 auto', padding: '32px 24px 80px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 32, borderTop: '1px solid rgba(213,212,214,0.4)' }}>
+          {/* Nav footer */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 48, marginTop: 32, borderTop: '1px solid rgba(213,212,214,0.4)' }}>
             <button onClick={() => router.push(`/project/${project.id}/synthesis/values`)} style={{ fontFamily: 'var(--font-sans)', fontSize: 13, color: 'var(--stone)', background: 'none', border: 'none', cursor: 'pointer' }}>← Values</button>
             <button onClick={handleAdvance} style={{ fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 500, background: allFilled ? 'var(--dark)' : '#D5D4D6', color: allFilled ? '#FDFCFA' : '#8C8780', border: 'none', borderRadius: 5, padding: '12px 22px', cursor: allFilled ? 'pointer' : 'default', transition: 'all 0.2s' }}
               onMouseEnter={e => { if (allFilled) e.currentTarget.style.background = 'var(--mango)' }}
