@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import { Project } from '@/types'
@@ -69,12 +69,10 @@ ${project.debrief?.proofSummary ? `\nproof.'s read of the debrief:\n${project.de
 
 Write the Discovery Summary. This is the document that closes Discovery and opens Synthesis.
 
-It has three parts, each clearly labeled:
-
 Respond using EXACTLY these three section labels on their own lines, followed by the content:
 
 WHAT WE FOUND
-[3-4 sentences. The most important truths from Discovery — what the brand is actually about at its core, not what the client said. What you heard underneath. Be specific. Name the thing.]
+[3-4 sentences. The most important truths from Discovery — what the brand is actually about at its core, not what the client said. What you heard underneath. Be specific. Name the thing. Within this section, wrap the single most important phrase or clause — the sharpest insight — in double brackets like [[this]]. Only one highlight per section.]
 
 THE TENSION
 [1-2 sentences. The productive contradiction at the heart of this brand. Not a problem to solve — the creative engine that makes it interesting rather than generic.]
@@ -118,6 +116,21 @@ No em dashes. No flattery. No markdown formatting. Direct.`
 
   const isStreaming = phase === 'generating'
 
+  // Render text with [[highlighted]] phrases in mango
+  function renderHighlighted(text: string, baseStyle: React.CSSProperties) {
+    const parts = text.split(/\[\[(.+?)\]\]/)
+    if (parts.length === 1) return <span style={baseStyle}>{text}</span>
+    return (
+      <>
+        {parts.map((part, i) =>
+          i % 2 === 0
+            ? <span key={i} style={baseStyle}>{part}</span>
+            : <span key={i} style={{ ...baseStyle, color: 'var(--mango)', fontStyle: 'italic' }}>{part}</span>
+        )}
+      </>
+    )
+  }
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--surface-0)' }}>
       <Strip
@@ -126,23 +139,18 @@ No em dashes. No flattery. No markdown formatting. Direct.`
         onAskProof={() => {}}
       />
 
-      <main style={{ flex: 1, maxWidth: 660, width: '100%', margin: '0 auto', padding: '72px 24px 120px' }}>
+      <main style={{ flex: 1, maxWidth: 580, width: '100%', margin: '0 auto', padding: '88px 24px 120px' }}>
 
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          style={{ marginBottom: 72 }}
+          style={{ marginBottom: 80 }}
         >
-          <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 14 }}>
-            Discovery — 4 of 4
+          <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 0 }}>
+            {phase === 'generating' ? 'proof. is closing Discovery…' : 'Discovery — Summary'}
           </div>
-          <p style={{ fontSize: 15, color: 'var(--concrete)', lineHeight: 1.8, maxWidth: 420, fontWeight: 300 }}>
-            {phase === 'generating'
-              ? 'proof. is closing Discovery…'
-              : 'What was found. The foundation Synthesis builds on.'}
-          </p>
         </motion.div>
 
         {/* Generating */}
@@ -157,79 +165,80 @@ No em dashes. No flattery. No markdown formatting. Direct.`
                 />
               ))}
             </div>
-            <span style={{ fontSize: 13, color: 'var(--stone)', fontFamily: 'var(--font-display)', fontStyle: 'italic' }}>
-              Reading everything from the brief and debrief…
-            </span>
           </div>
         )}
 
-        {/* ── WHAT WE FOUND ── prose block, full weight */}
+        {/* ── WHAT WE FOUND ── large, generous, inline highlight */}
         <AnimatePresence>
           {(found || isStreaming) && (
             <motion.div
-              initial={{ opacity: 0, y: 8 }}
+              initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-              style={{ marginBottom: 56 }}
+              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              style={{ marginBottom: 80 }}
             >
               <div style={{
                 fontSize: 10, fontWeight: 500, letterSpacing: '0.16em',
-                textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 24,
-                display: 'flex', alignItems: 'center', gap: 8,
+                textTransform: 'uppercase', color: 'var(--aluminum)', marginBottom: 28,
               }}>
                 What we found
-                {isStreaming && !found && (
-                  <div style={{ display: 'flex', gap: 3 }}>
-                    {[0,1,2].map(i => (
-                      <motion.div key={i} style={{ width: 3, height: 3, borderRadius: '50%', background: 'var(--mango)' }}
-                        animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1, repeat: Infinity, delay: i * 0.15 }} />
-                    ))}
-                  </div>
-                )}
               </div>
               {found && (
                 <p style={{
-                  fontFamily: 'var(--font-sans)',
-                  fontSize: 18,
-                  fontWeight: 300,
+                  fontFamily: 'var(--font-display)',
+                  fontSize: 24,
+                  fontWeight: 400,
                   color: 'var(--dark)',
-                  lineHeight: 1.8,
+                  lineHeight: 1.65,
                   margin: 0,
+                  letterSpacing: '-0.01em',
                 }}>
-                  {found}
+                  {renderHighlighted(found, {
+                    fontFamily: 'var(--font-display)',
+                    fontSize: 24,
+                    fontWeight: 400,
+                    color: 'var(--dark)',
+                    lineHeight: 1.65,
+                    letterSpacing: '-0.01em',
+                  })}
                 </p>
+              )}
+              {isStreaming && !found && (
+                <div style={{ display: 'flex', gap: 3 }}>
+                  {[0,1,2].map(i => (
+                    <motion.div key={i} style={{ width: 3, height: 3, borderRadius: '50%', background: 'var(--mango)' }}
+                      animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1, repeat: Infinity, delay: i * 0.15 }} />
+                  ))}
+                </div>
               )}
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* ── THE TENSION ── the centrepiece */}
+        {/* ── THE TENSION ── the centrepiece — very large, italic, no label framing */}
         <AnimatePresence>
           {tension && (
             <motion.div
-              initial={{ opacity: 0, y: 8 }}
+              initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.05 }}
-              style={{ marginBottom: 56 }}
+              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.06 }}
+              style={{ marginBottom: 80 }}
             >
-              {/* Full-width mango rule — visual beat before the tension */}
-              <div style={{ width: 40, height: 1.5, background: 'var(--mango)', borderRadius: 1, marginBottom: 32 }} />
               <div style={{
                 fontSize: 10, fontWeight: 500, letterSpacing: '0.16em',
-                textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 24,
+                textTransform: 'uppercase', color: 'var(--aluminum)', marginBottom: 28,
               }}>
                 The tension
               </div>
               <p style={{
                 fontFamily: 'var(--font-display)',
                 fontStyle: 'italic',
-                fontSize: 28,
+                fontSize: 32,
                 fontWeight: 400,
                 color: 'var(--dark)',
-                lineHeight: 1.45,
-                letterSpacing: '-0.01em',
+                lineHeight: 1.4,
+                letterSpacing: '-0.02em',
                 margin: 0,
-                maxWidth: 560,
               }}>
                 {tension}
               </p>
@@ -237,29 +246,30 @@ No em dashes. No flattery. No markdown formatting. Direct.`
           )}
         </AnimatePresence>
 
-        {/* ── THE QUESTION ── the provocation going into Synthesis */}
+        {/* ── THE QUESTION ── smaller, muted, the provocation going into Synthesis */}
         <AnimatePresence>
           {question && (
             <motion.div
-              initial={{ opacity: 0, y: 8 }}
+              initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
-              style={{ marginBottom: 72 }}
+              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.12 }}
+              style={{ marginBottom: 80 }}
             >
-              <div style={{ width: 40, height: 1.5, background: 'rgba(184,179,172,0.4)', borderRadius: 1, marginBottom: 32 }} />
               <div style={{
                 fontSize: 10, fontWeight: 500, letterSpacing: '0.16em',
-                textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 24,
+                textTransform: 'uppercase', color: 'var(--aluminum)', marginBottom: 28,
               }}>
-                The question Synthesis answers
+                The question
               </div>
               <p style={{
-                fontFamily: 'var(--font-sans)',
+                fontFamily: 'var(--font-display)',
+                fontStyle: 'italic',
                 fontSize: 20,
                 fontWeight: 400,
-                color: 'var(--dark)',
+                color: 'var(--concrete)',
                 lineHeight: 1.6,
                 margin: 0,
+                letterSpacing: '-0.005em',
               }}>
                 {question}
               </p>
