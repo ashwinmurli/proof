@@ -72,13 +72,13 @@ Write the Discovery Summary. This is the document that closes Discovery and open
 Respond using EXACTLY these three section labels on their own lines, followed by the content:
 
 WHAT WE FOUND
-[3-4 sentences. The most important truths from Discovery — what the brand is actually about at its core, not what the client said. What you heard underneath. Be specific. Name the thing. Within this section, wrap the single most important phrase or clause — the sharpest insight — in double brackets like [[this]]. Only one highlight per section.]
+[3-4 sentences. The most important truths from Discovery — what the brand is actually about at its core, not what the client said. What you heard underneath. Be specific. Name the thing. Wrap 2-3 of the sharpest phrases in double brackets like [[this phrase]] — these are the key insights that stand out.]
 
 THE TENSION
-[1-2 sentences. The productive contradiction at the heart of this brand. Not a problem to solve — the creative engine that makes it interesting rather than generic.]
+[1-2 sentences. The productive contradiction at the heart of this brand. Not a problem to solve — the creative engine that makes it interesting rather than generic. Wrap 1 key phrase in [[double brackets]].]
 
 THE QUESTION
-[1 sentence. The sharpest possible version of what Synthesis must resolve. Concrete enough that you'd know when you'd answered it.]
+[1 sentence. The sharpest possible version of what Synthesis must resolve. Concrete enough that you'd know when you'd answered it. No highlights needed here.]
 
 No em dashes. No flattery. No markdown formatting. Direct.`
 
@@ -116,18 +116,63 @@ No em dashes. No flattery. No markdown formatting. Direct.`
 
   const isStreaming = phase === 'generating'
 
-  // Render text with [[highlighted]] phrases in mango
-  function renderHighlighted(text: string, baseStyle: React.CSSProperties) {
+  // Brush stroke SVG underline — mango, hand-drawn feel
+  const brushUnderlineSvg = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='8' viewBox='0 0 100 8' preserveAspectRatio='none'%3E%3Cpath d='M0 5 Q10 3 20 5 Q30 7 40 4.5 Q50 2 60 5 Q70 7.5 80 4 Q90 2 100 5' stroke='%23FFA10A' stroke-width='2.5' fill='none' stroke-linecap='round' stroke-linejoin='round' opacity='0.85'/%3E%3Cpath d='M0 6.5 Q15 4.5 30 6 Q45 7.5 60 5.5 Q75 3.5 100 6' stroke='%23FFA10A' stroke-width='1.2' fill='none' stroke-linecap='round' opacity='0.4'/%3E%3C/svg%3E`
+
+  // Render text with [[highlighted]] phrases getting brush underline
+  function renderHighlighted(text: string) {
     const parts = text.split(/\[\[(.+?)\]\]/)
-    if (parts.length === 1) return <span style={baseStyle}>{text}</span>
+    if (parts.length === 1) return <>{text}</>
     return (
       <>
         {parts.map((part, i) =>
           i % 2 === 0
-            ? <span key={i} style={baseStyle}>{part}</span>
-            : <span key={i} style={{ ...baseStyle, color: 'var(--mango)', fontStyle: 'italic' }}>{part}</span>
+            ? <React.Fragment key={i}>{part}</React.Fragment>
+            : (
+              <span key={i} style={{
+                display: 'inline',
+                backgroundImage: `url("${brushUnderlineSvg}")`,
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'bottom center',
+                backgroundSize: '100% 8px',
+                paddingBottom: '6px',
+              }}>
+                {part}
+              </span>
+            )
         )}
       </>
+    )
+  }
+
+  // Dotted divider with punched half-circles
+  function PunchedDivider() {
+    return (
+      <div style={{ position: 'relative', height: 1, margin: '28px 0' }}>
+        {/* Left half-circle */}
+        <div style={{
+          position: 'absolute', left: -28, top: '50%', transform: 'translateY(-50%)',
+          width: 16, height: 16, borderRadius: '0 8px 8px 0',
+          background: 'var(--surface-0)',
+          border: '1px solid rgba(184,179,172,0.3)',
+          borderLeft: 'none',
+          zIndex: 2,
+        }} />
+        {/* Dotted line */}
+        <div style={{
+          position: 'absolute', left: 0, right: 0, top: 0,
+          borderTop: '1.5px dotted rgba(184,179,172,0.5)',
+        }} />
+        {/* Right half-circle */}
+        <div style={{
+          position: 'absolute', right: -28, top: '50%', transform: 'translateY(-50%)',
+          width: 16, height: 16, borderRadius: '8px 0 0 8px',
+          background: 'var(--surface-0)',
+          border: '1px solid rgba(184,179,172,0.3)',
+          borderRight: 'none',
+          zIndex: 2,
+        }} />
+      </div>
     )
   }
 
@@ -139,23 +184,26 @@ No em dashes. No flattery. No markdown formatting. Direct.`
         onAskProof={() => {}}
       />
 
-      <main style={{ flex: 1, maxWidth: 580, width: '100%', margin: '0 auto', padding: '88px 24px 120px' }}>
+      <main style={{ flex: 1, maxWidth: 660, width: '100%', margin: '0 auto', padding: '72px 24px 120px' }}>
 
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          style={{ marginBottom: 80 }}
+          style={{ marginBottom: 48 }}
         >
-          <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 0 }}>
-            {phase === 'generating' ? 'proof. is closing Discovery…' : 'Discovery — Summary'}
+          <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 14 }}>
+            Discovery — 4 of 4
           </div>
+          <p style={{ fontSize: 15, color: 'var(--concrete)', lineHeight: 1.85, maxWidth: 420, fontWeight: 300, margin: 0 }}>
+            {isStreaming ? 'proof. is closing Discovery…' : 'What was found. The foundation Synthesis builds on.'}
+          </p>
         </motion.div>
 
         {/* Generating */}
-        {phase === 'generating' && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 48 }}>
+        {isStreaming && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 32 }}>
             <div style={{ display: 'flex', gap: 4 }}>
               {[0, 1, 2].map(i => (
                 <motion.div key={i}
@@ -168,111 +216,74 @@ No em dashes. No flattery. No markdown formatting. Direct.`
           </div>
         )}
 
-        {/* ── WHAT WE FOUND ── large, generous, inline highlight */}
+        {/* Single card containing all three sections */}
         <AnimatePresence>
-          {(found || isStreaming) && (
+          {(found || tension || question) && (
             <motion.div
-              initial={{ opacity: 0, y: 12 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              style={{ marginBottom: 80 }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              style={{
+                background: 'var(--surface-1)',
+                borderRadius: 14,
+                border: '1px solid rgba(184,179,172,0.3)',
+                padding: '28px 28px',
+                boxShadow: '0 2px 4px rgba(26,24,22,0.04), 0 8px 24px rgba(26,24,22,0.07), 0 24px 48px rgba(26,24,22,0.06)',
+                marginBottom: 48,
+                overflow: 'visible',
+                position: 'relative',
+              }}
             >
-              <div style={{
-                fontSize: 10, fontWeight: 500, letterSpacing: '0.16em',
-                textTransform: 'uppercase', color: 'var(--aluminum)', marginBottom: 28,
-              }}>
-                What we found
-              </div>
-              {found && (
-                <p style={{
-                  fontFamily: 'var(--font-display)',
-                  fontSize: 24,
-                  fontWeight: 400,
-                  color: 'var(--dark)',
-                  lineHeight: 1.65,
-                  margin: 0,
-                  letterSpacing: '-0.01em',
-                }}>
-                  {renderHighlighted(found, {
-                    fontFamily: 'var(--font-display)',
-                    fontSize: 24,
-                    fontWeight: 400,
-                    color: 'var(--dark)',
-                    lineHeight: 1.65,
-                    letterSpacing: '-0.01em',
-                  })}
-                </p>
-              )}
-              {isStreaming && !found && (
-                <div style={{ display: 'flex', gap: 3 }}>
-                  {[0,1,2].map(i => (
-                    <motion.div key={i} style={{ width: 3, height: 3, borderRadius: '50%', background: 'var(--mango)' }}
-                      animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1, repeat: Infinity, delay: i * 0.15 }} />
-                  ))}
+              {/* WHAT WE FOUND */}
+              {(found || isStreaming) && (
+                <div>
+                  <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--aluminum)', marginBottom: 14 }}>
+                    proof.'s thoughts on what we found
+                  </div>
+                  {found ? (
+                    <p style={{ fontFamily: 'var(--font-sans)', fontSize: 15, fontWeight: 300, color: 'var(--dark)', lineHeight: 1.85, margin: 0 }}>
+                      {renderHighlighted(found)}
+                    </p>
+                  ) : (
+                    <div style={{ display: 'flex', gap: 3 }}>
+                      {[0,1,2].map(i => (
+                        <motion.div key={i} style={{ width: 3, height: 3, borderRadius: '50%', background: 'var(--mango)' }}
+                          animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1, repeat: Infinity, delay: i * 0.15 }} />
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
-            </motion.div>
-          )}
-        </AnimatePresence>
 
-        {/* ── THE TENSION ── the centrepiece — very large, italic, no label framing */}
-        <AnimatePresence>
-          {tension && (
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.06 }}
-              style={{ marginBottom: 80 }}
-            >
-              <div style={{
-                fontSize: 10, fontWeight: 500, letterSpacing: '0.16em',
-                textTransform: 'uppercase', color: 'var(--aluminum)', marginBottom: 28,
-              }}>
-                The tension
-              </div>
-              <p style={{
-                fontFamily: 'var(--font-display)',
-                fontStyle: 'italic',
-                fontSize: 32,
-                fontWeight: 400,
-                color: 'var(--dark)',
-                lineHeight: 1.4,
-                letterSpacing: '-0.02em',
-                margin: 0,
-              }}>
-                {tension}
-              </p>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              {/* Divider 1 */}
+              {found && tension && <PunchedDivider />}
 
-        {/* ── THE QUESTION ── smaller, muted, the provocation going into Synthesis */}
-        <AnimatePresence>
-          {question && (
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.12 }}
-              style={{ marginBottom: 80 }}
-            >
-              <div style={{
-                fontSize: 10, fontWeight: 500, letterSpacing: '0.16em',
-                textTransform: 'uppercase', color: 'var(--aluminum)', marginBottom: 28,
-              }}>
-                The question
-              </div>
-              <p style={{
-                fontFamily: 'var(--font-display)',
-                fontStyle: 'italic',
-                fontSize: 20,
-                fontWeight: 400,
-                color: 'var(--concrete)',
-                lineHeight: 1.6,
-                margin: 0,
-                letterSpacing: '-0.005em',
-              }}>
-                {question}
-              </p>
+              {/* THE TENSION */}
+              {tension && (
+                <div>
+                  <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--aluminum)', marginBottom: 14 }}>
+                    proof.'s thoughts on the tension
+                  </div>
+                  <p style={{ fontFamily: 'var(--font-sans)', fontSize: 15, fontWeight: 300, color: 'var(--dark)', lineHeight: 1.85, margin: 0 }}>
+                    {renderHighlighted(tension)}
+                  </p>
+                </div>
+              )}
+
+              {/* Divider 2 */}
+              {tension && question && <PunchedDivider />}
+
+              {/* THE QUESTION */}
+              {question && (
+                <div>
+                  <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--aluminum)', marginBottom: 14 }}>
+                    proof.'s thoughts on the question we answer
+                  </div>
+                  <p style={{ fontFamily: 'var(--font-sans)', fontSize: 15, fontWeight: 300, color: 'var(--dark)', lineHeight: 1.85, margin: 0 }}>
+                    {renderHighlighted(question)}
+                  </p>
+                </div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
@@ -319,7 +330,7 @@ No em dashes. No flattery. No markdown formatting. Direct.`
           )}
         </AnimatePresence>
 
-        {phase === 'generating' && (
+        {isStreaming && (
           <button
             onClick={() => router.push(`/project/${project.id}/debrief`)}
             style={{ fontFamily: 'var(--font-sans)', fontSize: 13, color: 'var(--stone)', background: 'none', border: 'none', cursor: 'pointer' }}
