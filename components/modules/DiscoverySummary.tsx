@@ -71,13 +71,18 @@ Write the Discovery Summary. This is the document that closes Discovery and open
 
 It has three parts, each clearly labeled:
 
-WHAT WE FOUND: [3-4 sentences. The most important truths from Discovery. What the brand is actually about at its core — not what the client said, what you heard underneath. Be specific. Name the thing.] 
+Respond using EXACTLY these three section labels on their own lines, followed by the content:
 
-THE TENSION: [1-2 sentences. The productive contradiction at the heart of this brand. The thing that makes it interesting rather than generic. Not a problem to solve — the creative engine.]
+WHAT WE FOUND
+[3-4 sentences. The most important truths from Discovery — what the brand is actually about at its core, not what the client said. What you heard underneath. Be specific. Name the thing.]
 
-THE QUESTION WE'RE ANSWERING IN SYNTHESIS: [1 sentence. The sharpest possible version of what Synthesis must resolve. Concrete enough that you'd know when you'd answered it.]
+THE TENSION
+[1-2 sentences. The productive contradiction at the heart of this brand. Not a problem to solve — the creative engine that makes it interesting rather than generic.]
 
-No em dashes. No flattery. Direct.`
+THE QUESTION
+[1 sentence. The sharpest possible version of what Synthesis must resolve. Concrete enough that you'd know when you'd answered it.]
+
+No em dashes. No flattery. No markdown formatting. Direct.`
 
     await stream({
       project, mode: 'strategist', module: 'DiscoverySummary', prompt, maxTokens: 500,
@@ -98,15 +103,18 @@ No em dashes. No flattery. Direct.`
   // Parse the three sections from generated text
   function parseSection(key: string, nextKey: string | null): string {
     if (!summaryText) return ''
-    const pattern = nextKey
-      ? new RegExp(`${key}:\\s*(.+?)(?=\\n${nextKey}:|$)`, 's')
-      : new RegExp(`${key}:\\s*(.+?)$`, 's')
+    // Match label on its own line, then capture content until next label or end
+    const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    const escapedNext = nextKey ? nextKey.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : null
+    const pattern = escapedNext
+      ? new RegExp(`${escapedKey}[:\\s]*\\n([\\s\\S]+?)(?=\\n${escapedNext}[:\\s]*\\n|$)`)
+      : new RegExp(`${escapedKey}[:\\s]*\\n([\\s\\S]+?)$`)
     return summaryText.match(pattern)?.[1]?.trim() || ''
   }
 
   const found = stripMarkdown(parseSection('WHAT WE FOUND', 'THE TENSION'))
-  const tension = stripMarkdown(parseSection('THE TENSION', "THE QUESTION WE'RE ANSWERING IN SYNTHESIS"))
-  const question = stripMarkdown(parseSection("THE QUESTION WE'RE ANSWERING IN SYNTHESIS", null))
+  const tension = stripMarkdown(parseSection('THE TENSION', 'THE QUESTION'))
+  const question = stripMarkdown(parseSection('THE QUESTION', null))
 
   const isStreaming = phase === 'generating'
 

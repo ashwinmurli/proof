@@ -122,6 +122,48 @@ If it needs work: say exactly which test it fails and give one concrete directio
     })
   }
 
+  async function rewriteValue(v: Value, feedback: string) {
+    const prompt = `${ctx}
+
+This value needs a rewrite:
+Name: "${v.name}"
+Definition: "${v.definition}"
+In practice: "${v.behaviour}"
+
+The stress test found: ${feedback}
+
+Rewrite this value so it passes the competitor test and the decision test. Keep the same spirit but make it more specific to this brand.
+
+Write exactly:
+VALUE_NAME: [single word or short phrase]
+VALUE_DEFINITION: [what this means specifically for this brand — 1 sentence]
+VALUE_BEHAVIOUR: [what it looks like in action — 1 concrete sentence]
+
+No em dashes.`
+
+    // Clear challenge while rewriting
+    setChallenges(prev => ({ ...prev, [v.id]: '' }))
+    await stream({
+      project, mode: 'strategist', module: 'Values', prompt, maxTokens: 200,
+      onChunk: () => {},
+      onComplete: (text) => {
+        const name = text.match(/VALUE_NAME:\s*(.+?)(?=\n|$)/)?.[1]?.trim()
+        const definition = text.match(/VALUE_DEFINITION:\s*(.+?)(?=\n|$)/)?.[1]?.trim()
+        const behaviour = text.match(/VALUE_BEHAVIOUR:\s*(.+?)(?=\n|$)/)?.[1]?.trim()
+        if (name || definition || behaviour) {
+          const next = values.map(val => val.id === v.id ? {
+            ...val,
+            name: name || val.name,
+            definition: definition || val.definition,
+            behaviour: behaviour || val.behaviour,
+          } : val)
+          setValues(next)
+          save(next)
+        }
+      },
+    })
+  }
+
   function updateValue(id: string, field: keyof Value, val: string) {
     const next = values.map(v => v.id === id ? { ...v, [field]: val } : v)
     setValues(next)
@@ -257,8 +299,18 @@ Assess in 2 sentences. Do these feel real or aspirational? Is there anything her
                             </div>
                           )}
                           <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 300, fontSize: 13, color: 'var(--dark)', lineHeight: 1.8, margin: 0 }}>
-                            {challenge.replace(/^(PASSES|NEEDS WORK)[.\s]*/i, '')}
+                            {challenge.replace(/^\*\*[^*]+\*\*:?\s*/i, '').replace(/^(PASSES|NEEDS WORK)[.\s]*/i, '')}
                           </p>
+                          {!passes && (
+                            <button
+                              onClick={() => rewriteValue(v, challenge)}
+                              style={{ fontFamily: 'var(--font-sans)', fontSize: 11, fontWeight: 500, color: 'var(--concrete)', background: 'none', border: '1px solid rgba(184,179,172,0.6)', borderRadius: 20, padding: '4px 14px', cursor: 'pointer', marginTop: 12, transition: 'all 0.15s', display: 'inline-block' }}
+                              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--mango)'; e.currentTarget.style.color = 'var(--mango)' }}
+                              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(184,179,172,0.6)'; e.currentTarget.style.color = 'var(--concrete)' }}
+                            >
+                              Ask proof. to rewrite →
+                            </button>
+                          )}
                         </>
                       )}
                     </motion.div>
