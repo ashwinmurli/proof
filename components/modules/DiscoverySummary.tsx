@@ -147,27 +147,26 @@ No em dashes. No flattery. No markdown formatting. Direct.`
 
   // Dotted divider with punched half-circles
   function PunchedDivider() {
+    const circleStyle = (side: 'left' | 'right'): React.CSSProperties => ({
+      position: 'absolute',
+      [side]: -29,
+      top: '50%',
+      transform: 'translateY(-50%)',
+      width: 20,
+      height: 20,
+      borderRadius: '50%',
+      background: 'var(--bg)',
+      border: '1px solid rgba(184,179,172,0.3)',
+      zIndex: 3,
+    })
     return (
       <div style={{ position: 'relative', height: 20, margin: '20px 0' }}>
-        {/* Left half-circle — punched out of card edge, perfectly round */}
+        <div style={circleStyle('left')} />
         <div style={{
-          position: 'absolute', left: -38, top: '50%', transform: 'translateY(-50%)',
-          width: 20, height: 20, borderRadius: '50%',
-          background: 'var(--surface-0)',
-          zIndex: 2,
-        }} />
-        {/* Dotted line — extends from circle edge to circle edge */}
-        <div style={{
-          position: 'absolute', left: -28, right: -28, top: '50%', transform: 'translateY(-50%)',
+          position: 'absolute', left: -18, right: -18, top: '50%', transform: 'translateY(-50%)',
           borderTop: '1.5px dotted rgba(184,179,172,0.45)',
         }} />
-        {/* Right half-circle */}
-        <div style={{
-          position: 'absolute', right: -38, top: '50%', transform: 'translateY(-50%)',
-          width: 20, height: 20, borderRadius: '50%',
-          background: 'var(--surface-0)',
-          zIndex: 2,
-        }} />
+        <div style={circleStyle('right')} />
       </div>
     )
   }
