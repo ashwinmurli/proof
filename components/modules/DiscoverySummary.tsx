@@ -133,7 +133,7 @@ No em dashes. No flattery. No markdown formatting. Direct.`
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          style={{ marginBottom: 64 }}
+          style={{ marginBottom: 72 }}
         >
           <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 14 }}>
             Discovery — 4 of 4
@@ -141,11 +141,11 @@ No em dashes. No flattery. No markdown formatting. Direct.`
           <p style={{ fontSize: 15, color: 'var(--concrete)', lineHeight: 1.8, maxWidth: 420, fontWeight: 300 }}>
             {phase === 'generating'
               ? 'proof. is closing Discovery…'
-              : 'What Discovery found. The foundation Synthesis builds on.'}
+              : 'What was found. The foundation Synthesis builds on.'}
           </p>
         </motion.div>
 
-        {/* Generating shimmer */}
+        {/* Generating */}
         {phase === 'generating' && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 48 }}>
             <div style={{ display: 'flex', gap: 4 }}>
@@ -163,119 +163,109 @@ No em dashes. No flattery. No markdown formatting. Direct.`
           </div>
         )}
 
-        {/* Three sections */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-
-          {/* What we found — the main card */}
-          <AnimatePresence>
-            {(found || isStreaming) && (
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                style={{
-                  background: 'var(--surface-1)',
-                  borderRadius: 14,
-                  border: '1px solid rgba(184,179,172,0.3)',
-                  borderLeft: '1.5px solid var(--mango)',
-                  padding: '28px 32px',
-                  boxShadow: '0 1px 2px rgba(26,24,22,0.04), 0 4px 12px rgba(26,24,22,0.06)',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
-                  <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--mango)', display: 'inline-block' }} />
-                  <span style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--mango)' }}>
-                    What we found
-                  </span>
-                  {isStreaming && !found && (
-                    <div style={{ display: 'flex', gap: 3 }}>
-                      {[0,1,2].map(i => (
-                        <motion.div key={i} style={{ width: 3, height: 3, borderRadius: '50%', background: 'var(--mango)' }}
-                          animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1, repeat: Infinity, delay: i * 0.15 }} />
-                      ))}
-                    </div>
-                  )}
-                </div>
-                {found && (
-                  <p style={{
-                    fontFamily: 'var(--font-sans)',
-                    fontSize: 17,
-                    fontWeight: 300,
-                    color: 'var(--dark)',
-                    lineHeight: 1.75,
-                  }}>
-                    {found}
-                  </p>
+        {/* ── WHAT WE FOUND ── prose block, full weight */}
+        <AnimatePresence>
+          {(found || isStreaming) && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              style={{ marginBottom: 56 }}
+            >
+              <div style={{
+                fontSize: 10, fontWeight: 500, letterSpacing: '0.16em',
+                textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 24,
+                display: 'flex', alignItems: 'center', gap: 8,
+              }}>
+                What we found
+                {isStreaming && !found && (
+                  <div style={{ display: 'flex', gap: 3 }}>
+                    {[0,1,2].map(i => (
+                      <motion.div key={i} style={{ width: 3, height: 3, borderRadius: '50%', background: 'var(--mango)' }}
+                        animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1, repeat: Infinity, delay: i * 0.15 }} />
+                    ))}
+                  </div>
                 )}
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* The tension */}
-          <AnimatePresence>
-            {tension && (
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.05 }}
-                style={{
-                  background: 'var(--surface-1)',
-                  borderRadius: 14,
-                  border: '1px solid rgba(184,179,172,0.3)',
-                  padding: '28px 32px',
-                  boxShadow: '0 1px 2px rgba(26,24,22,0.04), 0 4px 12px rgba(26,24,22,0.06)',
-                }}
-              >
-                <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 16 }}>
-                  The tension
-                </div>
-                <p style={{
-                  fontFamily: 'var(--font-display)',
-                  fontStyle: 'italic',
-                  fontSize: 22,
-                  fontWeight: 400,
-                  color: 'var(--dark)',
-                  lineHeight: 1.55,
-                  letterSpacing: '-0.005em',
-                }}>
-                  {tension}
-                </p>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* The question */}
-          <AnimatePresence>
-            {question && (
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
-                style={{
-                  background: 'var(--surface-1)',
-                  borderRadius: 14,
-                  border: '1px solid rgba(184,179,172,0.3)',
-                  padding: '28px 32px',
-                  boxShadow: '0 1px 2px rgba(26,24,22,0.04), 0 4px 12px rgba(26,24,22,0.06)',
-                  marginBottom: 48,
-                }}
-              >
-                <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 16 }}>
-                  The question Synthesis answers
-                </div>
+              </div>
+              {found && (
                 <p style={{
                   fontFamily: 'var(--font-sans)',
-                  fontSize: 17,
-                  fontWeight: 400,
+                  fontSize: 18,
+                  fontWeight: 300,
                   color: 'var(--dark)',
-                  lineHeight: 1.65,
+                  lineHeight: 1.8,
+                  margin: 0,
                 }}>
-                  {question}
+                  {found}
                 </p>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ── THE TENSION ── the centrepiece */}
+        <AnimatePresence>
+          {tension && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.05 }}
+              style={{ marginBottom: 56 }}
+            >
+              {/* Full-width mango rule — visual beat before the tension */}
+              <div style={{ width: 40, height: 1.5, background: 'var(--mango)', borderRadius: 1, marginBottom: 32 }} />
+              <div style={{
+                fontSize: 10, fontWeight: 500, letterSpacing: '0.16em',
+                textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 24,
+              }}>
+                The tension
+              </div>
+              <p style={{
+                fontFamily: 'var(--font-display)',
+                fontStyle: 'italic',
+                fontSize: 28,
+                fontWeight: 400,
+                color: 'var(--dark)',
+                lineHeight: 1.45,
+                letterSpacing: '-0.01em',
+                margin: 0,
+                maxWidth: 560,
+              }}>
+                {tension}
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ── THE QUESTION ── the provocation going into Synthesis */}
+        <AnimatePresence>
+          {question && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
+              style={{ marginBottom: 72 }}
+            >
+              <div style={{ width: 40, height: 1.5, background: 'rgba(184,179,172,0.4)', borderRadius: 1, marginBottom: 32 }} />
+              <div style={{
+                fontSize: 10, fontWeight: 500, letterSpacing: '0.16em',
+                textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 24,
+              }}>
+                The question Synthesis answers
+              </div>
+              <p style={{
+                fontFamily: 'var(--font-sans)',
+                fontSize: 20,
+                fontWeight: 400,
+                color: 'var(--dark)',
+                lineHeight: 1.6,
+                margin: 0,
+              }}>
+                {question}
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Actions */}
         <AnimatePresence>
@@ -319,7 +309,6 @@ No em dashes. No flattery. No markdown formatting. Direct.`
           )}
         </AnimatePresence>
 
-        {/* Still generating — show a quiet back button */}
         {phase === 'generating' && (
           <button
             onClick={() => router.push(`/project/${project.id}/debrief`)}
