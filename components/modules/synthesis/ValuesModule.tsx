@@ -160,6 +160,8 @@ No em dashes.`
           setValues(next)
           save(next)
         }
+        // Remove the challenge result — value has been rewritten, stress test is stale
+        setChallenges(prev => { const n = { ...prev }; delete n[v.id]; return n })
       },
     })
   }

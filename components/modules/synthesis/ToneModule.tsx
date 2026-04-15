@@ -77,8 +77,9 @@ POLE_B_3: [another alternative]`
       project, mode: 'strategist', module: 'Tone', prompt, maxTokens: 200,
       onChunk: () => {},
       onComplete: (text) => {
-        const aOpts = [1,2,3].map(n => text.match(new RegExp(`POLE_A_${n}:\s*(.+?)(?=\n|$)`))?.[1]?.trim() || '').filter(Boolean)
-        const bOpts = [1,2,3].map(n => text.match(new RegExp(`POLE_B_${n}:\s*(.+?)(?=\n|$)`))?.[1]?.trim() || '').filter(Boolean)
+        const stripMd = (s: string) => s.replace(/\*\*(.+?)\*\*/g, '$1').replace(/\*(.+?)\*/g, '$1').trim()
+        const aOpts = [1,2,3].map(n => text.match(new RegExp(`POLE_A_${n}:\s*(.+?)(?=\n|$)`))?.[1]?.trim() || '').filter(Boolean).map(stripMd)
+        const bOpts = [1,2,3].map(n => text.match(new RegExp(`POLE_B_${n}:\s*(.+?)(?=\n|$)`))?.[1]?.trim() || '').filter(Boolean).map(stripMd)
         setPoleOptions({ a: aOpts.length ? aOpts : [poleA], b: bOpts.length ? bOpts : [poleB] })
       },
     })
@@ -105,10 +106,11 @@ No em dashes. Each option should be meaningfully different.`
       project, mode: 'strategist', module: 'Tone', prompt, maxTokens: 300,
       onChunk: () => {},
       onComplete: async (text) => {
-        const aOpts = [1,2,3].map(n => text.match(new RegExp(`POLE_A_${n}:\\s*(.+?)(?=\\n|$)`))?.[1]?.trim() || '').filter(Boolean)
-        const bOpts = [1,2,3].map(n => text.match(new RegExp(`POLE_B_${n}:\\s*(.+?)(?=\\n|$)`))?.[1]?.trim() || '').filter(Boolean)
-        const chosenA = text.match(/CHOSEN_A:\s*(.+?)(?=\n|$)/)?.[1]?.trim() || aOpts[0] || ''
-        const chosenB = text.match(/CHOSEN_B:\s*(.+?)(?=\n|$)/)?.[1]?.trim() || bOpts[0] || ''
+        const stripMd = (s: string) => s.replace(/\*\*(.+?)\*\*/g, '$1').replace(/\*(.+?)\*/g, '$1').trim()
+        const aOpts = [1,2,3].map(n => text.match(new RegExp(`POLE_A_${n}:\\s*(.+?)(?=\\n|$)`))?.[1]?.trim() || '').filter(Boolean).map(stripMd)
+        const bOpts = [1,2,3].map(n => text.match(new RegExp(`POLE_B_${n}:\\s*(.+?)(?=\\n|$)`))?.[1]?.trim() || '').filter(Boolean).map(stripMd)
+        const chosenA = stripMd(text.match(/CHOSEN_A:\s*(.+?)(?=\n|$)/)?.[1]?.trim() || aOpts[0] || '')
+        const chosenB = stripMd(text.match(/CHOSEN_B:\s*(.+?)(?=\n|$)/)?.[1]?.trim() || bOpts[0] || '')
         setPoleOptions({ a: aOpts, b: bOpts })
         setPoleA(chosenA); setPoleB(chosenB)
         setGenerating(false); setGenerated(true)
