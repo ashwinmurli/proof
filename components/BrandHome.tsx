@@ -194,24 +194,58 @@ function IdentityWizard({ identity, onSave, onClose }: {
 
 function ColorInput({ label, value, onChange, hint }: { label: string; value: string; onChange: (v: string) => void; hint?: string }) {
   const [text, setText] = useState(value)
+  const colorInputRef = useRef<HTMLInputElement>(null)
   const isValid = /^#[0-9A-Fa-f]{6}$/.test(text)
+
+  function handleText(v: string) {
+    setText(v)
+    if (/^#[0-9A-Fa-f]{6}$/.test(v)) onChange(v)
+  }
+
+  function handlePicker(v: string) {
+    setText(v)
+    onChange(v)
+  }
 
   return (
     <div>
-      <div style={{ fontSize: 11, fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(0,0,0,0.45)', marginBottom: 6 }}>{label}</div>
+      <div style={{ fontSize: 11, fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(0,0,0,0.45)', marginBottom: 8 }}>{label}</div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <div style={{ width: 32, height: 32, borderRadius: 6, background: isValid ? text : '#eee', border: '1px solid rgba(0,0,0,0.1)', flexShrink: 0 }} />
+        {/* Swatch — clicking opens native colour picker */}
+        <div style={{ position: 'relative', flexShrink: 0 }}>
+          <div
+            onClick={() => colorInputRef.current?.click()}
+            style={{
+              width: 36, height: 36, borderRadius: 8,
+              background: isValid ? text : '#eeeeee',
+              border: '1px solid rgba(0,0,0,0.12)',
+              cursor: 'pointer',
+              transition: 'transform 0.1s',
+            }}
+            onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.05)')}
+            onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')}
+          />
+          <input
+            ref={colorInputRef}
+            type="color"
+            value={isValid ? text : '#ffffff'}
+            onChange={e => handlePicker(e.target.value)}
+            style={{ position: 'absolute', opacity: 0, width: 0, height: 0, pointerEvents: 'none' }}
+          />
+        </div>
+        {/* Hex text input */}
         <input
           value={text}
-          onChange={e => { setText(e.target.value); if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) onChange(e.target.value) }}
+          onChange={e => handleText(e.target.value)}
           placeholder="#000000"
           style={{
-            fontFamily: 'monospace', fontSize: 13, padding: '8px 12px', borderRadius: 6,
-            border: `1px solid ${isValid ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.1)'}`,
-            outline: 'none', width: 120, background: '#fafafa', color: '#111',
+            fontFamily: 'monospace', fontSize: 13, padding: '8px 12px', borderRadius: 8,
+            border: `1px solid ${isValid ? 'rgba(0,0,0,0.18)' : 'rgba(0,0,0,0.1)'}`,
+            outline: 'none', width: 110, background: '#fafafa', color: '#111',
+            transition: 'border-color 0.15s',
           }}
         />
-        {hint && <span style={{ fontSize: 12, color: 'rgba(0,0,0,0.35)', fontWeight: 300 }}>{hint}</span>}
+        {hint && <span style={{ fontSize: 12, color: 'rgba(0,0,0,0.3)', fontWeight: 300, lineHeight: 1.4 }}>{hint}</span>}
       </div>
     </div>
   )
