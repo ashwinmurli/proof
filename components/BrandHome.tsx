@@ -86,10 +86,10 @@ function IdentityWizard({ identity, onSave, onClose }: {
       label: 'Colours',
       content: (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-          <ColorInput label="Primary colour" value={draft.primaryColor || ''} onChange={v => set('primaryColor', v)} hint="Used for headings and key elements" />
-          <ColorInput label="Accent colour" value={draft.accentColor || ''} onChange={v => set('accentColor', v)} hint="Used for labels and highlights — defaults to primary" />
-          <ColorInput label="Background" value={draft.backgroundColor || ''} onChange={v => set('backgroundColor', v)} hint="The page background" />
-          <ColorInput label="Text colour" value={draft.textColor || ''} onChange={v => set('textColor', v)} hint="Body text — defaults to near-black" />
+          <ColorPicker label="Primary colour" value={draft.primaryColor || ''} onChange={v => set('primaryColor', v)} hint="Used for headings and key elements" />
+          <ColorPicker label="Accent colour" value={draft.accentColor || ''} onChange={v => set('accentColor', v)} hint="Used for labels and highlights — defaults to primary" />
+          <ColorPicker label="Background" value={draft.backgroundColor || ''} onChange={v => set('backgroundColor', v)} hint="The page background" />
+          <ColorPicker label="Text colour" value={draft.textColor || ''} onChange={v => set('textColor', v)} hint="Body text — defaults to near-black" />
         </div>
       ),
     },
@@ -192,66 +192,175 @@ function IdentityWizard({ identity, onSave, onClose }: {
   )
 }
 
-function ColorInput({ label, value, onChange, hint }: { label: string; value: string; onChange: (v: string) => void; hint?: string }) {
-  const [text, setText] = useState(value)
-  const colorInputRef = useRef<HTMLInputElement>(null)
-  const isValid = /^#[0-9A-Fa-f]{6}$/.test(text)
+function ColorPicker({ label, value, onChange, hint }: { label: string; value: string; onChange: (v: string) => void; hint?: string }) {
+  const [open, setOpen] = useState(false)
+  const [hex, setHex] = useState(value || '')
+  const [hue, setHue] = useState(0)
+  const [sat, setSat] = useState(0.8)
+  const [lit, setLit] = useState(0.45)
+  const canvasRef = useRef<HTMLDivElement>(null)
+  const pickerRef = useRef<HTMLDivElement>(null)
+  const isDragging = useRef(false)
+  const isValid = /^#[0-9A-Fa-f]{6}$/.test(hex)
 
-  function handleText(v: string) {
-    setText(v)
-    if (/^#[0-9A-Fa-f]{6}$/.test(v)) onChange(v)
+  useEffect(() => {
+    if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
+      setHex(value)
+      const [h, s, l] = hexToHsl(value)
+      setHue(h); setSat(s); setLit(l)
+    }
+  }, [value])
+
+  useEffect(() => {
+    if (!open) return
+    function handle(e: MouseEvent) {
+      if (!pickerRef.current?.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handle)
+    return () => document.removeEventListener('mousedown', handle)
+  }, [open])
+
+  function commitHsl(h: number, s: number, l: number) {
+    const newHex = hslToHex(h, s, l)
+    setHex(newHex); onChange(newHex)
   }
 
-  function handlePicker(v: string) {
-    setText(v)
-    onChange(v)
+  function handleCanvas(e: React.MouseEvent<HTMLDivElement>) {
+    const rect = canvasRef.current!.getBoundingClientRect()
+    const x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width))
+    const y = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height))
+    const newSat = x
+    const newLit = 1 - y * (0.5 + x * 0.5)
+    setSat(newSat); setLit(newLit)
+    commitHsl(hue, newSat, newLit)
   }
+
+  function handleHex(v: string) {
+    setHex(v)
+    if (/^#[0-9A-Fa-f]{6}$/.test(v)) {
+      const [h, s, l] = hexToHsl(v)
+      setHue(h); setSat(s); setLit(l); onChange(v)
+    }
+  }
+
+  const cursorX = sat * 100
+  const cursorY = (1 - (lit - 0.5 * (1 - sat)) / (0.5 + sat * 0.5)) * 100
 
   return (
-    <div>
-      <div style={{ fontSize: 11, fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(0,0,0,0.45)', marginBottom: 8 }}>{label}</div>
+    <div style={{ position: 'relative' }}>
+      <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 8 }}>{label}</div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        {/* Swatch — clicking opens native colour picker */}
-        <div style={{ position: 'relative', flexShrink: 0 }}>
-          <div
-            onClick={() => colorInputRef.current?.click()}
-            style={{
-              width: 36, height: 36, borderRadius: 8,
-              background: isValid ? text : '#eeeeee',
-              border: '1px solid rgba(0,0,0,0.12)',
-              cursor: 'pointer',
-              transition: 'transform 0.1s',
-            }}
-            onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.05)')}
-            onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')}
-          />
-          <input
-            ref={colorInputRef}
-            type="color"
-            value={isValid ? text : '#ffffff'}
-            onChange={e => handlePicker(e.target.value)}
-            style={{ position: 'absolute', opacity: 0, width: 0, height: 0, pointerEvents: 'none' }}
-          />
-        </div>
-        {/* Hex text input */}
-        <input
-          value={text}
-          onChange={e => handleText(e.target.value)}
-          placeholder="#000000"
+        <button onClick={() => setOpen(o => !o)} style={{
+          width: 36, height: 36, borderRadius: 8, flexShrink: 0, padding: 0,
+          background: isValid ? hex : 'rgba(184,179,172,0.2)',
+          border: `1px solid ${open ? 'var(--mango)' : 'rgba(184,179,172,0.4)'}`,
+          cursor: 'pointer', boxShadow: open ? '0 0 0 2px rgba(255,161,10,0.2)' : 'none',
+          transition: 'border-color 0.15s, box-shadow 0.15s',
+        }} />
+        <input value={hex} onChange={e => handleHex(e.target.value)} placeholder="#000000"
           style={{
             fontFamily: 'monospace', fontSize: 13, padding: '8px 12px', borderRadius: 8,
-            border: `1px solid ${isValid ? 'rgba(0,0,0,0.18)' : 'rgba(0,0,0,0.1)'}`,
-            outline: 'none', width: 110, background: '#fafafa', color: '#111',
-            transition: 'border-color 0.15s',
+            border: `1px solid ${isValid ? 'rgba(184,179,172,0.4)' : 'rgba(184,179,172,0.25)'}`,
+            outline: 'none', width: 110, background: 'var(--surface-0)', color: 'var(--dark)',
           }}
+          onFocus={e => e.target.style.borderColor = 'var(--mango)'}
+          onBlur={e => e.target.style.borderColor = isValid ? 'rgba(184,179,172,0.4)' : 'rgba(184,179,172,0.25)'}
         />
-        {hint && <span style={{ fontSize: 12, color: 'rgba(0,0,0,0.3)', fontWeight: 300, lineHeight: 1.4 }}>{hint}</span>}
+        {hint && <span style={{ fontSize: 12, color: 'var(--stone)', fontWeight: 300, lineHeight: 1.4 }}>{hint}</span>}
       </div>
+
+      {open && (
+        <div ref={pickerRef} style={{
+          position: 'absolute', top: 'calc(100% + 8px)', left: 0, zIndex: 300,
+          background: 'var(--surface-1)', borderRadius: 12,
+          border: '1px solid rgba(184,179,172,0.3)',
+          boxShadow: '0 4px 12px rgba(26,24,22,0.08), 0 16px 40px rgba(26,24,22,0.12)',
+          padding: 16, width: 228,
+        }}>
+          {/* SL canvas */}
+          <div ref={canvasRef}
+            onMouseDown={e => { isDragging.current = true; handleCanvas(e) }}
+            onMouseMove={e => { if (isDragging.current) handleCanvas(e) }}
+            onMouseUp={() => { isDragging.current = false }}
+            onMouseLeave={() => { isDragging.current = false }}
+            style={{
+              width: '100%', height: 128, borderRadius: 8, marginBottom: 10,
+              position: 'relative', cursor: 'crosshair', userSelect: 'none',
+              background: `hsl(${hue}, 100%, 50%)`,
+            }}>
+            <div style={{ position: 'absolute', inset: 0, borderRadius: 8, background: 'linear-gradient(to right, #fff, transparent)' }} />
+            <div style={{ position: 'absolute', inset: 0, borderRadius: 8, background: 'linear-gradient(to bottom, transparent, #000)' }} />
+            <div style={{
+              position: 'absolute', pointerEvents: 'none',
+              left: `${Math.max(4, Math.min(96, cursorX))}%`,
+              top: `${Math.max(4, Math.min(96, cursorY))}%`,
+              transform: 'translate(-50%, -50%)',
+              width: 14, height: 14, borderRadius: '50%',
+              background: isValid ? hex : '#ccc',
+              border: '2px solid #fff',
+              boxShadow: '0 1px 4px rgba(0,0,0,0.35)',
+            }} />
+          </div>
+
+          {/* Hue rail */}
+          <div style={{ marginBottom: 12, padding: '2px 0' }}>
+            <div style={{
+              position: 'relative', height: 10, borderRadius: 5, cursor: 'pointer',
+              background: 'linear-gradient(to right,#f00,#ff0 17%,#0f0 33%,#0ff 50%,#00f 67%,#f0f 83%,#f00)',
+            }} onClick={e => {
+              const rect = e.currentTarget.getBoundingClientRect()
+              const newHue = Math.round(((e.clientX - rect.left) / rect.width) * 360)
+              setHue(newHue); commitHsl(newHue, sat, lit)
+            }}>
+              <div style={{
+                position: 'absolute', pointerEvents: 'none',
+                left: `${(hue / 360) * 100}%`, top: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: 16, height: 16, borderRadius: '50%',
+                background: `hsl(${hue},100%,50%)`,
+                border: '2px solid #fff',
+                boxShadow: '0 1px 4px rgba(0,0,0,0.25)',
+              }} />
+            </div>
+          </div>
+
+          {/* Hex + swatch row */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ width: 28, height: 28, borderRadius: 6, flexShrink: 0, background: isValid ? hex : 'rgba(184,179,172,0.2)', border: '1px solid rgba(184,179,172,0.3)' }} />
+            <input value={hex} onChange={e => handleHex(e.target.value)} placeholder="#000000"
+              style={{
+                fontFamily: 'monospace', fontSize: 12, padding: '6px 10px', borderRadius: 6,
+                border: '1px solid rgba(184,179,172,0.3)', outline: 'none', flex: 1,
+                background: 'var(--surface-0)', color: 'var(--dark)',
+              }}
+              onFocus={e => e.target.style.borderColor = 'var(--mango)'}
+              onBlur={e => e.target.style.borderColor = 'rgba(184,179,172,0.3)'}
+            />
+          </div>
+        </div>
+      )}
     </div>
   )
 }
 
-// ─── Copy generator ───────────────────────────────────────────────────────────
+function hexToHsl(hex: string): [number, number, number] {
+  const r = parseInt(hex.slice(1,3),16)/255, g = parseInt(hex.slice(3,5),16)/255, b = parseInt(hex.slice(5,7),16)/255
+  const max = Math.max(r,g,b), min = Math.min(r,g,b)
+  let h = 0, s = 0; const l = (max+min)/2
+  if (max !== min) {
+    const d = max-min; s = l>0.5 ? d/(2-max-min) : d/(max+min)
+    switch(max) { case r: h=((g-b)/d+(g<b?6:0))/6; break; case g: h=((b-r)/d+2)/6; break; case b: h=((r-g)/d+4)/6; break }
+  }
+  return [Math.round(h*360), s, l]
+}
+
+function hslToHex(h: number, s: number, l: number): string {
+  const a = s*Math.min(l,1-l)
+  const f = (n: number) => { const k=(n+h/30)%12; return Math.round(255*(l-a*Math.max(Math.min(k-3,9-k,1),-1))).toString(16).padStart(2,'0') }
+  return `#${f(0)}${f(8)}${f(4)}`
+}
+
+
 
 function CopyGenerator({ project }: { project: Project }) {
   const { stream } = useProofStream()
