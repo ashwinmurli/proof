@@ -1,3 +1,13 @@
+export interface BrandIdentity {
+  primaryColor?: string      // hex e.g. "#1E3F49"
+  backgroundColor?: string   // hex e.g. "#F5F0E8"
+  textColor?: string         // hex e.g. "#1A1816"
+  accentColor?: string       // hex e.g. "#FF7E45"
+  displayFont?: string       // Google Font name e.g. "Playfair Display"
+  bodyFont?: string          // Google Font name e.g. "DM Sans"
+  logoUrl?: string           // uploaded logo URL
+}
+
 export type ProjectMode = 'strategist' | 'client'
 
 export type ProjectStatus = 'brief' | 'debrief' | 'research' | 'synthesis' | 'complete'
@@ -14,6 +24,7 @@ export interface Project {
   debrief?: DebriefData
   discoverySummary?: string
   synthesis?: SynthesisData
+  identity?: BrandIdentity
 }
 
 export interface BriefAnswer {
