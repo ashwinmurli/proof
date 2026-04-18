@@ -19,7 +19,7 @@ const STATUS_ORDER = ['brief', 'debrief', 'synthesis', 'complete']
 export default function ProjectOverview() {
   const params = useParams()
   const router = useRouter()
-  const { projects, setActiveProject, generateShareToken } = useProofStore()
+  const { projects, setActiveProject, generateShareToken, updateProject } = useProofStore()
   const [copied, setCopied] = useState(false)
 
   const projectId = params.id as string
@@ -79,10 +79,27 @@ export default function ProjectOverview() {
               {project.name}
             </h1>
             {project.description && (
-              <p style={{ fontSize: 15, color: 'var(--concrete)', fontWeight: 300, lineHeight: 1.7 }}>
+              <p style={{ fontSize: 15, color: 'var(--concrete)', fontWeight: 300, lineHeight: 1.7, marginBottom: 14 }}>
                 {project.description}
               </p>
             )}
+            {/* Language toggle */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--aluminum)' }}>Language</span>
+              {(['en', 'nl'] as const).map(l => (
+                <button key={l} onClick={() => updateProject(project.id, { language: l })}
+                  style={{
+                    fontSize: 11, fontWeight: 500, padding: '3px 10px', borderRadius: 20, cursor: 'pointer',
+                    border: '1px solid',
+                    borderColor: (project.language || 'en') === l ? 'var(--dark)' : 'rgba(184,179,172,0.4)',
+                    background: (project.language || 'en') === l ? 'var(--dark)' : 'transparent',
+                    color: (project.language || 'en') === l ? '#FDFCFA' : 'var(--stone)',
+                    fontFamily: 'var(--font-sans)', transition: 'all 0.15s',
+                  }}>
+                  {l === 'en' ? 'EN' : 'NL'}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Stages */}

@@ -196,7 +196,8 @@ No em dashes within the PAIR lines.`
     const other = side === 'pos' ? pairs[pairIdx].neg : pairs[pairIdx].pos
     const direction = side === 'pos' ? 'positive quality' : 'what this brand never becomes'
 
-    const prompt = `${ctx}
+    const lang = project.language || "en"
+    const prompt = `${langInstruction(lang)}${ctx}
 
 For the brand personality pair: "${pairs[pairIdx].pos} but never ${pairs[pairIdx].neg}"
 
@@ -236,7 +237,8 @@ No explanations. Just the words.`
   }
 
   async function regenerateDesc(pairIdx: number, pos: string, neg: string) {
-    const prompt = `${ctx}\n\nBrand personality pair: "${pos} but never ${neg}"\n\nWrite one sentence describing what this tension means for ${brandName} specifically. Start with "${brandName}". Be concrete, not generic. No em dashes.`
+    const lang = project.language || "en"
+    const prompt = `${langInstruction(lang)}${ctx}\n\nBrand personality pair: "${pos} but never ${neg}"\n\nWrite one sentence describing what this tension means for ${brandName} specifically. Start with "${brandName}". Be concrete, not generic. No em dashes.`
     await stream({
       project, mode: 'strategist', module: 'Personality', prompt, maxTokens: 80,
       onChunk: () => {},
@@ -255,7 +257,8 @@ No explanations. Just the words.`
     const scenario = scenarios[key as keyof typeof scenarios]
     const label = SCENARIO_KEYS.find(s => s.key === key)?.getLabel(brandName) || key
     const tensionStr = pairs.filter(p => p.pos && p.neg).map(p => `${p.pos} but never ${p.neg}`).join(' / ')
-    const prompt = `${ctx}\n\nTensions: ${tensionStr}\n\nScenario — ${label}: ${scenario}\n\nOne sentence in this brand's actual voice. Not a description — something they would actually say or write. Short, specific. No em dashes.`
+    const lang = project.language || "en"
+    const prompt = `${langInstruction(lang)}${ctx}\n\nTensions: ${tensionStr}\n\nScenario — ${label}: ${scenario}\n\nOne sentence in this brand's actual voice. Not a description — something they would actually say or write. Short, specific. No em dashes.`
     await stream({
       project, mode: 'strategist', module: 'Personality', prompt, maxTokens: 80,
       onChunk: () => {},
@@ -278,7 +281,8 @@ No explanations. Just the words.`
   async function fetchSummary() {
     setSummaryState('thinking'); setDrawerOpen(true)
     const tensionStr = pairs.filter(p => p.pos && p.neg).map(p => `${p.pos} but never ${p.neg}`).join(' / ')
-    const prompt = `${ctx}\n\nPersonality:\nTensions: ${tensionStr}\n${brandName} at dinner: ${scenarios.dinner}\n${brandName} in difficulty: ${scenarios.difficult}\n${brandName} under pressure: ${scenarios.decision}\n\nIn 2 sentences: is this personality distinctive enough to guide creative decisions? No em dashes.`
+    const lang = project.language || "en"
+    const prompt = `${langInstruction(lang)}${ctx}\n\nPersonality:\nTensions: ${tensionStr}\n${brandName} at dinner: ${scenarios.dinner}\n${brandName} in difficulty: ${scenarios.difficult}\n${brandName} under pressure: ${scenarios.decision}\n\nIn 2 sentences: is this personality distinctive enough to guide creative decisions? No em dashes.`
     await stream({
       project, mode: 'strategist', module: 'Personality', prompt, maxTokens: 180,
       onChunk: () => {},

@@ -108,7 +108,8 @@ Short. No em dashes. No exclamation marks.`
     if (selected.length === 0) return
     setRefining(true)
 
-    const prompt = `${ctx}
+    const lang = project.language || "en"
+    const prompt = `${langInstruction(lang)}${ctx}
 
 The strategist has shortlisted these tagline candidates:
 ${selected.map((s, i) => `${i+1}. ${s}`).join('\n')}

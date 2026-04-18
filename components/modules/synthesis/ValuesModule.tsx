@@ -103,7 +103,8 @@ These must be traceable to what was found in the brief. Not aspirational — act
   }
 
   async function challengeValue(v: Value) {
-    const prompt = `${ctx}
+    const lang = project.language || "en"
+    const prompt = `${langInstruction(lang)}${ctx}
 
 Core value being tested: "${v.name}"
 Definition: "${v.definition}"
@@ -128,7 +129,8 @@ If it needs work: say exactly which test it fails and give one concrete directio
   }
 
   async function rewriteValue(v: Value, feedback: string) {
-    const prompt = `${ctx}
+    const lang = project.language || "en"
+    const prompt = `${langInstruction(lang)}${ctx}
 
 This value needs a rewrite:
 Name: "${v.name}"
@@ -184,7 +186,8 @@ No em dashes.`
   async function fetchSummary() {
     setSummaryState('thinking')
     setDrawerOpen(true)
-    const prompt = `${ctx}
+    const lang = project.language || "en"
+    const prompt = `${langInstruction(lang)}${ctx}
 
 The three core values:
 ${values.map(v => `${v.name}: ${v.definition}. In practice: ${v.behaviour}`).join('\n')}

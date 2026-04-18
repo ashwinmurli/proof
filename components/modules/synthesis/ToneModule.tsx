@@ -90,7 +90,8 @@ POLE_B_3: [another alternative]`
 
   async function generate() {
     setGenerating(true)
-    const prompt = `${ctx}
+    const lang = project.language || "en"
+    const prompt = `${langInstruction(lang)}${ctx}
 
 Define the tone of voice spectrum for this brand. Give 3 options for each pole so the strategist can choose.
 
@@ -125,7 +126,8 @@ No em dashes. Each option should be meaningfully different.`
   async function generateExamples(a: string, b: string) {
     if (!a || !b) return
     setGeneratingExamples(true)
-    const prompt = `${ctx}
+    const lang = project.language || "en"
+    const prompt = `${langInstruction(lang)}${ctx}
 
 Tone spectrum: from "${a}" to "${b}"
 
@@ -152,7 +154,8 @@ Be specific. The examples should be immediately recognisable. No em dashes.`
   async function fetchSummary() {
     setSummaryState('thinking'); setDrawerOpen(true)
     const fullCtx = `${ctx}\n\nTone spectrum: from "${poleA}" to "${poleB}"\nSounds like: ${doesSound}\nDoesn't sound like: ${doesntSound}`
-    const prompt = `${fullCtx}\n\nIn 2 sentences: is this spectrum specific enough to guide copy decisions? Does the example actually sound different from the category? No em dashes.`
+    const lang = project.language || "en"
+    const prompt = `${langInstruction(lang)}${fullCtx}\n\nIn 2 sentences: is this spectrum specific enough to guide copy decisions? Does the example actually sound different from the category? No em dashes.`
     await stream({
       project, mode: 'strategist', module: 'Tone', prompt, maxTokens: 180,
       onChunk: () => {},

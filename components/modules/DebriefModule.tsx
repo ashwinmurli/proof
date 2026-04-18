@@ -213,7 +213,8 @@ Be direct. Be specific. No em dashes. No flattery. The angle should make the str
     setSummaryState('thinking')
     setDrawerOpen(true)
 
-    const prompt = `You've written a debrief for "${project.name}".
+    const lang = project.language || "en"
+    const prompt = `${langInstruction(lang)}You've written a debrief for "${project.name}".
 
 Situation: ${values.situation}
 Challenge: ${values.challenge}

@@ -186,7 +186,8 @@ LOGIC_12: [one sentence]`
     if (selected.length === 0) return
     setRefining(true)
 
-    const prompt = `${ctx}
+    const lang = project.language || "en"
+    const prompt = `${langInstruction(lang)}${ctx}
 
 The strategist has shortlisted these name candidates:
 ${selected.map((c, i) => `${i+1}. ${c.name} (${c.type}) — ${c.logic}`).join('\n')}

@@ -160,7 +160,8 @@ No em dashes. No flattery. The BELIEF should make the strategist pause.`
   async function fetchSummary() {
     setSummaryState('thinking')
     setDrawerOpen(true)
-    const prompt = `${ctx}
+    const lang = project.language || "en"
+    const prompt = `${langInstruction(lang)}${ctx}
 
 They've written their belief statements:
 What we believe: ${values.belief}
@@ -337,10 +338,10 @@ Assess these in 2-3 sentences. Does the conviction pass the competitor test? Is 
                               style={{ fontFamily: 'var(--font-sans)', fontSize: 11, fontWeight: 500, color: 'var(--concrete)', background: 'none', border: '1px solid rgba(184,179,172,0.6)', borderRadius: 20, padding: '4px 14px', cursor: 'pointer', transition: 'all 0.15s' }}
                               onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--concrete)'; e.currentTarget.style.color = 'var(--dark)' }}
                               onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(184,179,172,0.6)'; e.currentTarget.style.color = 'var(--concrete)' }}>
-                              Edit
+                              {t('action.edit')}
                             </button>
                             {value.trim().length > 10 && (
-                              <ProofButton onClick={() => setFeedbackOpen(field.id)}>Ask proof. to revise</ProofButton>
+                              <ProofButton onClick={() => setFeedbackOpen(field.id)}>{t('debrief.ask_revise')}</ProofButton>
                             )}
                           </>
                         )}
