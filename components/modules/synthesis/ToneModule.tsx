@@ -1,4 +1,5 @@
 'use client'
+import { langInstruction, useLang } from '@/lib/i18n'
 
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -13,6 +14,7 @@ import ProofButton from '@/components/proof/ProofButton'
 
 export default function ToneModule({ project }: { project: Project }) {
   const router = useRouter()
+  const t = useLang(project)
   const { updateProject } = useProofStore()
   const { stream } = useProofStream()
 
@@ -61,7 +63,8 @@ export default function ToneModule({ project }: { project: Project }) {
 
   async function generateOptions() {
     // Just generate pole alternatives without regenerating examples
-    const prompt = `${ctx}
+    const lang = project.language || "en"
+    const prompt = `${langInstruction(lang)}${ctx}
 
 The current tone spectrum is: "${poleA}" to "${poleB}"
 
@@ -170,7 +173,7 @@ Be specific. The examples should be immediately recognisable. No em dashes.`
       <Strip project={project} phase="Synthesis — Tone" onAskProof={() => { setSummaryState(null); setDrawerOpen(true) }} />
       <main style={{ flex: 1, maxWidth: 660, width: '100%', margin: '0 auto', padding: '72px 24px 120px' }}>
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
-          <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 14 }}>Synthesis — 4 of 7</div>
+          <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 14 }}>{t('tone.phase')}</div>
           <p style={{ fontSize: 15, color: 'var(--concrete)', lineHeight: 1.85, maxWidth: 460, marginBottom: 48, fontWeight: 300 }}>
             Not rules — a spectrum. proof. suggests two poles. Pick the ones that fit, or write your own. The examples update to match.
           </p>
@@ -179,7 +182,7 @@ Be specific. The examples should be immediately recognisable. No em dashes.`
         {generating && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 48 }}>
             <div style={{ display: 'flex', gap: 4 }}>{[0,1,2].map(i => <motion.div key={i} style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--mango)' }} animate={{ opacity: [0.3,1,0.3], scale: [0.8,1,0.8] }} transition={{ duration: 1.2, repeat: Infinity, delay: i*0.18 }} />)}</div>
-            <span style={{ fontSize: 13, color: 'var(--stone)', fontFamily: 'var(--font-display)', fontStyle: 'italic' }}>proof. is finding the voice…</span>
+            <span style={{ fontSize: 13, color: 'var(--stone)', fontFamily: 'var(--font-display)', fontStyle: 'italic' }}>t('tone.generating')…</span>
           </div>
         )}
 
@@ -229,14 +232,14 @@ Be specific. The examples should be immediately recognisable. No em dashes.`
             ) : (doesSound || doesntSound) && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                 <div style={{ marginBottom: 32 }}>
-                  <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 12 }}>This sounds like us</div>
+                  <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 12 }}>{t('tone.sounds_like')}</div>
                   <div style={{ padding: '20px 24px', background: '#FAF8F4', borderRadius: 10, border: '1px solid rgba(184,179,172,0.25)', borderLeft: '1.5px solid var(--mango)' }}>
                     <textarea value={doesSound} onChange={e => { setDoesSound(e.target.value); save(poleA, poleB, e.target.value, doesntSound) }}
                       style={{ width: '100%', background: 'transparent', border: 'none', outline: 'none', resize: 'none', fontFamily: 'var(--font-sans)', fontSize: 15, fontWeight: 300, color: 'var(--dark)', lineHeight: 1.8, minHeight: 80 }} />
                   </div>
                 </div>
                 <div style={{ marginBottom: 48 }}>
-                  <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 12 }}>This doesn't sound like us</div>
+                  <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 12 }}>{t('tone.not_sounds_like')}</div>
                   <div style={{ padding: '20px 24px', background: '#FAF8F4', borderRadius: 10, border: '1px solid rgba(184,179,172,0.25)' }}>
                     <textarea value={doesntSound} onChange={e => { setDoesntSound(e.target.value); save(poleA, poleB, doesSound, e.target.value) }}
                       style={{ width: '100%', background: 'transparent', border: 'none', outline: 'none', resize: 'none', fontFamily: 'var(--font-sans)', fontSize: 15, fontWeight: 300, color: 'var(--dark)', lineHeight: 1.8, minHeight: 80 }} />
@@ -250,7 +253,7 @@ Be specific. The examples should be immediately recognisable. No em dashes.`
               <button onClick={handleAdvance} style={{ fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 500, background: allFilled ? 'var(--dark)' : '#D5D4D6', color: allFilled ? '#FDFCFA' : '#8C8780', border: 'none', borderRadius: 5, padding: '12px 22px', cursor: allFilled ? 'pointer' : 'default', transition: 'all 0.2s' }}
                 onMouseEnter={e => { if (allFilled) e.currentTarget.style.background = 'var(--mango)' }}
                 onMouseLeave={e => { if (allFilled) e.currentTarget.style.background = 'var(--dark)' }}>
-                Continue →
+                t('synthesis.continue_naming')
               </button>
             </div>
           </motion.div>

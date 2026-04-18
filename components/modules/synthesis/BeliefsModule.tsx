@@ -1,4 +1,5 @@
 'use client'
+import { langInstruction, useLang } from '@/lib/i18n'
 
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -14,7 +15,7 @@ import ProofButton from '@/components/proof/ProofButton'
 const FIELDS = [
   {
     id: 'belief' as const,
-    label: 'What we believe',
+    label: 'belief',
     question: 'Why does this brand exist beyond making money?',
     placeholder: 'Start with a strong verb. If a competitor could say it, it isn\'t the conviction.',
     hint: 'The why. A specific, arguable belief. Should make you slightly uncomfortable.',
@@ -32,7 +33,7 @@ const FIELDS = [
   },
   {
     id: 'working' as const,
-    label: 'How we work',
+    label: 'working',
     question: 'How does this brand bring its conviction into reality?',
     placeholder: 'The daily doing. Specific actions, not principles.',
     hint: 'The how. The mission. What the brand actually does to move toward the vision.',
@@ -45,6 +46,7 @@ type FieldId = 'belief' | 'building' | 'working'
 
 export default function BeliefsModule({ project }: { project: Project }) {
   const router = useRouter()
+  const t = useLang(project)
   const { updateProject } = useProofStore()
   const { stream } = useProofStream()
 
@@ -85,7 +87,8 @@ export default function BeliefsModule({ project }: { project: Project }) {
 
   async function generateAll() {
     setGenerateState('generating')
-    const prompt = `${ctx}
+    const lang = project.language || "en"
+    const prompt = `${langInstruction(lang)}${ctx}
 
 Write the three belief statements for this brand.
 
@@ -217,7 +220,7 @@ Assess these in 2-3 sentences. Does the conviction pass the competitor test? Is 
       <main style={{ flex: 1, maxWidth: 660, width: '100%', margin: '0 auto', padding: '72px 24px 120px' }}>
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
           <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 14 }}>
-            Synthesis — 1 of 7
+            {t('beliefs.phase')}
           </div>
           <p style={{ fontSize: 15, color: 'var(--concrete)', lineHeight: 1.85, maxWidth: 460, marginBottom: 48, fontWeight: 300 }}>
             Three statements that define the brand's foundation. The why must be uncomfortable enough to mean something. If a competitor could say it, it isn't the conviction.
@@ -237,7 +240,7 @@ Assess these in 2-3 sentences. Does the conviction pass the competitor test? Is 
                 ))}
               </div>
               <span style={{ fontSize: 13, color: 'var(--stone)', fontFamily: 'var(--font-display)', fontStyle: 'italic' }}>
-                proof. is writing a first draft…
+                t('beliefs.generating')
               </span>
             </motion.div>
           )}
@@ -277,7 +280,7 @@ Assess these in 2-3 sentences. Does the conviction pass the competitor test? Is 
                     {/* Label + streaming dots */}
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
                       <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--stone)' }}>
-                        {field.label}
+                        {field.id === 'belief' ? t('beliefs.belief') : field.id === 'working' ? t('beliefs.working') : t('beliefs.building')}
                       </div>
                       {isStreaming && (
                         <div style={{ display: 'flex', gap: 3 }}>
@@ -395,7 +398,7 @@ Assess these in 2-3 sentences. Does the conviction pass the competitor test? Is 
               style={{ fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 500, letterSpacing: '0.05em', background: allFilled ? 'var(--dark)' : '#D5D4D6', color: allFilled ? '#FDFCFA' : '#8C8780', border: 'none', borderRadius: 5, padding: '12px 22px', cursor: allFilled ? 'pointer' : 'default', transition: 'all 0.2s' }}
               onMouseEnter={e => { if (allFilled) (e.currentTarget.style.background = 'var(--mango)') }}
               onMouseLeave={e => { if (allFilled) (e.currentTarget.style.background = 'var(--dark)') }}>
-              Continue to Values →
+              {t('synthesis.continue_values')}
             </button>
           </div>
         )}

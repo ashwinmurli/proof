@@ -1,4 +1,5 @@
 'use client'
+import { langInstruction, useLang } from '@/lib/i18n'
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -13,6 +14,7 @@ import ProofButton from '@/components/proof/ProofButton'
 
 export default function TaglineModule({ project }: { project: Project }) {
   const router = useRouter()
+  const t = useLang(project)
   const { updateProject } = useProofStore()
   const { stream } = useProofStream()
 
@@ -42,7 +44,8 @@ export default function TaglineModule({ project }: { project: Project }) {
   }
 
   async function generate() {
-    const prompt = `${ctx}
+    const lang = project.language || "en"
+    const prompt = `${langInstruction(lang)}${ctx}
 
 Generate 4 strategic directions for a tagline, then 3 variations for each direction (12 total).
 
@@ -162,13 +165,13 @@ No em dashes. No exclamation marks. Shorter is almost always better.`
       <Strip project={project} phase="Synthesis — Tagline" onAskProof={() => setDrawerOpen(true)} />
       <main style={{ flex: 1, maxWidth: 660, width: '100%', margin: '0 auto', padding: '72px 24px 120px' }}>
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
-          <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 14 }}>Synthesis — 6 of 7</div>
+          <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 14 }}>{t('tagline.phase')}</div>
           <p style={{ fontSize: 15, color: 'var(--concrete)', lineHeight: 1.85, maxWidth: 460, marginBottom: 48, fontWeight: 300 }}>
             {phase === 'locked'
-              ? 'Locked.'
+              ? t('action.locked')
               : selected.length > 0
               ? `${selected.length} selected — lock one or refine`
-              : 'Select up to 3 to refine, or lock one directly.'}
+              : t('tagline.select_refine')}
           </p>
         </motion.div>
 
@@ -197,7 +200,7 @@ No em dashes. No exclamation marks. Shorter is almost always better.`
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16 }}>
                 <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--mango)', display: 'inline-block' }} />
-                <span style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--mango)' }}>Locked</span>
+                <span style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--mango)' }}>{t('action.locked')}</span>
               </div>
               <textarea
                 value={finalChosen}
@@ -227,7 +230,7 @@ No em dashes. No exclamation marks. Shorter is almost always better.`
                 style={{ fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 500, background: 'var(--dark)', color: '#FDFCFA', border: 'none', borderRadius: 5, padding: '12px 22px', cursor: 'pointer', transition: 'all 0.2s' }}
                 onMouseEnter={e => e.currentTarget.style.background = 'var(--mango)'}
                 onMouseLeave={e => e.currentTarget.style.background = 'var(--dark)'}>
-                Continue to Manifesto →
+                {t('synthesis.continue_manifesto')}
               </button>
             </div>
           </motion.div>
@@ -273,7 +276,7 @@ No em dashes. No exclamation marks. Shorter is almost always better.`
                       {isBatchStart && (
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '8px 0 4px' }}>
                           <div style={{ flex: 1, height: 1, background: 'rgba(194,189,183,0.4)' }} />
-                          <span style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--stone)' }}>Refined</span>
+                          <span style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--stone)' }}>t('tagline.refined')</span>
                           <div style={{ flex: 1, height: 1, background: 'rgba(194,189,183,0.4)' }} />
                         </div>
                       )}
@@ -300,7 +303,7 @@ No em dashes. No exclamation marks. Shorter is almost always better.`
                               onMouseEnter={e => e.currentTarget.style.background = 'var(--mango)'}
                               onMouseLeave={e => e.currentTarget.style.background = 'var(--dark)'}
                             >
-                              Lock →
+                              {t('action.lock')}
                             </button>
                           )}
                           <div style={{

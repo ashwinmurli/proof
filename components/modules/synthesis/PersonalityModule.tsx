@@ -1,4 +1,5 @@
 'use client'
+import { langInstruction, useLang } from '@/lib/i18n'
 
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -25,6 +26,7 @@ interface TensionPair {
 
 export default function PersonalityModule({ project }: { project: Project }) {
   const router = useRouter()
+  const t = useLang(project)
   const { updateProject } = useProofStore()
   const { stream } = useProofStream()
 
@@ -121,7 +123,8 @@ export default function PersonalityModule({ project }: { project: Project }) {
 
   async function generate() {
     setGenerating(true)
-    const prompt = `${ctx}
+    const lang = project.language || "en"
+    const prompt = `${langInstruction(lang)}${ctx}
 
 Write the brand personality for "${brandName}" as three tension pairs and three scenario portraits.
 
@@ -295,14 +298,14 @@ No explanations. Just the words.`
       <main style={{ flex: 1, maxWidth: 660, width: '100%', margin: '0 auto', padding: '72px 24px 32px' }}>
 
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
-          <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 14 }}>Synthesis — 3 of 7</div>
+          <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 14 }}>{t('personality.phase')}</div>
           <p style={{ fontSize: 15, color: 'var(--concrete)', lineHeight: 1.85, maxWidth: 460, marginBottom: 48, fontWeight: 300 }}>Brand as a person. Click either side of a tension to explore alternatives with different nuance.</p>
         </motion.div>
 
         {generating && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 48 }}>
             <div style={{ display: 'flex', gap: 4 }}>{[0,1,2].map(i => <motion.div key={i} style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--mango)' }} animate={{ opacity: [0.3,1,0.3], scale: [0.8,1,0.8] }} transition={{ duration: 1.2, repeat: Infinity, delay: i*0.18 }} />)}</div>
-            <span style={{ fontSize: 13, color: 'var(--stone)', fontFamily: 'var(--font-display)', fontStyle: 'italic' }}>proof. is imagining the person behind the brand…</span>
+            <span style={{ fontSize: 13, color: 'var(--stone)', fontFamily: 'var(--font-display)', fontStyle: 'italic' }}>t('personality.generating')…</span>
           </div>
         )}
 
@@ -421,7 +424,7 @@ No explanations. Just the words.`
       {/* Scenario section — vertical stack, inside normal layout flow */}
       {generated && (
         <div style={{ maxWidth: 660, width: '100%', margin: '0 auto', padding: '0 24px 80px' }}>
-          <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 20 }}>The person</div>
+          <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 20 }}>{t('personality.person')}</div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {SCENARIO_KEYS.map(({ key, getLabel }) => {
@@ -446,7 +449,7 @@ No explanations. Just the words.`
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--mango)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 5 }}>
                         <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--mango)', display: 'inline-block' }} />
-                        In their voice
+                        {t('personality.in_voice')}
                       </div>
                       {generatingExample === key ? (
                         <div style={{ display: 'flex', gap: 4, marginBottom: 10 }}>
@@ -458,7 +461,7 @@ No explanations. Just the words.`
                         <p style={{ fontSize: 13, color: 'var(--stone)', fontWeight: 300, margin: '0 0 12px', fontStyle: 'italic' }}>Generating…</p>
                       )}
                       {!generatingExample && value.trim() && (
-                        <ProofButton onClick={() => genExample(key)} size="sm">New example</ProofButton>
+                        <ProofButton onClick={() => genExample(key)} size="sm">{t('action.new_example')}</ProofButton>
                       )}
                     </div>
                   </div>
@@ -473,7 +476,7 @@ No explanations. Just the words.`
             <button onClick={handleAdvance} style={{ fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 500, background: allFilled ? 'var(--dark)' : '#D5D4D6', color: allFilled ? '#FDFCFA' : '#8C8780', border: 'none', borderRadius: 5, padding: '12px 22px', cursor: allFilled ? 'pointer' : 'default', transition: 'all 0.2s' }}
               onMouseEnter={e => { if (allFilled) e.currentTarget.style.background = 'var(--mango)' }}
               onMouseLeave={e => { if (allFilled) e.currentTarget.style.background = 'var(--dark)' }}>
-              Continue to Tone →
+              {t('synthesis.continue_tone')}
             </button>
           </div>
         </div>

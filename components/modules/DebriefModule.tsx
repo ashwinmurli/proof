@@ -1,4 +1,5 @@
 'use client'
+import { langInstruction, useLang } from '@/lib/i18n'
 
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -15,7 +16,7 @@ import ProofDrawer from '@/components/proof/ProofDrawer'
 const SECTIONS = [
   {
     id: 'situation' as const,
-    label: 'The Situation',
+    label: 'situation',
     question: 'What is actually going on with this brand right now?',
     placeholder: 'Edit proof\'s read, or write your own.',
     refinePrompt: (current: string, feedback: string, brief: string) =>
@@ -23,7 +24,7 @@ const SECTIONS = [
   },
   {
     id: 'challenge' as const,
-    label: 'The Challenge',
+    label: 'challenge',
     question: 'What is the real strategic problem to solve?',
     placeholder: 'Edit proof\'s read, or write your own.',
     refinePrompt: (current: string, feedback: string, brief: string) =>
@@ -31,7 +32,7 @@ const SECTIONS = [
   },
   {
     id: 'angle' as const,
-    label: 'Our Angle',
+    label: 'angle',
     question: 'What is your point of view on how to approach this?',
     placeholder: 'Edit proof\'s read, or write your own.',
     refinePrompt: (current: string, feedback: string, brief: string) =>
@@ -45,6 +46,7 @@ type FeedbackState = Record<SectionId, 'idle' | 'open' | 'refining'>
 
 export default function DebriefModule({ project }: { project: Project }) {
   const router = useRouter()
+  const t = useLang(project)
   const { updateProject } = useProofStore()
   const { stream } = useProofStream()
 
@@ -101,7 +103,8 @@ export default function DebriefModule({ project }: { project: Project }) {
       ? `\n\nproof.'s read of the brief:\n${project.brief.proofSummary}`
       : ''
 
-    const prompt = `You have read this brand brief. Write a debrief — your interpretation, not a summary.
+    const lang = project.language || "en"
+    const prompt = `${langInstruction(lang)}You have read this brand brief. Write a debrief — your interpretation, not a summary.
 
 Brief:
 ${briefSummary}${proofBriefRead}
@@ -264,7 +267,7 @@ Write 2-3 sentences. Is the angle a genuine bet? Is there productive tension bet
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
           <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 14 }}>
-            Discovery — 2 of 4
+            {t('debrief.phase')}
           </div>
           <p style={{ fontSize: 15, color: 'var(--concrete)', lineHeight: 1.8, maxWidth: 440, marginBottom: 56, fontWeight: 300 }}>
             proof.'s read of your brief. Not a summary — an interpretation. Push back where it's wrong.
@@ -288,7 +291,7 @@ Write 2-3 sentences. Is the angle a genuine bet? Is there productive tension bet
                 ))}
               </div>
               <span style={{ fontSize: 13, color: 'var(--stone)', fontFamily: 'var(--font-display)', fontStyle: 'italic' }}>
-                proof. is reading the brief…
+                t('debrief.generating')…
               </span>
             </motion.div>
           )}
@@ -341,7 +344,7 @@ Write 2-3 sentences. Is the angle a genuine bet? Is there productive tension bet
                     {/* Label + streaming dots */}
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
                       <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--stone)' }}>
-                        {section.label}
+                        {section.label === 'situation' ? t('debrief.situation') : section.label === 'challenge' ? t('debrief.challenge') : t('debrief.angle')}
                       </div>
                       {isStreaming && (
                         <div style={{ display: 'flex', gap: 3 }}>
@@ -402,7 +405,7 @@ Write 2-3 sentences. Is the angle a genuine bet? Is there productive tension bet
                               onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(184,179,172,0.6)'; e.currentTarget.style.color = 'var(--concrete)' }}>
                               Edit
                             </button>
-                            <ProofButton onClick={e => { e.stopPropagation(); openFeedback(section.id) }}>Ask proof. to revise</ProofButton>
+                            <ProofButton onClick={e => { e.stopPropagation(); openFeedback(section.id) }}>{t('debrief.ask_revise')}</ProofButton>
                           </>
                         ) : null}
                       </div>
@@ -428,7 +431,7 @@ Write 2-3 sentences. Is the angle a genuine bet? Is there productive tension bet
                             />
                             <div style={{ display: 'flex', gap: 10, marginTop: 12 }}>
                               <ProofButton onClick={() => submitFeedback(section.id)} disabled={!feedbackText[section.id]?.trim() || fb === 'refining'} variant="solid" size="sm" style={{ borderRadius: 5 }}>
-                                {fb === 'refining' ? 'Revising…' : 'Revise →'}
+                                {fb === 'refining' ? t('action.revising') : t('action.revise')}
                               </ProofButton>
                               {fb !== 'refining' && (
                                 <button onClick={() => { setFeedbackState(prev => ({ ...prev, [section.id]: 'idle' })); setFeedbackText(prev => ({ ...prev, [section.id]: '' })) }}
@@ -469,7 +472,7 @@ Write 2-3 sentences. Is the angle a genuine bet? Is there productive tension bet
               onMouseEnter={e => { if (allFilled) (e.currentTarget.style.background = 'var(--mango)') }}
               onMouseLeave={e => { if (allFilled) (e.currentTarget.style.background = 'var(--dark)') }}
             >
-              Continue to Discovery Summary →
+              {t('debrief.continue')}
             </button>
           </div>
         )}

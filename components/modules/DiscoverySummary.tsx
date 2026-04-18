@@ -1,4 +1,5 @@
 'use client'
+import { langInstruction, useLang } from '@/lib/i18n'
 
 import React, { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -28,6 +29,7 @@ export default function DiscoverySummary({ project }: DiscoverySummaryProps) {
   const router = useRouter()
   const { updateProject } = useProofStore()
   const { stream } = useProofStream()
+  const t = useLang(project)
 
   // Persist summary text on the project so it survives revisits
   const [summaryText, setSummaryText] = useState(project.brief?.proofSummary && project.debrief?.proofSummary
@@ -58,7 +60,8 @@ export default function DiscoverySummary({ project }: DiscoverySummaryProps) {
       ? `Situation: ${project.debrief!.situation}\nChallenge: ${project.debrief!.challenge}\nAngle: ${project.debrief!.angle}`
       : ''
 
-    const prompt = `You are completing the Discovery phase for a brand called "${project.name}" (${project.description}).
+    const lang = project.language || "en"
+    const prompt = `${langInstruction(lang)}You are completing the Discovery phase for a brand called "${project.name}" (${project.description}).
 
 Here is what was gathered:
 
@@ -173,10 +176,10 @@ No em dashes. No flattery. No markdown formatting. Direct.`
           style={{ marginBottom: 48 }}
         >
           <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 14 }}>
-            Discovery — 4 of 4
+            {t('discovery.phase')}
           </div>
           <p style={{ fontSize: 15, color: 'var(--concrete)', lineHeight: 1.85, maxWidth: 420, fontWeight: 300, margin: 0 }}>
-            {isStreaming ? 'proof. is closing Discovery…' : 'What was found. The foundation Synthesis builds on.'}
+            {isStreaming ? t('discovery.generating') : t('discovery.description')}
           </p>
         </motion.div>
 
@@ -217,7 +220,7 @@ No em dashes. No flattery. No markdown formatting. Direct.`
               {(found || isStreaming) && (
                 <div>
                   <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--aluminum)', marginBottom: 14 }}>
-                    proof.'s thoughts on what we found
+                    {t('discovery.found')}
                   </div>
                   {found ? (
                     <p style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 400, color: 'var(--dark)', lineHeight: 1.75, margin: 0 }}>
@@ -241,7 +244,7 @@ No em dashes. No flattery. No markdown formatting. Direct.`
               {tension && (
                 <div>
                   <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--aluminum)', marginBottom: 14 }}>
-                    proof.'s thoughts on the tension
+                    {t('discovery.tension')}
                   </div>
                   <p style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 400, color: 'var(--dark)', lineHeight: 1.75, margin: 0 }}>
                     {renderHighlighted(tension)}
@@ -256,7 +259,7 @@ No em dashes. No flattery. No markdown formatting. Direct.`
               {question && (
                 <div>
                   <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--aluminum)', marginBottom: 14 }}>
-                    proof.'s thoughts on the question we answer
+                    {t('discovery.question')}
                   </div>
                   <p style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 400, color: 'var(--dark)', lineHeight: 1.75, margin: 0 }}>
                     {renderHighlighted(question)}
@@ -280,7 +283,7 @@ No em dashes. No flattery. No markdown formatting. Direct.`
                   onClick={() => router.push(`/project/${project.id}/debrief`)}
                   style={{ fontFamily: 'var(--font-sans)', fontSize: 13, color: 'var(--stone)', background: 'none', border: 'none', cursor: 'pointer' }}
                 >
-                  ← Debrief
+                  ← {t('nav.back_debrief').replace('← ', '')}
                 </button>
                 <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
                   <button
@@ -288,7 +291,7 @@ No em dashes. No flattery. No markdown formatting. Direct.`
                     style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--stone)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}
                   >
                     <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--mango)', display: 'inline-block' }} />
-                    Regenerate
+                    {t('action.regenerate')}
                   </button>
                   <button
                     onClick={handleContinue}
@@ -301,7 +304,7 @@ No em dashes. No flattery. No markdown formatting. Direct.`
                     onMouseEnter={e => e.currentTarget.style.background = 'var(--mango)'}
                     onMouseLeave={e => e.currentTarget.style.background = 'var(--dark)'}
                   >
-                    Begin Synthesis →
+                    {t('discovery.continue')}
                   </button>
                 </div>
               </div>

@@ -1,4 +1,5 @@
 'use client'
+import { langInstruction, useLang } from '@/lib/i18n'
 
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -19,6 +20,7 @@ const STRESS_TESTS = [
 
 export default function ValuesModule({ project }: { project: Project }) {
   const router = useRouter()
+  const t = useLang(project)
   const { updateProject } = useProofStore()
   const { stream } = useProofStream()
 
@@ -51,7 +53,8 @@ export default function ValuesModule({ project }: { project: Project }) {
 
   async function generateDraft() {
     setGenerating(true)
-    const prompt = `${ctx}
+    const lang = project.language || "en"
+    const prompt = `${langInstruction(lang)}${ctx}
 
 Write exactly 3 core values for this brand.
 
@@ -210,7 +213,7 @@ Assess in 2 sentences. Do these feel real or aspirational? Is there anything her
 
       <main style={{ flex: 1, maxWidth: 660, width: '100%', margin: '0 auto', padding: '72px 24px 120px' }}>
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
-          <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 14 }}>Synthesis — 2 of 7</div>
+          <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 14 }}>{t('values.phase')}</div>
           <p style={{ fontSize: 15, color: 'var(--concrete)', lineHeight: 1.85, maxWidth: 460, marginBottom: 48, fontWeight: 300 }}>
             Three values. Each one needs a definition and a behavioural description — what it looks like in action. Values without teeth are decorations.
           </p>
@@ -238,7 +241,7 @@ Assess in 2 sentences. Do these feel real or aspirational? Is there anything her
               const needsWork = challenge && /^NEEDS WORK/i.test(challenge)
               const pillBg = passes ? 'rgba(34,197,94,0.12)' : needsWork ? 'rgba(251,146,60,0.15)' : challenge ? 'rgba(239,68,68,0.12)' : undefined
               const pillColor = passes ? '#15803d' : needsWork ? '#c2610c' : '#b91c1c'
-              const pillLabel = passes ? 'Passes' : needsWork ? 'Needs work' : 'Fails'
+              const pillLabel = passes ? t('values.passes') : needsWork ? t('values.needs_work') : 'Fails'
 
               return (
                 <motion.div key={v.id}
@@ -270,7 +273,7 @@ Assess in 2 sentences. Do these feel real or aspirational? Is there anything her
 
                   {/* Definition */}
                   <div style={{ marginBottom: 14 }}>
-                    <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 8 }}>What it means</div>
+                    <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 8 }}>{t('values.what_it_means')}</div>
                     <textarea
                       value={v.definition}
                       onChange={e => updateValue(v.id, 'definition', e.target.value)}
@@ -281,7 +284,7 @@ Assess in 2 sentences. Do these feel real or aspirational? Is there anything her
 
                   {/* Behaviour */}
                   <div style={{ marginBottom: 18 }}>
-                    <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 8 }}>What it looks like</div>
+                    <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 8 }}>{t('values.what_it_looks')}</div>
                     <textarea
                       value={v.behaviour}
                       onChange={e => updateValue(v.id, 'behaviour', e.target.value)}
@@ -297,7 +300,7 @@ Assess in 2 sentences. Do these feel real or aspirational? Is there anything her
                       <div style={{ display: 'flex', gap: 4 }}>
                         {[0,1,2].map(j => <motion.div key={j} style={{ width: 3, height: 3, borderRadius: '50%', background: 'var(--mango)' }} animate={{ opacity: [0.3,1,0.3] }} transition={{ duration: 1, repeat: Infinity, delay: j*0.15 }} />)}
                       </div>
-                      <span style={{ fontSize: 12, color: 'var(--stone)', fontWeight: 300 }}>proof. is rewriting…</span>
+                      <span style={{ fontSize: 12, color: 'var(--stone)', fontWeight: 300 }}>t('values.rewriting')…</span>
                     </motion.div>
                   )}
 
@@ -306,7 +309,7 @@ Assess in 2 sentences. Do these feel real or aspirational? Is there anything her
                     <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
                       style={{ marginBottom: 18, padding: '12px 16px', background: 'var(--bg)', borderRadius: 8, border: '1px solid rgba(184,179,172,0.2)' }}>
                       <p style={{ fontSize: 12, color: 'var(--stone)', fontWeight: 300, lineHeight: 1.65, margin: 0 }}>
-                        proof. has rewritten this. Run a fresh stress test to check it, or move on.
+                        {t('values.rewrite_done')}
                       </p>
                     </motion.div>
                   )}
@@ -337,7 +340,7 @@ Assess in 2 sentences. Do these feel real or aspirational? Is there anything her
                               onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--mango)'; e.currentTarget.style.color = 'var(--mango)' }}
                               onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(184,179,172,0.6)'; e.currentTarget.style.color = 'var(--concrete)' }}
                             >
-                              Ask proof. to rewrite →
+                              {t('values.ask_rewrite')}
                             </button>
                           )}
                         </>
@@ -351,7 +354,7 @@ Assess in 2 sentences. Do these feel real or aspirational? Is there anything her
                   {/* Actions inside card */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <ProofButton onClick={() => challengeValue(v)} size="sm">
-                      {challenge ? 'Re-test →' : 'Stress test →'}
+                      {challenge ? t('action.retest') : t('values.stress_test')}
                     </ProofButton>
                   </div>
                 </motion.div>
@@ -370,7 +373,7 @@ Assess in 2 sentences. Do these feel real or aspirational? Is there anything her
               style={{ fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 500, background: allFilled ? 'var(--dark)' : '#D5D4D6', color: allFilled ? '#FDFCFA' : '#8C8780', border: 'none', borderRadius: 5, padding: '12px 22px', cursor: allFilled ? 'pointer' : 'default', transition: 'all 0.2s' }}
               onMouseEnter={e => { if (allFilled) (e.currentTarget.style.background = 'var(--mango)') }}
               onMouseLeave={e => { if (allFilled) (e.currentTarget.style.background = 'var(--dark)') }}>
-              Continue to Personality →
+              {t('synthesis.continue_personality')}
             </button>
           </div>
         )}

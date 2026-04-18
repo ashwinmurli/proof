@@ -1,4 +1,5 @@
 'use client'
+import { langInstruction, useLang } from '@/lib/i18n'
 
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -22,6 +23,7 @@ const PROMPTS = [
 
 export default function ManifestoModule({ project }: { project: Project }) {
   const router = useRouter()
+  const t = useLang(project)
   const { updateProject } = useProofStore()
   const { stream } = useProofStream()
 
@@ -66,7 +68,8 @@ export default function ManifestoModule({ project }: { project: Project }) {
     const filledPrompts = PROMPTS.filter(p => prompts[p.id]?.trim())
     const rawMaterial = filledPrompts.map(p => `${p.starter} ${prompts[p.id]}`).join('\n')
 
-    const prompt = `${ctx}
+    const lang = project.language || "en"
+    const prompt = `${langInstruction(lang)}${ctx}
 
 The strategist has written these raw statements about the brand:
 ${rawMaterial}
@@ -109,13 +112,13 @@ Rules:
       <main style={{ flex: 1, maxWidth: 660, width: '100%', margin: '0 auto', padding: '72px 24px 120px' }}>
 
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.16,1,0.3,1] }}>
-          <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 14 }}>Synthesis — 7 of 7</div>
+          <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 14 }}>{t('manifesto.phase')}</div>
           <p style={{ fontSize: 15, color: 'var(--concrete)', lineHeight: 1.85, maxWidth: 460, marginBottom: 56, fontWeight: 300 }}>
             {phase === 'prompts'
               ? 'Complete the sentences. proof. will transform them into the manifesto — not synthesise them, transform them.'
               : phase === 'done'
               ? 'Click anywhere in the text to edit it directly.'
-              : 'proof. is writing…'}
+              : t('manifesto.generating')}
           </p>
         </motion.div>
 
@@ -204,7 +207,7 @@ Rules:
                 ← Tagline
               </button>
               <ProofButton onClick={synthesise} disabled={!allFilled} variant="solid" size="md" style={{ borderRadius: 5 }}>
-                {allFilled ? 'Write the manifesto →' : `${4 - filledCount} more to continue`}
+                {allFilled ? t('manifesto.write') : `${4 - filledCount} more to continue`}
               </ProofButton>
             </div>
           </motion.div>
@@ -326,7 +329,7 @@ Rules:
                 style={{ fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 500, background: 'var(--dark)', color: '#FDFCFA', border: 'none', borderRadius: 5, padding: '12px 22px', cursor: 'pointer', transition: 'background 0.2s' }}
                 onMouseEnter={e => (e.currentTarget.style.background = 'var(--mango)')}
                 onMouseLeave={e => (e.currentTarget.style.background = 'var(--dark)')}>
-                View Brand Home →
+                t('synthesis.continue_brand_home')
               </button>
             </div>
           </motion.div>

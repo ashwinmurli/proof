@@ -7,6 +7,7 @@ import { Project, BrandIdentity } from '@/types'
 import { useProofStore } from '@/store'
 import { useProofStream } from '@/lib/useProofStream'
 import { buildSynthesisContext } from '@/lib/synthesisContext'
+import { t, useLang, TranslationKey } from '@/lib/i18n'
 
 // ─── Identity helpers ────────────────────────────────────────────────────────
 
@@ -72,33 +73,35 @@ function ChapterLabel({ n, label }: { n: string; label: string }) {
 
 // ─── Visual Identity Wizard ───────────────────────────────────────────────────
 
-function IdentityWizard({ identity, onSave, onClose }: {
+function IdentityWizard({ identity, onSave, onClose, lang }: {
   identity: BrandIdentity | undefined
   onSave: (id: BrandIdentity) => void
   onClose: () => void
+  lang: 'en' | 'nl'
 }) {
   const [draft, setDraft] = useState<BrandIdentity>(identity || {})
   const [step, setStep] = useState(0)
   const set = (k: keyof BrandIdentity, v: string) => setDraft(d => ({ ...d, [k]: v }))
+  const tw = (key: TranslationKey) => t(key, lang)
 
   const steps = [
     {
-      label: 'Colours',
+      label: tw('wizard.colours'),
       content: (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-          <ColorPicker label="Primary colour" value={draft.primaryColor || ''} onChange={v => set('primaryColor', v)} hint="Used for headings and key elements" />
-          <ColorPicker label="Accent colour" value={draft.accentColor || ''} onChange={v => set('accentColor', v)} hint="Used for labels and highlights — defaults to primary" />
-          <ColorPicker label="Background" value={draft.backgroundColor || ''} onChange={v => set('backgroundColor', v)} hint="The page background" />
-          <ColorPicker label="Text colour" value={draft.textColor || ''} onChange={v => set('textColor', v)} hint="Body text — defaults to near-black" />
+          <ColorPicker label={tw('wizard.primary')} value={draft.primaryColor || ''} onChange={v => set('primaryColor', v)} hint={tw('wizard.primary_hint')} />
+          <ColorPicker label={tw('wizard.accent')} value={draft.accentColor || ''} onChange={v => set('accentColor', v)} hint={tw('wizard.accent_hint')} />
+          <ColorPicker label={tw('wizard.background')} value={draft.backgroundColor || ''} onChange={v => set('backgroundColor', v)} hint={tw('wizard.bg_hint')} />
+          <ColorPicker label={tw('wizard.text')} value={draft.textColor || ''} onChange={v => set('textColor', v)} hint={tw('wizard.text_hint')} />
         </div>
       ),
     },
     {
-      label: 'Typography',
+      label: tw('wizard.typography'),
       content: (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <p style={{ fontSize: 13, color: 'rgba(0,0,0,0.5)', fontWeight: 300, lineHeight: 1.7, margin: 0 }}>
-            Choose a type pairing, or leave blank to use neutral defaults.
+            {tw('wizard.choose_pair')}
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             {GOOGLE_FONT_PAIRS.map(pair => {
@@ -122,7 +125,7 @@ function IdentityWizard({ identity, onSave, onClose }: {
           {draft.displayFont && (
             <button onClick={() => { set('displayFont', ''); set('bodyFont', '') }}
               style={{ fontSize: 12, color: 'rgba(0,0,0,0.4)', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', padding: 0 }}>
-              Clear selection → use neutral defaults
+              {tw('wizard.clear')}
             </button>
           )}
         </div>
@@ -156,7 +159,7 @@ function IdentityWizard({ identity, onSave, onClose }: {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
           <div>
             <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(0,0,0,0.35)', marginBottom: 4 }}>
-              Brand identity — {step + 1} of {steps.length}
+              {tw('wizard.brand_identity')} — {step + 1} {tw('wizard.of')} {steps.length}
             </div>
             <div style={{ fontSize: 18, fontWeight: 500, color: '#111' }}>{steps[step].label}</div>
           </div>
@@ -171,18 +174,18 @@ function IdentityWizard({ identity, onSave, onClose }: {
           <button
             onClick={() => step > 0 ? setStep(s => s - 1) : onClose()}
             style={{ fontSize: 13, color: 'rgba(0,0,0,0.4)', background: 'none', border: 'none', cursor: 'pointer' }}>
-            {step === 0 ? 'Cancel' : '← Back'}
+            {step === 0 ? tw('wizard.cancel') : tw('wizard.back')}
           </button>
           <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
             {step < steps.length - 1 ? (
               <button onClick={() => setStep(s => s + 1)}
                 style={{ fontFamily: 'system-ui', fontSize: 13, fontWeight: 500, background: '#111', color: '#fff', border: 'none', borderRadius: 6, padding: '10px 20px', cursor: 'pointer' }}>
-                Next →
+                {tw('wizard.next')}
               </button>
             ) : (
               <button onClick={() => { onSave(draft); onClose() }}
                 style={{ fontFamily: 'system-ui', fontSize: 13, fontWeight: 500, background: '#111', color: '#fff', border: 'none', borderRadius: 6, padding: '10px 20px', cursor: 'pointer' }}>
-                Apply identity
+                {tw('wizard.apply')}
               </button>
             )}
           </div>
@@ -364,6 +367,7 @@ function hslToHex(h: number, s: number, l: number): string {
 
 function CopyGenerator({ project }: { project: Project }) {
   const { stream } = useProofStream()
+  const tl = useLang(project)
   const [prompt, setPrompt] = useState('')
   const [output, setOutput] = useState('')
   const [generating, setGenerating] = useState(false)
@@ -402,7 +406,7 @@ Rules:
           value={prompt}
           onChange={e => setPrompt(e.target.value)}
           onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) generate() }}
-          placeholder="Write a tagline for our Instagram bio… / Give me three subject lines for a launch email… / Write a one-liner for a pitch deck cover…"
+          placeholder={tl('bh.copy_placeholder')}
           style={{
             fontFamily: 'var(--bh-body)', fontSize: 14, fontWeight: 300,
             padding: '14px 16px', borderRadius: 8, resize: 'none',
@@ -423,7 +427,7 @@ Rules:
               cursor: prompt.trim() && !generating ? 'pointer' : 'default',
               transition: 'all 0.2s',
             }}>
-            {generating ? 'Writing…' : 'Write →'}
+            {generating ? tl('bh.writing') : tl('bh.copy_write')}
           </button>
         </div>
       </div>
@@ -458,20 +462,23 @@ Rules:
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-const NAV_CHAPTERS = [
-  { id: 'beliefs',     label: 'What we believe' },
-  { id: 'values',      label: 'What we stand for' },
-  { id: 'personality', label: 'Who we are' },
-  { id: 'tone',        label: 'How we speak' },
-  { id: 'naming',      label: 'What we\'re called' },
-  { id: 'tagline',     label: 'The line' },
-  { id: 'manifesto',   label: 'What we\'re about' },
-  { id: 'copy',        label: 'Write with the brand' },
-]
+const NAV_CHAPTER_IDS = ['beliefs','values','personality','tone','naming','tagline','manifesto','copy']
 
 export default function BrandHome({ project, readOnly = false }: { project: Project; readOnly?: boolean }) {
   const router = useRouter()
   const { updateProject, generateShareToken } = useProofStore()
+  const tl = useLang(project)
+
+  const NAV_CHAPTERS = [
+    { id: 'beliefs',     label: tl('bh.beliefs') },
+    { id: 'values',      label: tl('bh.values') },
+    { id: 'personality', label: tl('bh.personality') },
+    { id: 'tone',        label: tl('bh.tone') },
+    { id: 'naming',      label: tl('bh.naming') },
+    { id: 'tagline',     label: tl('bh.tagline') },
+    { id: 'manifesto',   label: tl('bh.manifesto') },
+    { id: 'copy',        label: tl('bh.copy') },
+  ]
   const { copied, copy } = useCopy()
   const s = project.synthesis || {}
   const id = project.identity
@@ -577,7 +584,7 @@ export default function BrandHome({ project, readOnly = false }: { project: Proj
                 style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: shareCopied ? 'var(--mango)' : 'rgba(0,0,0,0.4)', background: 'none', border: 'none', cursor: 'pointer' }}
                 onMouseEnter={e => { if (!shareCopied) e.currentTarget.style.color = 'rgba(0,0,0,0.7)' }}
                 onMouseLeave={e => { if (!shareCopied) e.currentTarget.style.color = 'rgba(0,0,0,0.4)' }}>
-                {shareCopied ? 'Link copied' : 'Share'}
+                {shareCopied ? tl('action.link_copied') : tl('action.share')}
               </button>
               <button onClick={() => setWizardOpen(true)}
                 style={{
@@ -588,7 +595,7 @@ export default function BrandHome({ project, readOnly = false }: { project: Proj
                   border: `1px solid ${hasIdentity ? (id?.primaryColor || 'rgba(0,0,0,0.25)') : 'rgba(0,0,0,0.15)'}`,
                   borderRadius: 4, padding: '4px 10px', cursor: 'pointer', transition: 'all 0.2s',
                 }}>
-                {hasIdentity ? 'Identity' : 'Add identity'}
+                {hasIdentity ? tl('bh.identity') : tl('bh.add_identity')}
               </button>
             </>
           )}
@@ -633,7 +640,7 @@ export default function BrandHome({ project, readOnly = false }: { project: Proj
           {!hasContent && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ paddingTop: 40 }}>
               <p style={{ fontSize: 15, color: 'rgba(0,0,0,0.4)', fontWeight: 300, lineHeight: 1.8 }}>
-                Complete modules in Synthesis to build the brand home.
+                {tl('bh.complete_synthesis')}
               </p>
               <button onClick={() => router.push(`/project/${project.id}/synthesis`)}
                 style={{ marginTop: 24, fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 500, background: '#111', color: '#fff', border: 'none', borderRadius: 5, padding: '12px 22px', cursor: 'pointer' }}>
@@ -647,7 +654,7 @@ export default function BrandHome({ project, readOnly = false }: { project: Proj
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
               style={{ marginBottom: 80 }}>
               <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(0,0,0,0.3)', marginBottom: 24 }}>
-                Brand Foundation
+                {tl('bh.foundation')}
               </div>
               <h1 style={{
                 fontFamily: `var(--bh-display, var(--font-display))`,
@@ -674,7 +681,7 @@ export default function BrandHome({ project, readOnly = false }: { project: Proj
           {/* 01 — Beliefs */}
           {s.beliefs?.belief && (
             <section id="beliefs" ref={el => { sectionRefs.current['beliefs'] = el }}>
-              <ChapterLabel n="01" label="What we believe" />
+              <ChapterLabel n="01" label={tl('bh.beliefs')} />
               <div style={{ marginBottom: 32 }}>
                 <p style={{ fontFamily: `var(--bh-display, var(--font-display))`, fontSize: 24, fontWeight: 400, color: id?.textColor || '#111', lineHeight: 1.5, margin: 0, maxWidth: 540 }}>
                   {s.beliefs.belief}
@@ -682,13 +689,13 @@ export default function BrandHome({ project, readOnly = false }: { project: Proj
               </div>
               {s.beliefs.building && (
                 <div style={{ marginBottom: 24 }}>
-                  <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(0,0,0,0.35)', marginBottom: 10 }}>What we're building</div>
+                  <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(0,0,0,0.35)', marginBottom: 10 }}>{tl('bh.building')}</div>
                   <p style={{ fontFamily: `var(--bh-body, var(--font-sans))`, fontSize: 15, fontWeight: 300, color: 'rgba(0,0,0,0.65)', lineHeight: 1.85, margin: 0, maxWidth: 520 }}>{s.beliefs.building}</p>
                 </div>
               )}
               {s.beliefs.working && (
                 <div>
-                  <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(0,0,0,0.35)', marginBottom: 10 }}>How we work</div>
+                  <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(0,0,0,0.35)', marginBottom: 10 }}>{tl('bh.working')}</div>
                   <p style={{ fontFamily: `var(--bh-body, var(--font-sans))`, fontSize: 15, fontWeight: 300, color: 'rgba(0,0,0,0.65)', lineHeight: 1.85, margin: 0, maxWidth: 520 }}>{s.beliefs.working}</p>
                 </div>
               )}
@@ -699,7 +706,7 @@ export default function BrandHome({ project, readOnly = false }: { project: Proj
           {/* 02 — Values */}
           {s.values && s.values.length > 0 && (
             <section id="values" ref={el => { sectionRefs.current['values'] = el }}>
-              <ChapterLabel n="02" label="What we stand for" />
+              <ChapterLabel n="02" label={tl('bh.values')} />
               <div style={{ display: 'flex', flexDirection: 'column', gap: 36 }}>
                 {s.values.map((v, i) => (
                   <motion.div key={v.id || i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }}>
@@ -718,10 +725,10 @@ export default function BrandHome({ project, readOnly = false }: { project: Proj
           {/* 03 — Personality */}
           {(tensions.length > 0 || s.personality?.dinner) && (
             <section id="personality" ref={el => { sectionRefs.current['personality'] = el }}>
-              <ChapterLabel n="03" label="Who we are" />
+              <ChapterLabel n="03" label={tl('bh.personality')} />
               {tensions.length > 0 && (
                 <div style={{ marginBottom: s.personality?.dinner ? 48 : 0 }}>
-                  <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(0,0,0,0.35)', marginBottom: 24 }}>Tension pairs</div>
+                  <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(0,0,0,0.35)', marginBottom: 24 }}>{tl('bh.tension_pairs')}</div>
                   {tensions.map((t, i) => (
                     <div key={i} style={{ padding: '18px 0', borderBottom: i < tensions.length - 1 ? '1px solid rgba(0,0,0,0.07)' : 'none' }}>
                       <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: t.desc ? 6 : 0, flexWrap: 'wrap' }}>
@@ -736,7 +743,7 @@ export default function BrandHome({ project, readOnly = false }: { project: Proj
               )}
               {(s.personality?.dinner || s.personality?.difficult || s.personality?.decision) && (
                 <div>
-                  <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(0,0,0,0.35)', marginBottom: 24 }}>The person</div>
+                  <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(0,0,0,0.35)', marginBottom: 24 }}>{tl('bh.the_person')}</div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                     {[
                       { label: 'At a dinner party', val: s.personality.dinner },
@@ -758,7 +765,7 @@ export default function BrandHome({ project, readOnly = false }: { project: Proj
           {/* 04 — Tone */}
           {s.tone?.poleA && (
             <section id="tone" ref={el => { sectionRefs.current['tone'] = el }}>
-              <ChapterLabel n="04" label="How we speak" />
+              <ChapterLabel n="04" label={tl('bh.tone')} />
               <div style={{ marginBottom: 36 }}>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 4 }}>
                   <span style={{ fontFamily: `var(--bh-display, var(--font-display))`, fontStyle: 'italic', fontSize: 28, fontWeight: 400, color: id?.textColor || '#111' }}>{s.tone.poleA}</span>
@@ -770,13 +777,13 @@ export default function BrandHome({ project, readOnly = false }: { project: Proj
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                   {s.tone.doesSoundLike && (
                     <div>
-                      <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(0,0,0,0.3)', marginBottom: 10 }}>Sounds like us</div>
+                      <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(0,0,0,0.3)', marginBottom: 10 }}>{tl('bh.sounds_like')}</div>
                       <p style={{ fontFamily: `var(--bh-display, var(--font-display))`, fontStyle: 'italic', fontSize: 16, color: id?.textColor || '#111', lineHeight: 1.7, margin: 0, maxWidth: 480 }}>"{s.tone.doesSoundLike}"</p>
                     </div>
                   )}
                   {s.tone.doesntSoundLike && (
                     <div>
-                      <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(0,0,0,0.3)', marginBottom: 10 }}>Doesn't sound like us</div>
+                      <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(0,0,0,0.3)', marginBottom: 10 }}>{tl('bh.not_sounds_like')}</div>
                       <p style={{ fontFamily: `var(--bh-display, var(--font-display))`, fontStyle: 'italic', fontSize: 16, color: 'rgba(0,0,0,0.4)', lineHeight: 1.7, margin: 0, maxWidth: 480 }}>"{s.tone.doesntSoundLike}"</p>
                     </div>
                   )}
@@ -789,7 +796,7 @@ export default function BrandHome({ project, readOnly = false }: { project: Proj
           {/* 05 — Naming */}
           {(s.naming?.chosen || s.naming?.territory) && (
             <section id="naming" ref={el => { sectionRefs.current['naming'] = el }}>
-              <ChapterLabel n="05" label="What we're called" />
+              <ChapterLabel n="05" label={tl('bh.naming')} />
               <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, marginBottom: 16 }}>
                 <h2 style={{ fontFamily: `var(--bh-display, var(--font-display))`, fontSize: 'clamp(40px, 6vw, 56px)', fontWeight: 400, color: id?.primaryColor || id?.textColor || '#111', lineHeight: 1.0, letterSpacing: '-0.02em', margin: 0 }}>
                   {s.naming.chosen || project.name}
@@ -805,7 +812,7 @@ export default function BrandHome({ project, readOnly = false }: { project: Proj
           {/* 06 — Tagline */}
           {s.tagline?.chosen && (
             <section id="tagline" ref={el => { sectionRefs.current['tagline'] = el }}>
-              <ChapterLabel n="06" label="The line" />
+              <ChapterLabel n="06" label={tl('bh.tagline')} />
               <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
                 <p style={{ fontFamily: `var(--bh-display, var(--font-display))`, fontStyle: 'italic', fontSize: 'clamp(28px, 5vw, 40px)', fontWeight: 400, color: id?.textColor || '#111', lineHeight: 1.2, margin: 0, maxWidth: 520 }}>
                   {s.tagline.chosen}
@@ -819,7 +826,7 @@ export default function BrandHome({ project, readOnly = false }: { project: Proj
           {/* 07 — Manifesto */}
           {s.manifesto?.final && (
             <section id="manifesto" ref={el => { sectionRefs.current['manifesto'] = el }}>
-              <ChapterLabel n="07" label="What we're about" />
+              <ChapterLabel n="07" label={tl('bh.manifesto')} />
               <div style={{ maxWidth: 560, marginBottom: 20 }}>
                 {s.manifesto.final.split('\n\n').filter(Boolean).map((para, i) => (
                   <p key={i} style={{ fontFamily: `var(--bh-body, var(--font-sans))`, fontSize: 18, fontWeight: 400, color: id?.textColor || '#111', lineHeight: 1.85, margin: '0 0 24px' }}>
@@ -835,9 +842,9 @@ export default function BrandHome({ project, readOnly = false }: { project: Proj
           {/* 08 — Copy generator */}
           {(s.manifesto?.final || s.tone?.poleA) && (
             <section id="copy" ref={el => { sectionRefs.current['copy'] = el }}>
-              <ChapterLabel n="08" label="Write with the brand" />
+              <ChapterLabel n="08" label={tl('bh.copy')} />
               <p style={{ fontFamily: `var(--bh-body, var(--font-sans))`, fontSize: 15, fontWeight: 300, color: 'rgba(0,0,0,0.5)', lineHeight: 1.8, margin: '0 0 24px', maxWidth: 480 }}>
-                Describe what you need. proof. will write it in the brand's voice.
+                {tl('bh.copy_description')}
               </p>
               <CopyGenerator project={project} />
             </section>
@@ -849,7 +856,7 @@ export default function BrandHome({ project, readOnly = false }: { project: Proj
               {!readOnly ? (
                 <button onClick={() => router.push(`/project/${project.id}/synthesis`)}
                   style={{ fontFamily: 'var(--font-sans)', fontSize: 13, color: 'rgba(0,0,0,0.35)', background: 'none', border: 'none', cursor: 'pointer' }}>
-                  ← Back to Synthesis
+                  {tl('bh.back_synthesis')}
                 </button>
               ) : <div />}
               <div style={{ fontSize: 11, color: 'rgba(0,0,0,0.2)', letterSpacing: '0.08em' }}>
@@ -867,6 +874,7 @@ export default function BrandHome({ project, readOnly = false }: { project: Proj
             identity={project.identity}
             onSave={saveIdentity}
             onClose={() => setWizardOpen(false)}
+            lang={project.language || 'en'}
           />
         )}
       </AnimatePresence>

@@ -10,7 +10,7 @@ interface ProofStore {
   activeQuestionId: string | null
   drawerOpen: boolean
 
-  createProject: (name: string, description: string) => string
+  createProject: (name: string, description: string, language?: 'en' | 'nl') => string
   updateProject: (id: string, updates: Partial<Project>) => void
   deleteProject: (id: string) => void
   setActiveProject: (id: string) => void
@@ -35,13 +35,14 @@ export const useProofStore = create<ProofStore>()(
       activeQuestionId: null,
       drawerOpen: false,
 
-      createProject: (name, description) => {
+      createProject: (name, description, language = 'en') => {
         const id = crypto.randomUUID()
         const project: Project = {
           id,
           name: name || 'Untitled project',
           description,
           status: 'brief',
+          language,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
           brief: { answers: {} },

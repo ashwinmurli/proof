@@ -1,4 +1,5 @@
 'use client'
+import { langInstruction } from '@/lib/i18n'
 
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -43,10 +44,12 @@ export default function BriefModule({ project, mode = 'strategist' }: BriefModul
   const blurTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({})
   const textareaRefs = useRef<Record<string, HTMLTextAreaElement | null>>({})
   const questionRefs = useRef<Record<string, HTMLDivElement | null>>({})
+  const lang = project.language || 'en'
+  const isNl = lang === 'nl'
 
   const answeredCount = Object.values(localAnswers).filter(v => v.trim().length > 20).length
   const thoughtCount = Object.keys(proofThoughts).length
-  const questionLabels = Object.fromEntries(BRIEF_QUESTIONS.map(q => [q.id, q.cat]))
+  const questionLabels = Object.fromEntries(BRIEF_QUESTIONS.map(q => [q.id, isNl ? (q.catNl || q.cat) : q.cat]))
 
   useEffect(() => {
     setTimeout(() => textareaRefs.current[activeId]?.focus(), 400)
@@ -82,9 +85,9 @@ export default function BriefModule({ project, mode = 'strategist' }: BriefModul
     if (!q) return
     setStreamingId(id)
     setStreamingText('')
-    const allAnswers = BRIEF_QUESTIONS.filter(q => localAnswers[q.id]?.trim().length > 10).map(q => `${q.cat}: ${localAnswers[q.id]}`).join('\n\n')
+    const allAnswers = BRIEF_QUESTIONS.filter(q => localAnswers[q.id]?.trim().length > 10).map(q => `${isNl ? (q.catNl || q.cat) : q.cat}: ${localAnswers[q.id]}`).join('\n\n')
     const prompt = mode === 'strategist'
-      ? `Brief for "${project.name}" (${project.description}).\nContext:\n${allAnswers}\nThey answered "${q.cat}": "${answer}"\nInterpret what this reveals. Show you understood it. Push on the one thing still needing sharpening. Do not ask for what you can infer. 2 sentences max. No em dashes. No flattery.`
+      ? `Brief for "${project.name}" (${project.description}).\nContext:\n${allAnswers}\nThey answered "${isNl ? (q.catNl || q.cat) : q.cat}": "${answer}"\nInterpret what this reveals. Show you understood it. Push on the one thing still needing sharpening. Do not ask for what you can infer. 2 sentences max. No em dashes. No flattery.`
       : `Client answered: "${q.clientText}"\nAnswer: "${answer}"\nRespond warmly. Acknowledge specifically. 1-2 sentences.`
 
     await stream({
@@ -104,7 +107,8 @@ export default function BriefModule({ project, mode = 'strategist' }: BriefModul
     setSummaryState('thinking')
     setDrawerOpen(true)
     const allAnswers = BRIEF_QUESTIONS.filter(q => localAnswers[q.id]?.trim()).map(q => `${q.cat}: ${localAnswers[q.id]}`).join('\n\n')
-    const prompt = `Complete brief for "${project.name}" (${project.description}):\n${allAnswers}\nWrite 3-4 sentences. Synthesise what you heard across all five answers. Name the thread that connects them. Name the tension at the heart of this brand. End with the real strategic question. Not a summary — an interpretation. No flattery. No em dashes.`
+    const lang = project.language || "en"
+    const prompt = `${langInstruction(lang)}Complete brief for "${project.name}" (${project.description}):\n${allAnswers}\nWrite 3-4 sentences. Synthesise what you heard across all five answers. Name the thread that connects them. Name the tension at the heart of this brand. End with the real strategic question. Not a summary — an interpretation. No flattery. No em dashes.`
     await stream({
       project, mode: 'strategist', module: 'Brief', prompt, maxTokens: 300,
       onChunk: () => {},
@@ -243,7 +247,7 @@ export default function BriefModule({ project, mode = 'strategist' }: BriefModul
                     color: isActive ? 'var(--stone)' : 'var(--aluminum)',
                     transition: 'color 0.3s',
                   }}>
-                    {q.cat}
+                    {isNl ? (q.catNl || q.cat) : q.cat}
                   </span>
                   {(hasThought || isFetchingThis) && (
                     <motion.div
@@ -268,7 +272,7 @@ export default function BriefModule({ project, mode = 'strategist' }: BriefModul
                   marginBottom: isActive ? 22 : 0,
                   transition: 'font-size 0.35s cubic-bezier(0.16,1,0.3,1), line-height 0.35s cubic-bezier(0.16,1,0.3,1)',
                 }}>
-                  {mode === 'client' ? q.clientText : q.text}
+                  {mode === 'client' ? (isNl ? (q.clientTextNl || q.clientText) : q.clientText) : (isNl ? (q.textNl || q.text) : q.text)}
                 </div>
 
                 {/* Answer + proof note — only when active */}
@@ -287,7 +291,7 @@ export default function BriefModule({ project, mode = 'strategist' }: BriefModul
                         onFocus={() => setActiveId(q.id)}
                         onBlur={() => handleBlur(q.id)}
                         onKeyDown={e => handleKeyDown(e, q.id)}
-                        placeholder={mode === 'client' ? q.clientPlaceholder : q.placeholder}
+                        placeholder={mode === 'client' ? (isNl ? (q.clientPlaceholderNl || q.clientPlaceholder) : q.clientPlaceholder) : (isNl ? (q.placeholderNl || q.placeholder) : q.placeholder)}
                         style={{
                           width: '100%',
                           background: 'transparent',

@@ -29,6 +29,7 @@ export default function Home() {
   const { createProject, projects, deleteProject } = useProofStore()
   const [name, setName] = useState('')
   const [desc, setDesc] = useState('')
+  const [lang, setLang] = useState<'en' | 'nl'>('en')
   const [loading, setLoading] = useState(false)
   const [hasApiKey, setHasApiKey] = useState(false)
   const [showNewForm, setShowNewForm] = useState(false)
@@ -49,7 +50,7 @@ export default function Home() {
   function handleStart() {
     if (loading || !desc.trim()) return
     setLoading(true)
-    const id = createProject(name, desc)
+    const id = createProject(name, desc, lang)
     router.push(`/project/${id}/brief`)
   }
 
@@ -263,6 +264,26 @@ export default function Home() {
                         Required — seeds every AI call.
                       </p>
                     )}
+                  </div>
+
+                  <div style={{ marginBottom: 20 }}>
+                    <label style={{ display: 'block', fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 8 }}>
+                      Language
+                    </label>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      {(['en', 'nl'] as const).map(l => (
+                        <button key={l} onClick={() => setLang(l)} style={{
+                          padding: '8px 18px', borderRadius: 6, cursor: 'pointer',
+                          fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: lang === l ? 500 : 300,
+                          border: `1px solid ${lang === l ? 'var(--dark)' : 'var(--aluminum)'}`,
+                          background: lang === l ? 'var(--dark)' : 'transparent',
+                          color: lang === l ? '#FDFCFA' : 'var(--stone)',
+                          transition: 'all 0.15s',
+                        }}>
+                          {l === 'en' ? 'English' : 'Nederlands'}
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
                   <div style={{ display: 'flex', gap: 10 }}>

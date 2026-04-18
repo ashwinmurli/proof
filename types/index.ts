@@ -17,6 +17,7 @@ export interface Project {
   name: string
   description: string
   status: ProjectStatus
+  language: 'en' | 'nl'
   shareToken?: string
   createdAt: string
   updatedAt: string
@@ -58,12 +59,17 @@ export interface ProofMessage {
 export interface BriefQuestion {
   id: string
   cat: string
+  catNl?: string
   // Strategist-facing version
   text: string
   placeholder: string
+  textNl?: string
+  placeholderNl?: string
   // Client-facing version
   clientText: string
   clientPlaceholder: string
+  clientTextNl?: string
+  clientPlaceholderNl?: string
 }
 
 export interface BeliefData {
