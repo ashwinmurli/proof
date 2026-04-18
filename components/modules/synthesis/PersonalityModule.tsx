@@ -36,7 +36,7 @@ export default function PersonalityModule({ project }: { project: Project }) {
   const [pairs, setPairs] = useState<TensionPair[]>(
     existing?.tensions?.length
       ? existing.tensions.map(t => {
-          const m = t.match(/^(.+?)\s+but never\s+(.+?)(?:\s*—\s*(.+))?$/)
+          const m = t.match(/^(.+?)\s+(?:but never|maar nooit)\s+(.+?)(?:\s*[—–-]\s*(.+))?$/)
           const neg = m?.[2]?.trim() || ''
           return {
             pos: m?.[1]?.trim() || t,
@@ -109,7 +109,8 @@ export default function PersonalityModule({ project }: { project: Project }) {
         personality: {
           tensions: p.map(pair => {
             let t = pair.pos
-            if (pair.neg) t += ` but never ${pair.neg}`
+            const connector = (project.language || 'en') === 'nl' ? 'maar nooit' : 'but never'
+            if (pair.neg) t += ` ${connector} ${pair.neg}`
             if (pair.description) t += ` — ${pair.description}`
             return t
           }),
@@ -130,8 +131,7 @@ ${lang === 'nl' ? 'Alle output moet volledig in het Nederlands zijn — inclusie
 
 A tension pair is not a balanced adjective list. It's a productive contradiction — the thing that makes this brand interesting rather than generic. The positive quality is what this brand genuinely is. The "never" is not the opposite — it's the excess or the lazy version of that quality that this brand specifically refuses.
 
-Bad tension pair: "Friendly but never unprofessional" — every brand would claim this.
-Good tension pair: "Blunt but never cruel" — specific enough to describe a real choice the brand makes.
+${lang === 'nl' ? 'Slecht spanningspaar: "Vriendelijk maar nooit onprofessioneel" — elk merk zou dit claimen.\nGoed spanningspaar: "Direct maar nooit bot" — specifiek genoeg om een echte keuze te beschrijven.\n\nBelangrijk: de woorden in PAIR_X_POS en PAIR_X_NEG moeten Nederlandse woorden zijn.' : 'Bad tension pair: "Friendly but never unprofessional" — every brand would claim this.\nGood tension pair: "Blunt but never cruel" — specific enough to describe a real choice the brand makes.'}
 
 The DESC must start with "${brandName}" and name the specific thing that makes this tension real for this brand — not a general observation about brands with this tension.
 
@@ -199,7 +199,7 @@ No em dashes within the PAIR lines.`
     const lang = project.language || "en"
     const prompt = `${langInstruction(lang)}${ctx}
 
-${lang === 'nl' ? 'Alle output moet volledig in het Nederlands zijn — inclusief namen, termen en labels.\n\n' : ''}For the brand personality pair: "${pairs[pairIdx].pos} but never ${pairs[pairIdx].neg}"
+${lang === 'nl' ? 'Alle output moet volledig in het Nederlands zijn — inclusief namen, termen en labels.\n\n' : ''}${lang === 'nl' ? 'Alle alternatieven moeten Nederlandse woorden zijn.\n' : ''}For the brand personality pair: "${pairs[pairIdx].pos} ${lang === 'nl' ? 'maar nooit' : 'but never'} ${pairs[pairIdx].neg}"
 
 The strategist wants alternatives for the ${direction}: "${current}"
 
@@ -238,7 +238,7 @@ No explanations. Just the words.`
 
   async function regenerateDesc(pairIdx: number, pos: string, neg: string) {
     const lang = project.language || "en"
-    const prompt = `${langInstruction(lang)}${ctx}\n\nBrand personality pair: "${pos} but never ${neg}"\n\nWrite one sentence describing what this tension means for ${brandName} specifically. Start with "${brandName}". Be concrete, not generic. No em dashes.`
+    const prompt = `${langInstruction(lang)}${ctx}\n\nBrand personality pair: "${pos} ${lang === 'nl' ? 'maar nooit' : 'but never'} ${neg}"\n\nWrite one sentence describing what this tension means for ${brandName} specifically. Start with "${brandName}". Be concrete, not generic. No em dashes.`
     await stream({
       project, mode: 'strategist', module: 'Personality', prompt, maxTokens: 80,
       onChunk: () => {},
@@ -256,7 +256,7 @@ No explanations. Just the words.`
     setGeneratingExample(key)
     const scenario = scenarios[key as keyof typeof scenarios]
     const label = SCENARIO_KEYS.find(s => s.key === key)?.getLabel(brandName) || key
-    const tensionStr = pairs.filter(p => p.pos && p.neg).map(p => `${p.pos} but never ${p.neg}`).join(' / ')
+    const tensionStr = pairs.filter(p => p.pos && p.neg).map(p => `${p.pos} ${(project.language || 'en') === 'nl' ? 'maar nooit' : 'but never'} ${p.neg}`).join(' / ')
     const lang = project.language || "en"
     const prompt = `${langInstruction(lang)}${ctx}\n\nTensions: ${tensionStr}\n\nScenario — ${label}: ${scenario}\n\nOne sentence in this brand's actual voice. Not a description — something they would actually say or write. Short, specific. No em dashes.`
     await stream({
@@ -280,7 +280,7 @@ No explanations. Just the words.`
 
   async function fetchSummary() {
     setSummaryState('thinking'); setDrawerOpen(true)
-    const tensionStr = pairs.filter(p => p.pos && p.neg).map(p => `${p.pos} but never ${p.neg}`).join(' / ')
+    const tensionStr = pairs.filter(p => p.pos && p.neg).map(p => `${p.pos} ${(project.language || 'en') === 'nl' ? 'maar nooit' : 'but never'} ${p.neg}`).join(' / ')
     const lang = project.language || "en"
     const prompt = `${langInstruction(lang)}${ctx}\n\nPersonality:\nTensions: ${tensionStr}\n${brandName} at dinner: ${scenarios.dinner}\n${brandName} in difficulty: ${scenarios.difficult}\n${brandName} under pressure: ${scenarios.decision}\n\nIn 2 sentences: is this personality distinctive enough to guide creative decisions? No em dashes.`
     await stream({
@@ -303,7 +303,7 @@ No explanations. Just the words.`
 
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
           <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 14 }}>{t('personality.phase')}</div>
-          <p style={{ fontSize: 15, color: 'var(--concrete)', lineHeight: 1.85, maxWidth: 460, marginBottom: 48, fontWeight: 300 }}>Brand as a person. Click either side of a tension to explore alternatives with different nuance.</p>
+          <p style={{ fontSize: 15, color: 'var(--concrete)', lineHeight: 1.85, maxWidth: 460, marginBottom: 48, fontWeight: 300 }}>{t('personality.description')}</p>
         </motion.div>
 
         {generating && (
@@ -318,7 +318,7 @@ No explanations. Just the words.`
 
             {/* Tension pair cards */}
             <div style={{ marginBottom: 72 }}>
-              <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 24 }}>Tension pairs</div>
+              <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 24 }}>{t('personality.pairs')}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {pairs.map((pair, i) => (
                   <motion.div key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }}
@@ -368,7 +368,7 @@ No explanations. Just the words.`
                         </AnimatePresence>
                       </div>
 
-                      <div style={{ fontSize: 12, color: 'var(--stone)', fontWeight: 300, flexShrink: 0, letterSpacing: '0.02em' }}>but never</div>
+                      <div style={{ fontSize: 12, color: 'var(--stone)', fontWeight: 300, flexShrink: 0, letterSpacing: '0.02em' }}>{t('personality.but_never')}</div>
 
                       {/* Negative pole */}
                       <div data-swap-container style={{ position: 'relative', flex: 1 }}>

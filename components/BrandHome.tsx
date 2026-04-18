@@ -527,7 +527,7 @@ export default function BrandHome({ project, readOnly = false }: { project: Proj
   const hasContent = !!(s.beliefs?.belief || s.values?.length || s.tone?.poleA || s.manifesto?.final)
 
   const tensions = s.personality?.tensions?.map(t => {
-    const m = t.match(/^(.+?)\s+but never\s+(.+?)(?:\s*[—–-]\s*(.+))?$/)
+    const m = t.match(/^(.+?)\s+(?:but never|maar nooit)\s+(.+?)(?:\s*[—–-]\s*(.+))?$/)
     return { pos: m?.[1]?.trim() || t, neg: m?.[2]?.trim() || '', desc: m?.[3]?.trim() || '' }
   }) || []
 
@@ -733,7 +733,7 @@ export default function BrandHome({ project, readOnly = false }: { project: Proj
                     <div key={i} style={{ padding: '18px 0', borderBottom: i < tensions.length - 1 ? '1px solid rgba(0,0,0,0.07)' : 'none' }}>
                       <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: t.desc ? 6 : 0, flexWrap: 'wrap' }}>
                         <span style={{ fontFamily: `var(--bh-display, var(--font-display))`, fontSize: 22, fontWeight: 400, color: id?.textColor || '#111' }}>{t.pos}</span>
-                        <span style={{ fontSize: 12, color: 'rgba(0,0,0,0.3)', fontWeight: 300 }}>but never</span>
+                        <span style={{ fontSize: 12, color: 'rgba(0,0,0,0.3)', fontWeight: 300 }}>{tl('personality.but_never')}</span>
                         <span style={{ fontFamily: `var(--bh-display, var(--font-display))`, fontSize: 22, fontWeight: 400, color: 'rgba(0,0,0,0.4)' }}>{t.neg}</span>
                       </div>
                       {t.desc && <p style={{ fontFamily: `var(--bh-body, var(--font-sans))`, fontSize: 13, color: 'rgba(0,0,0,0.45)', fontWeight: 300, lineHeight: 1.7, margin: 0, maxWidth: 460 }}>{t.desc}</p>}

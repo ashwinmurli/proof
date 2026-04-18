@@ -104,6 +104,7 @@ const translations = {
   // ─── Personality ──────────────────────────────────────────────────────────
   'personality.phase':     { en: 'Synthesis — 3 of 7',   nl: 'Synthese — 3 van 7' },
   'personality.description': { en: 'Brand as a person. Click either side of a tension to explore alternatives with different nuance.', nl: 'Het merk als persoon. Klik op een kant van een spanning om alternatieven te verkennen.' },
+  'personality.but_never':  { en: 'but never',           nl: 'maar nooit' },
   'personality.pairs':     { en: 'Tension pairs',        nl: 'Spanningsparen' },
   'personality.person':    { en: 'The person',           nl: 'De persoon' },
   'personality.dinner':    { en: 'at a dinner party',    nl: 'op een dinnerparty' },
