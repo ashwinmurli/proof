@@ -47,7 +47,7 @@ export default function TaglineModule({ project }: { project: Project }) {
     const lang = project.language || "en"
     const prompt = `${langInstruction(lang)}${ctx}
 
-Generate 4 strategic directions for a tagline, then 3 variations for each direction (12 total).
+${lang === 'nl' ? 'Alle output moet volledig in het Nederlands zijn — inclusief namen, termen en labels.\n\n' : ''}Generate 4 strategic directions for a tagline, then 3 variations for each direction (12 total).
 
 Each direction should approach the brand from a different angle — not 4 variations of the same idea. Consider: the brand's conviction, the tension at its heart, what it gives people, what it refuses to be.
 
@@ -111,7 +111,7 @@ Short. No em dashes. No exclamation marks.`
     const lang = project.language || "en"
     const prompt = `${langInstruction(lang)}${ctx}
 
-The strategist has shortlisted these tagline candidates:
+${lang === 'nl' ? 'Alle output moet volledig in het Nederlands zijn — inclusief namen, termen en labels.\n\n' : ''}The strategist has shortlisted these tagline candidates:
 ${selected.map((s, i) => `${i+1}. ${s}`).join('\n')}
 
 Generate 3 refined variations that develop and sharpen these. Each one should be more committed than where you started — less hedged, more specific, more inevitable.

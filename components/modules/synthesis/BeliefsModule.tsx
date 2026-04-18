@@ -90,7 +90,7 @@ export default function BeliefsModule({ project }: { project: Project }) {
     const lang = project.language || "en"
     const prompt = `${langInstruction(lang)}${ctx}
 
-Write the three belief statements for this brand.
+${lang === 'nl' ? 'Alle output moet volledig in het Nederlands zijn — inclusief namen, termen en labels.\n\n' : ''}Write the three belief statements for this brand.
 
 BELIEF is the conviction — what this brand genuinely believes that most brands in its category won't say. It must be arguable. A competitor should read it and feel a sting. If it could appear on any brand's website without embarrassment, it fails.
 
@@ -163,7 +163,7 @@ No em dashes. No flattery. The BELIEF should make the strategist pause.`
     const lang = project.language || "en"
     const prompt = `${langInstruction(lang)}${ctx}
 
-They've written their belief statements:
+${lang === 'nl' ? 'Alle output moet volledig in het Nederlands zijn — inclusief namen, termen en labels.\n\n' : ''}They've written their belief statements:
 What we believe: ${values.belief}
 What we're building: ${values.building}
 How we work: ${values.working}

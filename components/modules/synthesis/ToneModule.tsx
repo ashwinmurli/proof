@@ -66,7 +66,7 @@ export default function ToneModule({ project }: { project: Project }) {
     const lang = project.language || "en"
     const prompt = `${langInstruction(lang)}${ctx}
 
-The current tone spectrum is: "${poleA}" to "${poleB}"
+${lang === 'nl' ? 'Alle output moet volledig in het Nederlands zijn — inclusief namen, termen en labels.\n\n' : ''}The current tone spectrum is: "${poleA}" to "${poleB}"
 
 Generate 2 alternatives for each pole:
 POLE_A_1: [current: ${poleA}]
@@ -93,7 +93,7 @@ POLE_B_3: [another alternative]`
     const lang = project.language || "en"
     const prompt = `${langInstruction(lang)}${ctx}
 
-Define the tone of voice spectrum for this brand. Give 3 options for each pole so the strategist can choose.
+${lang === 'nl' ? 'Alle output moet volledig in het Nederlands zijn — inclusief namen, termen en labels.\n\n' : ''}Define the tone of voice spectrum for this brand. Give 3 options for each pole so the strategist can choose.
 
 POLE_A_1: [first option for left pole — 2-3 words]
 POLE_A_2: [second option]
@@ -129,7 +129,7 @@ No em dashes. Each option should be meaningfully different.`
     const lang = project.language || "en"
     const prompt = `${langInstruction(lang)}${ctx}
 
-Tone spectrum: from "${a}" to "${b}"
+${lang === 'nl' ? 'Alle output moet volledig in het Nederlands zijn — inclusief namen, termen en labels.\n\n' : ''}Tone spectrum: from "${a}" to "${b}"
 
 Write 3-4 sentences that sound like this brand — use the full spectrum, not just one pole. Then write 3-4 sentences that sound like the generic category voice this brand must avoid.
 

@@ -71,7 +71,7 @@ export default function ManifestoModule({ project }: { project: Project }) {
     const lang = project.language || "en"
     const prompt = `${langInstruction(lang)}${ctx}
 
-The strategist has written these raw statements about the brand:
+${lang === 'nl' ? 'Alle output moet volledig in het Nederlands zijn — inclusief namen, termen en labels.\n\n' : ''}The strategist has written these raw statements about the brand:
 ${rawMaterial}
 
 Now write the manifesto. Not a synthesis of these sentences — a transformation of them.

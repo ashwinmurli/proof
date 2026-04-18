@@ -108,7 +108,7 @@ export default function BriefModule({ project, mode = 'strategist' }: BriefModul
     setDrawerOpen(true)
     const allAnswers = BRIEF_QUESTIONS.filter(q => localAnswers[q.id]?.trim()).map(q => `${q.cat}: ${localAnswers[q.id]}`).join('\n\n')
     const lang = project.language || "en"
-    const prompt = `${langInstruction(lang)}Complete brief for "${project.name}" (${project.description}):\n${allAnswers}\nWrite 3-4 sentences. Synthesise what you heard across all five answers. Name the thread that connects them. Name the tension at the heart of this brand. End with the real strategic question. Not a summary — an interpretation. No flattery. No em dashes.`
+    const prompt = `${langInstruction(lang)}${lang === 'nl' ? 'Alle output moet volledig in het Nederlands zijn.\n\n' : ''}Complete brief for "${project.name}" (${project.description}):\n${allAnswers}\nWrite 3-4 sentences. Synthesise what you heard across all five answers. Name the thread that connects them. Name the tension at the heart of this brand. End with the real strategic question. Not a summary — an interpretation. No flattery. No em dashes.`
     await stream({
       project, mode: 'strategist', module: 'Brief', prompt, maxTokens: 300,
       onChunk: () => {},

@@ -126,7 +126,7 @@ export default function PersonalityModule({ project }: { project: Project }) {
     const lang = project.language || "en"
     const prompt = `${langInstruction(lang)}${ctx}
 
-Write the brand personality for "${brandName}" as three tension pairs and three scenario portraits.
+${lang === 'nl' ? 'Alle output moet volledig in het Nederlands zijn — inclusief namen, termen en labels.\n\n' : ''}Write the brand personality for "${brandName}" as three tension pairs and three scenario portraits.
 
 A tension pair is not a balanced adjective list. It's a productive contradiction — the thing that makes this brand interesting rather than generic. The positive quality is what this brand genuinely is. The "never" is not the opposite — it's the excess or the lazy version of that quality that this brand specifically refuses.
 
@@ -199,7 +199,7 @@ No em dashes within the PAIR lines.`
     const lang = project.language || "en"
     const prompt = `${langInstruction(lang)}${ctx}
 
-For the brand personality pair: "${pairs[pairIdx].pos} but never ${pairs[pairIdx].neg}"
+${lang === 'nl' ? 'Alle output moet volledig in het Nederlands zijn — inclusief namen, termen en labels.\n\n' : ''}For the brand personality pair: "${pairs[pairIdx].pos} but never ${pairs[pairIdx].neg}"
 
 The strategist wants alternatives for the ${direction}: "${current}"
 

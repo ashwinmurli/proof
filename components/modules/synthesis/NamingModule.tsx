@@ -84,7 +84,7 @@ export default function NamingModule({ project }: { project: Project }) {
     const lang = project.language || "en"
     const prompt = `${langInstruction(lang)}${ctx}
 
-You are helping name a brand. Based on everything above, do the following:
+${lang === 'nl' ? 'Alle output moet volledig in het Nederlands zijn — inclusief namen, termen en labels.\n\n' : ''}You are helping name a brand. Based on everything above, do the following:
 
 TERRITORY: Write a single paragraph (2-3 sentences) defining the naming territory. What is the emotional and strategic space this name needs to occupy? What should it feel like? What should it never feel like?
 
@@ -189,7 +189,7 @@ LOGIC_12: [one sentence]`
     const lang = project.language || "en"
     const prompt = `${langInstruction(lang)}${ctx}
 
-The strategist has shortlisted these name candidates:
+${lang === 'nl' ? 'Alle output moet volledig in het Nederlands zijn — inclusief namen, termen en labels.\n\n' : ''}The strategist has shortlisted these name candidates:
 ${selected.map((c, i) => `${i+1}. ${c.name} (${c.type}) — ${c.logic}`).join('\n')}
 
 Generate 3 refined name candidates that develop and sharpen the thinking behind these. Each should be more committed — more specific, more inevitable, more traceable to this brand's actual character.

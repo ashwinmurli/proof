@@ -104,7 +104,7 @@ export default function DebriefModule({ project }: { project: Project }) {
       : ''
 
     const lang = project.language || "en"
-    const prompt = `${langInstruction(lang)}You have read this brand brief. Write a debrief — your interpretation, not a summary.
+    const prompt = `${langInstruction(lang)}${lang === 'nl' ? 'Alle output moet volledig in het Nederlands zijn.\n\n' : ''}You have read this brand brief. Write a debrief — your interpretation, not a summary.
 
 Brief:
 ${briefSummary}${proofBriefRead}
@@ -214,7 +214,7 @@ Be direct. Be specific. No em dashes. No flattery. The angle should make the str
     setDrawerOpen(true)
 
     const lang = project.language || "en"
-    const prompt = `${langInstruction(lang)}You've written a debrief for "${project.name}".
+    const prompt = `${langInstruction(lang)}${lang === 'nl' ? 'Alle output moet volledig in het Nederlands zijn.\n\n' : ''}You've written a debrief for "${project.name}".
 
 Situation: ${values.situation}
 Challenge: ${values.challenge}

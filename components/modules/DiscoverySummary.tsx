@@ -61,7 +61,7 @@ export default function DiscoverySummary({ project }: DiscoverySummaryProps) {
       : ''
 
     const lang = project.language || "en"
-    const prompt = `${langInstruction(lang)}You are completing the Discovery phase for a brand called "${project.name}" (${project.description}).
+    const prompt = `${langInstruction(lang)}${lang === 'nl' ? 'Alle output moet volledig in het Nederlands zijn.\n\n' : ''}You are completing the Discovery phase for a brand called "${project.name}" (${project.description}).
 
 Here is what was gathered:
 

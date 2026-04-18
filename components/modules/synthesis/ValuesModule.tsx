@@ -57,7 +57,7 @@ export default function ValuesModule({ project }: { project: Project }) {
     const prompt = `${langInstruction(lang)}${ctx}
 
 Write exactly 3 core values for this brand.
-
+${lang === 'nl' ? '\nAlle output moet in het Nederlands zijn — inclusief de namen van de waarden.\n' : ''}
 What makes a value real vs decorative:
 - It changes how decisions get made, not just how they're described
 - The brand would hold it even if it became a competitive disadvantage
