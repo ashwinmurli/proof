@@ -252,7 +252,7 @@ Be specific. The examples should be immediately recognisable. No em dashes.`
             )}
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 32, borderTop: '1px solid rgba(213,212,214,0.4)' }}>
-              <button onClick={() => router.push(`/project/${project.id}/synthesis/personality`)} style={{ fontFamily: 'var(--font-sans)', fontSize: 13, color: 'var(--stone)', background: 'none', border: 'none', cursor: 'pointer' }}>← Personality</button>
+              <button onClick={() => router.push(`/project/${project.id}/synthesis/personality`)} style={{ fontFamily: 'var(--font-sans)', fontSize: 13, color: 'var(--stone)', background: 'none', border: 'none', cursor: 'pointer' }}>{t('nav.back_personality')}</button>
               <button onClick={handleAdvance} style={{ fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 500, background: allFilled ? 'var(--dark)' : '#D5D4D6', color: allFilled ? '#FDFCFA' : '#8C8780', border: 'none', borderRadius: 5, padding: '12px 22px', cursor: allFilled ? 'pointer' : 'default', transition: 'all 0.2s' }}
                 onMouseEnter={e => { if (allFilled) e.currentTarget.style.background = 'var(--mango)' }}
                 onMouseLeave={e => { if (allFilled) e.currentTarget.style.background = 'var(--dark)' }}>

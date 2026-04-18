@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
+import { t, Language } from '@/lib/i18n'
 import { Project } from '@/types'
 import ProofButton from '@/components/proof/ProofButton'
 
@@ -16,25 +17,25 @@ interface StripProps {
 }
 
 // All navigable stages in order — with a completion check
-function getStages(project: Project) {
+function getStages(project: Project, lang: Language = 'en') {
   const s = project.synthesis
   const answeredCount = Object.values(project.brief?.answers || {}).filter(a => a.value?.trim().length > 10).length
 
   return [
     // Discovery
-    { label: 'Brief',              path: 'brief',            done: answeredCount >= 3,                                              group: 'Discovery' },
-    { label: 'Debrief',            path: 'debrief',          done: !!(project.debrief?.situation),                                  group: 'Discovery' },
-    { label: 'Discovery Summary',  path: 'discovery-summary',done: !!(project.discoverySummary),                                   group: 'Discovery' },
+    { label: t('nav.brief', lang),              path: 'brief',            done: answeredCount >= 3,                                              group: 'Discovery' },
+    { label: t('nav.debrief', lang),            path: 'debrief',          done: !!(project.debrief?.situation),                                  group: 'Discovery' },
+    { label: t('nav.discovery_summary', lang),  path: 'discovery-summary',done: !!(project.discoverySummary),                                   group: 'Discovery' },
     // Synthesis
-    { label: 'Beliefs',            path: 'synthesis/beliefs',    done: !!(s?.beliefs?.belief),       group: 'Synthesis' },
-    { label: 'Values',             path: 'synthesis/values',     done: !!(s?.values?.[0]?.name),     group: 'Synthesis' },
-    { label: 'Personality',        path: 'synthesis/personality',done: !!(s?.personality?.dinner),   group: 'Synthesis' },
-    { label: 'Tone',               path: 'synthesis/tone',       done: !!(s?.tone?.poleA),           group: 'Synthesis' },
-    { label: 'Naming',             path: 'synthesis/naming',     done: !!(s?.naming?.territory),     group: 'Synthesis' },
-    { label: 'Tagline',            path: 'synthesis/tagline',    done: !!(s?.tagline?.variations?.length), group: 'Synthesis' },
-    { label: 'Manifesto',          path: 'synthesis/manifesto',  done: !!(s?.manifesto?.final),      group: 'Synthesis' },
+    { label: t('nav.beliefs', lang),            path: 'synthesis/beliefs',    done: !!(s?.beliefs?.belief),       group: 'Synthesis' },
+    { label: t('nav.values', lang),             path: 'synthesis/values',     done: !!(s?.values?.[0]?.name),     group: 'Synthesis' },
+    { label: t('nav.personality', lang),        path: 'synthesis/personality',done: !!(s?.personality?.dinner),   group: 'Synthesis' },
+    { label: t('nav.tone', lang),               path: 'synthesis/tone',       done: !!(s?.tone?.poleA),           group: 'Synthesis' },
+    { label: t('nav.naming', lang),             path: 'synthesis/naming',     done: !!(s?.naming?.territory),     group: 'Synthesis' },
+    { label: t('nav.tagline', lang),            path: 'synthesis/tagline',    done: !!(s?.tagline?.variations?.length), group: 'Synthesis' },
+    { label: t('nav.manifesto', lang),          path: 'synthesis/manifesto',  done: !!(s?.manifesto?.final),      group: 'Synthesis' },
     // Output
-    { label: 'Brand Home',         path: 'brand-home',           done: !!(s?.manifesto?.final),      group: 'Output' },
+    { label: t('nav.brand_home', lang),         path: 'brand-home',           done: !!(s?.manifesto?.final),      group: 'Output' },
   ]
 }
 
@@ -64,9 +65,11 @@ export default function Strip({
     return () => document.removeEventListener('keydown', handle)
   }, [navOpen])
 
-  const stages = getStages(project)
+  const stages = getStages(project, (project.language || 'en') as Language)
   const completedCount = stages.filter(s => s.done).length
-  const groups = ['Discovery', 'Synthesis', 'Output']
+  const lang = (project.language || 'en') as Language
+  const GROUP_KEYS = ['Discovery', 'Synthesis', 'Output']
+  const GROUP_LABELS: Record<string, string> = { Discovery: t('nav.group_discovery', lang), Synthesis: t('nav.group_synthesis', lang), Output: t('nav.group_output', lang) }
 
   return (
     <div style={{
@@ -141,7 +144,7 @@ export default function Strip({
                 zIndex: 100,
               }}
             >
-              {groups.map((group, gi) => {
+              {GROUP_KEYS.map((group, gi) => {
                 const groupStages = stages.filter(s => s.group === group)
                 const anyDone = groupStages.some(s => s.done)
                 if (!anyDone) return null
@@ -150,7 +153,7 @@ export default function Strip({
                   <div key={group}>
                     {gi > 0 && <div style={{ height: 1, background: 'rgba(184,179,172,0.25)', margin: '6px 0' }} />}
                     <div style={{ fontSize: 9, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--aluminum)', padding: '4px 16px 2px' }}>
-                      {group}
+                      {GROUP_LABELS[group]}
                     </div>
                     {groupStages.filter(s => s.done).map((s, i) => (
                       <button

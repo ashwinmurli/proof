@@ -317,7 +317,7 @@ Rules:
               >
                 Edit source material
               </button>
-              <ProofButton onClick={synthesise} size="sm">Rewrite →</ProofButton>
+              <ProofButton onClick={synthesise} size="sm">{t('action.rewrite')}</ProofButton>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 24, borderTop: '1px solid rgba(213,212,214,0.35)' }}>

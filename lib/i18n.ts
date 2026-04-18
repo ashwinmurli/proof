@@ -42,6 +42,7 @@ const translations = {
   'action.lock':           { en: 'Lock →',               nl: 'Vergrendelen →' },
   'action.locked':         { en: 'Locked.',              nl: 'Vergrendeld.' },
   'action.retest':         { en: 'Re-test →',            nl: 'Opnieuw testen →' },
+  'action.rewrite':        { en: 'Rewrite →',           nl: 'Herschrijven →' },
 
   // ─── Brief ────────────────────────────────────────────────────────────────
   'brief.phase':           { en: 'Discovery — 1 of 4',   nl: 'Ontdekking — 1 van 4' },
@@ -194,6 +195,22 @@ const translations = {
   'wizard.back':           { en: '← Back',               nl: '← Terug' },
   'wizard.next':           { en: 'Next →',               nl: 'Volgende →' },
   'wizard.apply':          { en: 'Apply identity',       nl: 'Identiteit toepassen' },
+  // ─── Strip navigation ─────────────────────────────────────────────────────
+  'nav.brief':             { en: 'Brief',               nl: 'Briefing' },
+  'nav.debrief':           { en: 'Debrief',             nl: 'Debriefing' },
+  'nav.discovery_summary': { en: 'Discovery Summary',   nl: 'Ontdekkingssamenvatting' },
+  'nav.beliefs':           { en: 'Beliefs',             nl: 'Overtuigingen' },
+  'nav.values':            { en: 'Values',              nl: 'Waarden' },
+  'nav.personality':       { en: 'Personality',         nl: 'Persoonlijkheid' },
+  'nav.tone':              { en: 'Tone',                nl: 'Toon' },
+  'nav.naming':            { en: 'Naming',              nl: 'Naamgeving' },
+  'nav.tagline':           { en: 'Tagline',             nl: 'Tagline' },
+  'nav.manifesto':         { en: 'Manifesto',           nl: 'Manifest' },
+  'nav.brand_home':        { en: 'Brand Home',          nl: 'Brand Home' },
+  'nav.group_discovery':   { en: 'Discovery',           nl: 'Ontdekking' },
+  'nav.group_synthesis':   { en: 'Synthesis',           nl: 'Synthese' },
+  'nav.group_output':      { en: 'Output',              nl: 'Output' },
+
 } as const
 
 export type TranslationKey = keyof typeof translations
